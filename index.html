@@ -14,6 +14,14 @@
     <button id="print-btn" title="Imprimer ou enregistrer en PDF">🖨️</button>
   </header>
 
+  <!-- MANTRA POPUP -->
+  <div id="mantra-popup" class="hidden">
+    <div class="mantra-card">
+      <span id="mantra-text"></span>
+      <button id="close-mantra" title="Fermer">✖️</button>
+    </div>
+  </div>
+
   <nav id="filters">
     <button data-filter="all" class="active">Toutes</button>
     <button data-filter="high">Haute priorité</button>
@@ -37,9 +45,12 @@
           <option value="todo">À faire</option>
           <option value="review">À corriger</option>
           <option value="buy">À acheter</option>
+          <option value="print">À imprimer</option>
+          <option value="laminate">À plastifier</option>
           <option value="meet">Réunions</option>
           <option value="plan">À planifier</option>
           <option value="question">Questions</option>
+          <option value="observations">Observations élèves</option>
         </select>
       </label>
       <label>Priorité
