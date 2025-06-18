@@ -3,37 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Dashboard Professeur</title>
+  <title>Dashboard Prof Compact</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
     <h1>📋 Dashboard Professeur</h1>
-    <button id="add-btn">+ Ajouter une tâche</button>
+    <button id="add-btn" title="Nouvelle tâche">+</button>
     <input type="search" id="search" placeholder="Rechercher..." />
-    <button id="print-btn" title="Imprimer ou enregistrer en PDF">🖨️</button>
+    <button id="export-btn" title="Sauvegarder (export JSON)">💾</button>
+    <label id="import-label" title="Restaurer (importer JSON)">
+      <input type="file" id="import-btn" accept=".json" style="display:none"/>
+      ⬆️
+    </label>
+    <button id="print-btn" title="Imprimer">🖨️</button>
   </header>
 
-  <!-- MANTRA POPUP -->
-  <div id="mantra-popup" class="hidden">
-    <div class="mantra-card">
-      <span class="mantra-big">💖</span>
-      <span id="mantra-text"></span>
-      <button id="close-mantra" title="Fermer">Fermer</button>
-    </div>
-  </div>
+  <div id="mantra-bar"></div>
 
   <nav id="filters">
     <button data-filter="all" class="active">Toutes</button>
-    <button data-filter="high">Haute priorité</button>
-    <button data-filter="medium">Priorité moyenne</button>
-    <button data-filter="low">Basse priorité</button>
-    <button data-filter="archived">Archivées</button>
+    <button data-filter="high">⚡️ Haut</button>
+    <button data-filter="medium">↔︎ Moyen</button>
+    <button data-filter="low">↓ Bas</button>
+    <button data-filter="archived">Archives</button>
   </nav>
 
-  <main id="board">
-    <!-- Colonnes générées dynamiquement -->
-  </main>
+  <main id="board"></main>
 
   <!-- Modal tâche -->
   <dialog id="task-dialog">
@@ -73,6 +69,14 @@
         Lien rapide (URL web ou image/fichier)
         <input type="url" name="link" placeholder="https://..." />
       </label>
+      <div id="subtasks-section">
+        <label>Sous-tâches</label>
+        <div id="subtasks-list"></div>
+        <div>
+          <input id="subtask-input" type="text" maxlength="60" placeholder="Ajouter une sous-tâche..." autocomplete="off"/>
+          <button id="add-subtask" type="button" title="Ajouter">+</button>
+        </div>
+      </div>
       <input type="hidden" name="editIndex" value="" />
       <footer>
         <button type="submit" id="save-btn">Enregistrer</button>
@@ -95,15 +99,11 @@
   <!-- Sélecteur de couleur de colonne -->
   <dialog id="color-dialog">
     <div class="color-picker">
-      <h3>Choisir une couleur</h3>
       <div id="color-options"></div>
       <button id="close-color">Annuler</button>
     </div>
   </dialog>
-
-  <footer id="app-footer">
-    <span>💡 Astuce : Glissez-déposez les tâches entre les colonnes. Tout est sauvegardé automatiquement.</span>
-  </footer>
+  <footer id="app-footer"></footer>
   <script src="app.js"></script>
 </body>
 </html>
