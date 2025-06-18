@@ -1,20 +1,23 @@
 :root {
-  --bg: hsl(220 38% 97%);
+  --bg: hsl(225 60% 97%);
   --card: #fff;
   --txt: #232323;
   --shadow: 0 3px 16px #0001;
   --border: 1px solid #e4e8ef;
 
-  --high: hsl(0 85% 89%);
-  --medium: hsl(35 85% 91%);
-  --low: hsl(160 70% 90%);
+  --high: hsl(348 100% 88%);
+  --medium: hsl(37 98% 86%);
+  --low: hsl(160 67% 85%);
 
-  --todo: #b3c9ef;
-  --review: #f6cd8b;
-  --buy: #ece6a4;
-  --meet: #b0e6d5;
-  --plan: #c8ccf2;
-  --question: #eac9ea;
+  --todo: #bfe6fc;         /* Bleu doux turquoise */
+  --review: #ffdebc;       /* Abricot */
+  --buy: #f7ebc3;          /* Jaune pastel intense */
+  --print: #ffd9e0;        /* Rose dragée clair */
+  --laminate: #d2e7ff;     /* Bleu très clair */
+  --meet: #b6f4e7;         /* Vert d’eau */
+  --plan: #d1d1fd;         /* Bleu lavande pastel */
+  --question: #ffd6ed;     /* Rose poudré vitaminé */
+  --observations: #d7eecb; /* Vert pastel amande */
 
   --radius: 1rem;
 }
@@ -237,6 +240,61 @@ dialog {
   background: none;
 }
 
+/* -- MANTRA POPUP -- */
+#mantra-popup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60,40,120,0.08);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .5s;
+  opacity: 1;
+  pointer-events: auto;
+}
+#mantra-popup.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.mantra-card {
+  background: linear-gradient(120deg, #e7c8ff 0%, #b6e3fa 100%);
+  border-radius: 2rem;
+  padding: 2.2rem 2.2rem 1.3rem 2.2rem;
+  box-shadow: 0 4px 30px #0002;
+  color: #512671;
+  font-size: 1.32rem;
+  min-width: 240px;
+  max-width: 90vw;
+  text-align: center;
+  animation: mantra-in .7s cubic-bezier(.6,-0.28,.74,.05);
+  position: relative;
+  border: 2px solid #e0e3fe;
+}
+@keyframes mantra-in {
+  from { opacity: 0; transform: scale(.7) translateY(60px);}
+  60% { transform: scale(1.12) translateY(-10px);}
+  to { opacity: 1; transform: scale(1) translateY(0);}
+}
+#close-mantra {
+  position: absolute;
+  top: .6em; right: .7em;
+  background: none;
+  border: none;
+  color: #7758a0;
+  font-size: 1.3em;
+  cursor: pointer;
+  padding: .2em;
+  transition: color .16s;
+}
+#close-mantra:hover { color: #b22222; }
+#mantra-popup.show { opacity: 1; }
+
+@media (max-width: 1200px) {
+  #board {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 @media (max-width: 800px) {
   #board {
     grid-template-columns: 1fr 1fr;
@@ -250,7 +308,7 @@ dialog {
   #task-dialog[open] form { padding: 1em; }
 }
 @media print {
-  header, #filters, #app-footer, .actions, dialog { display: none !important; }
+  header, #filters, #app-footer, .actions, dialog, #mantra-popup { display: none !important; }
   #board { grid-template-columns: 1fr 1fr; }
   .column { border: none; box-shadow: none; }
   body { background: #fff; color: #000; }
