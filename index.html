@@ -17,8 +17,9 @@
   <!-- MANTRA POPUP -->
   <div id="mantra-popup" class="hidden">
     <div class="mantra-card">
+      <span class="mantra-big">💖</span>
       <span id="mantra-text"></span>
-      <button id="close-mantra" title="Fermer">✖️</button>
+      <button id="close-mantra" title="Fermer">Fermer</button>
     </div>
   </div>
 
@@ -27,6 +28,7 @@
     <button data-filter="high">Haute priorité</button>
     <button data-filter="medium">Priorité moyenne</button>
     <button data-filter="low">Basse priorité</button>
+    <button data-filter="archived">Archivées</button>
   </nav>
 
   <main id="board">
@@ -67,6 +69,10 @@
       <label>Description
         <textarea name="desc" maxlength="180"></textarea>
       </label>
+      <label>
+        Lien rapide (URL web ou image/fichier)
+        <input type="url" name="link" placeholder="https://..." />
+      </label>
       <input type="hidden" name="editIndex" value="" />
       <footer>
         <button type="submit" id="save-btn">Enregistrer</button>
@@ -83,6 +89,15 @@
         <button id="confirm-yes">Oui</button>
         <button id="confirm-no">Non</button>
       </footer>
+    </div>
+  </dialog>
+
+  <!-- Sélecteur de couleur de colonne -->
+  <dialog id="color-dialog">
+    <div class="color-picker">
+      <h3>Choisir une couleur</h3>
+      <div id="color-options"></div>
+      <button id="close-color">Annuler</button>
     </div>
   </dialog>
 
