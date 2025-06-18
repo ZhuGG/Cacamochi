@@ -1,12 +1,29 @@
-// Catégories de colonnes
+// Catégories de colonnes (avec nouvelles colonnes !)
 const categories = {
-  todo:      { title: "À faire",    color: "var(--todo)",    icon: "📝" },
-  review:    { title: "À corriger", color: "var(--review)",  icon: "📑" },
-  buy:       { title: "À acheter",  color: "var(--buy)",     icon: "🛒" },
-  meet:      { title: "Réunions",   color: "var(--meet)",    icon: "📅" },
-  plan:      { title: "À planifier",color: "var(--plan)",    icon: "📌" },
-  question:  { title: "Questions",  color: "var(--question)",icon: "❓" }
+  todo:         { title: "À faire",          color: "var(--todo)",         icon: "📝" },
+  review:       { title: "À corriger",       color: "var(--review)",       icon: "📑" },
+  buy:          { title: "À acheter",        color: "var(--buy)",          icon: "🛒" },
+  print:        { title: "À imprimer",       color: "var(--print)",        icon: "🖨️" },
+  laminate:     { title: "À plastifier",     color: "var(--laminate)",     icon: "🪟" },
+  meet:         { title: "Réunions",         color: "var(--meet)",         icon: "📅" },
+  plan:         { title: "À planifier",      color: "var(--plan)",         icon: "📌" },
+  question:     { title: "Questions",        color: "var(--question)",     icon: "❓" },
+  observations: { title: "Observations élèves", color: "var(--observations)", icon: "👀" }
 };
+
+// --- Mantras inspirants
+const mantras = [
+  "🌱 Chaque jour tu sèmes une graine pour l’avenir.",
+  "🌈 Respire, tu es déjà en train de tout donner.",
+  "💡 Ta bienveillance change le monde, élève après élève.",
+  "✨ Même les petites victoires comptent.",
+  "🌟 Tu es la lumière de ta classe !",
+  "☀️ Un sourire peut tout changer aujourd'hui.",
+  "📚 La patience est le secret des grandes réussites.",
+  "🦋 Garde confiance en toi et dans tes élèves.",
+  "🫶 Tu es capable de grandes choses.",
+  "🍀 Tu fais plus de bien que tu ne le crois."
+];
 
 // --- State ---
 let tasks = JSON.parse(localStorage.getItem("profTasks") || "[]");
@@ -27,13 +44,27 @@ const confirmDialog = document.getElementById("confirm-dialog");
 const confirmYes = document.getElementById("confirm-yes");
 const confirmNo = document.getElementById("confirm-no");
 
+// -- Mantra popup
+function showMantra() {
+  const pop = document.getElementById("mantra-popup");
+  const text = document.getElementById("mantra-text");
+  text.textContent = mantras[Math.floor(Math.random() * mantras.length)];
+  pop.classList.remove("hidden");
+  pop.classList.add("show");
+}
+document.getElementById("close-mantra").onclick = () => {
+  const pop = document.getElementById("mantra-popup");
+  pop.classList.remove("show");
+  setTimeout(() => pop.classList.add("hidden"), 500);
+};
+window.addEventListener("DOMContentLoaded", showMantra);
+
 let currentFilter = "all";
 let searchTerm = "";
 
 // --- RENDER ---
 function render() {
   board.innerHTML = "";
-  // Pour chaque catégorie, générer la colonne
   Object.entries(categories).forEach(([cat, meta]) => {
     const column = document.createElement("div");
     column.className = "column";
@@ -71,7 +102,6 @@ function render() {
       const from = e.dataTransfer.getData("from");
       const idx = +e.dataTransfer.getData("idx");
       if (from !== cat) {
-        // Changer la catégorie !
         tasks[idx].category = cat;
         save();
       }
