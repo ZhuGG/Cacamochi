@@ -1,42 +1,45 @@
-// Couleurs pastels proposées (hex ou var CSS)
+// Pastel palette
 const pastelColors = [
   "var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)",
   "var(--c6)", "var(--c7)", "var(--c8)", "var(--c9)"
 ];
 
-// Catégories (ajout “Archives”)
+// Catégories (avec archives)
 const categories = {
-  todo:         { title: "À faire",          icon: "📝",    defaultColor: "var(--c1)" },
-  review:       { title: "À corriger",       icon: "📑",    defaultColor: "var(--c2)" },
-  buy:          { title: "À acheter",        icon: "🛒",    defaultColor: "var(--c3)" },
-  print:        { title: "À imprimer",       icon: "🖨️",   defaultColor: "var(--c4)" },
-  laminate:     { title: "À plastifier",     icon: "🪟",    defaultColor: "var(--c5)" },
-  meet:         { title: "Réunions",         icon: "📅",    defaultColor: "var(--c6)" },
-  plan:         { title: "À planifier",      icon: "📌",    defaultColor: "var(--c7)" },
-  question:     { title: "Questions",        icon: "❓",    defaultColor: "var(--c8)" },
+  todo:         { title: "À faire",          icon: "📝", defaultColor: "var(--c1)" },
+  review:       { title: "À corriger",       icon: "📑", defaultColor: "var(--c2)" },
+  buy:          { title: "À acheter",        icon: "🛒", defaultColor: "var(--c3)" },
+  print:        { title: "À imprimer",       icon: "🖨️", defaultColor: "var(--c4)" },
+  laminate:     { title: "À plastifier",     icon: "🪟", defaultColor: "var(--c5)" },
+  meet:         { title: "Réunions",         icon: "📅", defaultColor: "var(--c6)" },
+  plan:         { title: "À planifier",      icon: "📌", defaultColor: "var(--c7)" },
+  question:     { title: "Questions",        icon: "❓", defaultColor: "var(--c8)" },
   observations: { title: "Observations élèves", icon: "👀", defaultColor: "var(--c9)" },
-  archived:     { title: "Archives",         icon: "📦",    defaultColor: "var(--archive)" }
+  archived:     { title: "Archives",         icon: "📦", defaultColor: "var(--archive)" }
 };
 
-// --- Mantras adaptés (nouveaux) ---
+// Citations/Mantras courts et sobres
 const mantras = [
-  "🌈 Chaque jour, tu plantes des graines d'avenir dans le cœur de tes élèves.",
-  "💡 Une pause, un sourire, et tu repars avec toute ta bienveillance.",
-  "🌻 Ce que tu fais est essentiel, même quand tu ne t'en rends pas compte.",
-  "🪶 Allège-toi, fais au mieux et lâche prise pour le reste.",
-  "✨ Le courage d'enseigner est déjà une victoire.",
-  "☀️ Les petites attentions font les grands souvenirs.",
-  "🚀 Tu avances, parfois doucement, mais toujours vers plus de sens.",
-  "🌸 N'oublie pas : tu as le droit d'être imparfait(e).",
-  "🫶 Un élève que tu as encouragé s'en souviendra toute sa vie.",
-  "🥇 Tu n'es pas seul(e), toute la communauté éducative avance avec toi."
+  "🌱 Chaque jour compte. Même les petits progrès.",
+  "✨ Tu fais la différence. Continue.",
+  "📚 La patience et l'écoute sont tes super-pouvoirs.",
+  "🌈 Une chose à la fois, ça suffit.",
+  "🦋 Tout effort laisse une trace.",
+  "💡 N'oublie pas de souffler et de sourire.",
+  "🚀 Courage, tu vas y arriver.",
+  "☀️ La bienveillance commence avec soi-même.",
+  "👀 Observe, adapte, avance.",
+  "🌟 Merci d'être là pour eux !"
 ];
 
 // --- State ---
 let tasks = JSON.parse(localStorage.getItem("profTasks") || "[]");
 let editing = null, editingIndex = null, deleting = null;
 let columnColors = JSON.parse(localStorage.getItem("colColors") || "{}");
+let currentFilter = "all";
+let searchTerm = "";
 
+// Elements
 const board = document.getElementById("board");
 const dialog = document.getElementById("task-dialog");
 const form = document.getElementById("task-form");
@@ -46,6 +49,10 @@ const modalTitle = document.getElementById("modal-title");
 const searchInput = document.getElementById("search");
 const filters = document.getElementById("filters");
 const printBtn = document.getElementById("print-btn");
+const exportBtn = document.getElementById("export-btn");
+const importBtn = document.getElementById("import-btn");
+const importLabel = document.getElementById("import-label");
+const appFooter = document.getElementById("app-footer");
 
 const confirmDialog = document.getElementById("confirm-dialog");
 const confirmYes = document.getElementById("confirm-yes");
@@ -57,41 +64,27 @@ const colorOptions = document.getElementById("color-options");
 const closeColor = document.getElementById("close-color");
 let currentColKey = null;
 
-// -- Mantra popup revisité
-function showMantra() {
-  const pop = document.getElementById("mantra-popup");
-  const text = document.getElementById("mantra-text");
-  const i = Math.floor(Math.random() * mantras.length);
-  text.innerHTML = mantras[i];
-  pop.classList.remove("hidden");
-  pop.classList.add("show");
-}
-document.getElementById("close-mantra").onclick = () => {
-  const pop = document.getElementById("mantra-popup");
-  pop.classList.remove("show");
-  setTimeout(() => pop.classList.add("hidden"), 450);
-};
-window.addEventListener("DOMContentLoaded", showMantra);
-
-let currentFilter = "all";
-let searchTerm = "";
+// -- Mantra bar discret
+document.getElementById("mantra-bar").textContent =
+  mantras[Math.floor(Math.random()*mantras.length)];
 
 // --- RENDER ---
 function render() {
   board.innerHTML = "";
-  Object.entries(categories).forEach(([cat, meta], colIdx) => {
-    if (cat === "archived" && currentFilter !== "archived") return; // n'afficher archives que si filtré ou tâche archivées
+  Object.entries(categories).forEach(([cat, meta]) => {
+    if (cat === "archived" && currentFilter !== "archived") return;
     if (cat !== "archived" && currentFilter === "archived") return;
     const column = document.createElement("div");
     column.className = "column" + (cat === "archived" ? " archives-col" : "");
     const color = columnColors[cat] || meta.defaultColor;
     column.style.background = color + "1a";
-    column.dataset.category = cat;
+    column.style.borderColor = color;
     // Header colonne + compteur + bouton palette
     const colHeader = document.createElement("header");
+    colHeader.style.background = color + "30";
     colHeader.innerHTML = `
       <span>${meta.icon} ${meta.title} <span class="count"></span></span>
-      <button class="color-btn" title="Choisir la couleur de la colonne" data-cat="${cat}">🎨</button>
+      <button class="color-btn" title="Couleur de la colonne" data-cat="${cat}">🎨</button>
     `;
     column.appendChild(colHeader);
 
@@ -146,6 +139,7 @@ function taskElement(task, cat, idx) {
   div.className = "task" + (task.archived ? " archived" : "");
   div.setAttribute("draggable", !task.archived);
   div.dataset.priority = task.priority;
+
   // Liens rapides (avec icône)
   let quickLink = "";
   if (task.link && task.link.trim()) {
@@ -160,6 +154,16 @@ function taskElement(task, cat, idx) {
       quickLink = `<a href="${url}" class="quick-link" target="_blank" title="Lien externe" rel="noopener">🔗</a>`;
     }
   }
+
+  // Sous-tâches (checklist)
+  let subtasksHtml = "";
+  if (task.subtasks && Array.isArray(task.subtasks) && task.subtasks.length) {
+    subtasksHtml = `<div class="subtasks">` + 
+      task.subtasks.map((st,i) => `
+        <label><input type="checkbox" disabled ${st.done?"checked":""}>${escapeHtml(st.text)}</label>
+      `).join("") + `</div>`;
+  }
+
   div.innerHTML = `
     <span class="task-title">${escapeHtml(task.title)}</span>
     ${task.desc ? `<span class="desc">${escapeHtml(task.desc)}</span>` : ""}
@@ -175,6 +179,7 @@ function taskElement(task, cat, idx) {
         <button title="Supprimer" onclick="deleteTask(${idx})">🗑️</button>
       </span>
     </span>
+    ${subtasksHtml}
   `;
   // Drag
   if (!task.archived) {
@@ -210,8 +215,82 @@ window.editTask = function(idx) {
   form.due.value = t.due || "";
   form.desc.value = t.desc || "";
   form.link.value = t.link || "";
+
+  // Sous-tâches
+  let subtasks = Array.isArray(t.subtasks) ? t.subtasks.map(s => ({...s})) : [];
+  showSubtasks(subtasks);
+
   form.editIndex.value = idx;
+
+  // Gestion dynamique sous-tâches
+  document.getElementById("add-subtask").onclick = () => {
+    const input = document.getElementById("subtask-input");
+    let val = input.value.trim();
+    if (val) {
+      subtasks.push({text: val, done: false});
+      showSubtasks(subtasks);
+      input.value = "";
+      input.focus();
+    }
+  };
+  document.getElementById("subtask-input").onkeydown = e => {
+    if (e.key==="Enter") {
+      e.preventDefault();
+      document.getElementById("add-subtask").click();
+    }
+  };
+
+  // Sous-tâches remove/check
+  document.getElementById("subtasks-list").onclick = e => {
+    if (e.target.classList.contains("remove-subtask")) {
+      const idx = +e.target.dataset.idx;
+      subtasks.splice(idx,1);
+      showSubtasks(subtasks);
+    } else if (e.target.type==="checkbox") {
+      const idx = +e.target.dataset.idx;
+      subtasks[idx].done = e.target.checked;
+      showSubtasks(subtasks);
+    }
+  };
+
+  function showSubtasks(sts) {
+    const list = document.getElementById("subtasks-list");
+    list.innerHTML = "";
+    sts.forEach((st,i) => {
+      const chip = document.createElement("span");
+      chip.className = "subtask-chip" + (st.done ? " done" : "");
+      chip.innerHTML = `
+        <label><input type="checkbox" ${st.done?"checked":""} data-idx="${i}">${escapeHtml(st.text)}</label>
+        <button class="remove-subtask" type="button" data-idx="${i}" title="Retirer">×</button>
+      `;
+      list.appendChild(chip);
+    });
+  }
+
   dialog.showModal();
+
+  // À la soumission, on collecte la version finale
+  form.onsubmit = e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    let t = {
+      title: data.title.trim(),
+      category: data.category,
+      priority: data.priority,
+      due: data.due,
+      desc: data.desc.trim(),
+      link: data.link ? data.link.trim() : "",
+      subtasks: subtasks,
+      archived: editing && editing.archived || false
+    };
+    if (data.editIndex !== "") {
+      tasks[+data.editIndex] = t;
+    } else {
+      tasks.push(t);
+    }
+    save();
+    dialog.close();
+  };
 };
 window.deleteTask = function(idx) {
   deleting = idx;
@@ -221,6 +300,73 @@ window.archiveTask = function(idx) {
   tasks[idx].archived = true;
   save();
 };
+addBtn.onclick = () => {
+  editing = null; editingIndex = null;
+  modalTitle.textContent = "Nouvelle tâche";
+  form.reset();
+  let subtasks = [];
+  showSubtasks(subtasks);
+  form.editIndex.value = "";
+  document.getElementById("add-subtask").onclick = () => {
+    const input = document.getElementById("subtask-input");
+    let val = input.value.trim();
+    if (val) {
+      subtasks.push({text: val, done: false});
+      showSubtasks(subtasks);
+      input.value = "";
+      input.focus();
+    }
+  };
+  document.getElementById("subtask-input").onkeydown = e => {
+    if (e.key==="Enter") {
+      e.preventDefault();
+      document.getElementById("add-subtask").click();
+    }
+  };
+  document.getElementById("subtasks-list").onclick = e => {
+    if (e.target.classList.contains("remove-subtask")) {
+      const idx = +e.target.dataset.idx;
+      subtasks.splice(idx,1);
+      showSubtasks(subtasks);
+    } else if (e.target.type==="checkbox") {
+      const idx = +e.target.dataset.idx;
+      subtasks[idx].done = e.target.checked;
+      showSubtasks(subtasks);
+    }
+  };
+  function showSubtasks(sts) {
+    const list = document.getElementById("subtasks-list");
+    list.innerHTML = "";
+    sts.forEach((st,i) => {
+      const chip = document.createElement("span");
+      chip.className = "subtask-chip" + (st.done ? " done" : "");
+      chip.innerHTML = `
+        <label><input type="checkbox" ${st.done?"checked":""} data-idx="${i}">${escapeHtml(st.text)}</label>
+        <button class="remove-subtask" type="button" data-idx="${i}" title="Retirer">×</button>
+      `;
+      list.appendChild(chip);
+    });
+  }
+  dialog.showModal();
+  form.onsubmit = e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    let t = {
+      title: data.title.trim(),
+      category: data.category,
+      priority: data.priority,
+      due: data.due,
+      desc: data.desc.trim(),
+      link: data.link ? data.link.trim() : "",
+      subtasks: subtasks,
+      archived: false
+    };
+    tasks.push(t);
+    save();
+    dialog.close();
+  };
+};
+cancelBtn.onclick = () => dialog.close();
 
 confirmYes.onclick = () => {
   if (deleting !== null) {
@@ -231,40 +377,6 @@ confirmYes.onclick = () => {
   }
 };
 confirmNo.onclick = () => { deleting = null; confirmDialog.close(); };
-
-// --- New task
-addBtn.onclick = () => {
-  editing = null; editingIndex = null;
-  modalTitle.textContent = "Nouvelle tâche";
-  form.reset();
-  form.editIndex.value = "";
-  dialog.showModal();
-};
-cancelBtn.onclick = () => dialog.close();
-
-// --- Soumission
-form.onsubmit = e => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(form));
-  let t = {
-    title: data.title.trim(),
-    category: data.category,
-    priority: data.priority,
-    due: data.due,
-    desc: data.desc.trim(),
-    link: data.link ? data.link.trim() : "",
-    archived: false
-  };
-  if (data.editIndex !== "") {
-    const prev = tasks[+data.editIndex];
-    t.archived = prev.archived || false;
-    tasks[+data.editIndex] = t;
-  } else {
-    tasks.push(t);
-  }
-  save();
-  dialog.close();
-};
 
 // --- Filtres et recherche
 filters.onclick = e => {
@@ -279,7 +391,7 @@ searchInput.oninput = () => {
   render();
 };
 
-// --- Impression
+// Impression
 printBtn.onclick = () => window.print();
 
 // --- Sauvegarde/persist
@@ -308,3 +420,35 @@ function openColorDialog(colKey) {
   });
 }
 closeColor.onclick = () => colorDialog.close();
+
+// Sauvegarde JSON
+exportBtn.onclick = () => {
+  const blob = new Blob([JSON.stringify({tasks, columnColors})], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "dashboard_professeur.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+// Restauration JSON
+importBtn.onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const obj = JSON.parse(e.target.result);
+      if (Array.isArray(obj.tasks)) tasks = obj.tasks;
+      if (obj.columnColors) columnColors = obj.columnColors;
+      save();
+      alert("Données importées !");
+    } catch {
+      alert("Erreur : Fichier invalide !");
+    }
+  };
+  reader.readAsText(file);
+};
+
+appFooter.innerHTML = "© " + (new Date).getFullYear() + " – Dashboard compact et bienveillant ✨";
+
