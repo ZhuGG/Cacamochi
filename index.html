@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Dashboard Professeur</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>📋 Dashboard Professeur</h1>
+    <button id="add-btn">+ Ajouter une tâche</button>
+    <input type="search" id="search" placeholder="Rechercher..." />
+    <button id="print-btn" title="Imprimer ou enregistrer en PDF">🖨️</button>
+  </header>
+
+  <nav id="filters">
+    <button data-filter="all" class="active">Toutes</button>
+    <button data-filter="high">Haute priorité</button>
+    <button data-filter="medium">Priorité moyenne</button>
+    <button data-filter="low">Basse priorité</button>
+  </nav>
+
+  <main id="board">
+    <!-- Colonnes générées dynamiquement -->
+  </main>
+
+  <!-- Modal tâche -->
+  <dialog id="task-dialog">
+    <form id="task-form" method="dialog">
+      <h2 id="modal-title">Nouvelle tâche</h2>
+      <label>Titre
+        <input name="title" required maxlength="60"/>
+      </label>
+      <label>Catégorie
+        <select name="category" required>
+          <option value="todo">À faire</option>
+          <option value="review">À corriger</option>
+          <option value="buy">À acheter</option>
+          <option value="meet">Réunions</option>
+          <option value="plan">À planifier</option>
+          <option value="question">Questions</option>
+        </select>
+      </label>
+      <label>Priorité
+        <select name="priority" required>
+          <option value="high">Haute</option>
+          <option value="medium" selected>Moyenne</option>
+          <option value="low">Basse</option>
+        </select>
+      </label>
+      <label>
+        Date limite
+        <input type="date" name="due" />
+      </label>
+      <label>Description
+        <textarea name="desc" maxlength="180"></textarea>
+      </label>
+      <input type="hidden" name="editIndex" value="" />
+      <footer>
+        <button type="submit" id="save-btn">Enregistrer</button>
+        <button type="button" id="cancel">Annuler</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Overlay pour suppression -->
+  <dialog id="confirm-dialog">
+    <div>
+      <p>Supprimer cette tâche&nbsp;?</p>
+      <footer>
+        <button id="confirm-yes">Oui</button>
+        <button id="confirm-no">Non</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <footer id="app-footer">
+    <span>💡 Astuce : Glissez-déposez les tâches entre les colonnes. Tout est sauvegardé automatiquement.</span>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
