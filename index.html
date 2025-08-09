@@ -2,47 +2,79 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Cacamochi — version images perso</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cacamochi — v3</title>
 <style>
-  :root{ --shadow:#00000024; --good:#5cc45c; --mid:#ffb84d; --bad:#ff5a5a; }
-  html,body{height:100%;margin:0;background:#ece8df;font-family:system-ui,Segoe UI,Roboto,Arial}
-  .game{display:grid;grid-template-rows:auto 1fr auto;min-height:100%}
-  header,footer{padding:10px 14px} h1{margin:0;font-size:18px}
-  .room-wrap{position:relative;overflow:hidden}
-  /* Background image (remplace l'ancien SVG de pièce) */
-  .room-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.03) brightness(1.02)}
-  .stage{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-  .sprite{width:min(36vmin,320px);filter:drop-shadow(0 18px 12px var(--shadow));pointer-events:auto}
+  :root{
+    --bg:#ece8df;
+    --glass: #ffffffc7;
+    --shadow: #00000025;
+    --good:#58c66a; --mid:#ffb84d; --bad:#ff6565;
+    --pill:#fff; --pillText:#222;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .app{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+
+  /* header */
+  header{display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem}
+  header h1{margin:0;font-size:1.05rem}
+  .age{margin-left:auto;background:var(--glass);backdrop-filter:blur(6px);
+    padding:.25rem .6rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700;font-size:.85rem}
+
+  /* main stage */
+  .stage-wrap{position:relative;overflow:hidden}
+  .room-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .center{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+  .sprite{width:clamp(160px,28vmin,360px);pointer-events:auto;filter:drop-shadow(0 18px 12px var(--shadow))}
   .wobble{animation:wobble 2.4s ease-in-out infinite}
   @keyframes wobble{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3%) scale(1.02)}}
+  .wash{animation:wash .7s ease-in-out 3}@keyframes wash{0%{filter:hue-rotate(0)}50%{filter:hue-rotate(90deg) saturate(1.2)}100%{filter:hue-rotate(0)}}
+  .dance{animation:dance .7s ease-in-out 4}@keyframes dance{0%{transform:translateX(0) rotate(0)}25%{transform:translateX(-8%) rotate(-6deg)}50%{transform:translateX(0) rotate(0)}75%{transform:translateX(8%) rotate(6deg)}100%{transform:translateX(0) rotate(0)}}
+  .shake{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+  .flash.on{animation:flash .55s ease}@keyframes flash{0%{opacity:0}10%{opacity:.9}100%{opacity:0}}
+
+  /* stink + flies */
   .steam line{animation:steam 3.6s ease-in-out infinite}
   @keyframes steam{0%{opacity:0;transform:translateY(8px)}20%{opacity:.9}100%{opacity:0;transform:translateY(-26px)}}
   .flies{animation:orbit 6s linear infinite;transform-origin:center}
   @keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-  .happy{animation:happy .6s ease-in-out 1}@keyframes happy{0%{transform:translateY(0)}40%{transform:translateY(-12%)}100%{transform:translateY(0)}}
-  .wash{animation:wash .7s ease-in-out 3}@keyframes wash{0%{filter:hue-rotate(0)}50%{filter:hue-rotate(90deg) saturate(1.2)}100%{filter:hue-rotate(0)}}
-  .shake{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
-  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
-  .flash.on{animation:flash .6s ease}@keyframes flash{0%{opacity:0}10%{opacity:.9}100%{opacity:0}}
-  /* HUD & UI (identique v2) */
-  .hud{position:absolute;left:8px;top:8px;display:flex;gap:8px;flex-wrap:wrap}
-  .bar{min-width:150px;background:#ffffffbc;border-radius:10px;padding:6px 8px;box-shadow:0 2px 6px #0000001a}
-  .bar h3{margin:0 0 4px 0;font-size:12px}
-  .meter{height:8px;background:#00000010;border-radius:99px;overflow:hidden}
-  .meter>i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--good),#9be57a);transition:width .35s}
-  .bad>i{background:linear-gradient(90deg,var(--bad),#ff7f7f)}
+
+  /* HUD (glass) */
+  .hud{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);
+    display:grid;grid-template-columns:repeat(4,minmax(160px,220px));gap:.6rem;align-items:start;
+    background:var(--glass);backdrop-filter:blur(6px);padding:.6rem;border-radius:16px;box-shadow:0 6px 20px var(--shadow)}
+  .bar h3{margin:0 0 .25rem 0;font-size:.78rem}
+  .meter{height:8px;background:#00000012;border-radius:99px;overflow:hidden}
+  .meter>i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--good),#9ee68b);transition:width .3s}
+  .bad>i{background:linear-gradient(90deg,var(--bad),#ff8484)}
   .mid>i{background:linear-gradient(90deg,var(--mid),#ffd399)}
-  .traits{position:absolute;left:8px;top:88px;display:flex;gap:6px;flex-wrap:wrap}
-  .chip{background:#ffffffc8;padding:4px 8px;border-radius:999px;font-size:12px;box-shadow:0 2px 6px #00000014}
-  .state{position:absolute;left:8px;bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
-  .label{background:#ffffffbf;padding:6px 10px;border-radius:999px;box-shadow:0 2px 6px #00000014;font-weight:700}
-  .actions{position:absolute;right:8px;bottom:8px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-  button{cursor:pointer;border:none;border-radius:12px;padding:10px 12px;background:#fff;box-shadow:0 4px 10px #0000001a;font-weight:700}
-  button:active{transform:translateY(2px)}
+  .traits{position:absolute;top:calc(.6rem + 74px);left:50%;transform:translateX(-50%);display:flex;gap:.4rem;flex-wrap:wrap}
+  .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.25rem .55rem;border-radius:999px;font-size:.78rem;box-shadow:0 2px 6px var(--shadow)}
+
+  /* states */
+  .state{position:absolute;left:.6rem;bottom:.6rem;display:flex;gap:.4rem;flex-wrap:wrap}
+  .label{background:var(--glass);backdrop-filter:blur(4px);padding:.35rem .7rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700}
+
+  /* actions — cute pills */
+  .actions{position:absolute;right:.6rem;bottom:.6rem;display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:.5rem}
+  @media (max-width:1100px){ .actions{grid-template-columns:repeat(4,1fr)} .hud{grid-template-columns:repeat(2,minmax(150px,220px))} }
+  @media (max-width:700px){ .actions{grid-template-columns:repeat(2,1fr)} .traits{display:none} .hud{grid-template-columns:repeat(2,minmax(130px,1fr))} }
+  button{
+    -webkit-tap-highlight-color: transparent;
+    cursor:pointer;border:none;border-radius:14px;padding:.65rem .75rem;
+    background:var(--pill);color:var(--pillText);font-weight:800;font-size:.92rem;
+    box-shadow:0 6px 16px var(--shadow);display:flex;gap:.5rem;align-items:center;justify-content:center;
+    transition:transform .08s ease, box-shadow .08s ease, filter .08s ease;
+  }
+  button:active{ transform:translateY(2px); box-shadow:0 3px 8px var(--shadow) }
+  button:hover{ filter:brightness(1.03) }
+  button[disabled]{opacity:.45;pointer-events:none}
+
+  /* modal mini‑jeu */
   .modal{position:absolute;inset:0;background:#00000060;display:none;align-items:center;justify-content:center}
   .modal.on{display:flex}
-  .panel{width:min(560px,90vw);height:min(360px,70vh);background:#f6f3ee;border-radius:16px;box-shadow:0 10px 30px #00000040;position:relative;overflow:hidden}
+  .panel{width:min(560px,92vw);height:min(360px,70vh);background:#f6f3ee;border-radius:16px;box-shadow:0 10px 30px #00000040;position:relative;overflow:hidden}
   .panel h2{margin:10px 12px;font-size:16px}
   .arena{position:absolute;inset:50px 12px 12px 12px;background:#dfe8c8;border-radius:12px;overflow:hidden;cursor:crosshair}
   .fly{position:absolute;width:26px;height:20px}
@@ -53,18 +85,15 @@
 </style>
 </head>
 <body>
-<div class="game" id="app">
+<div class="app" id="app">
   <header>
     <h1>💩 Cacamochi</h1>
-    <div id="age" class="chip" title="Âge">Jour 1 — Bouseau</div>
-    <div id="msg" class="chip">Sprites & background chargés depuis /img</div>
+    <div class="age" id="age">Jour 1 — Bouseau</div>
   </header>
 
-  <main class="room-wrap" id="room">
-    <!-- Background image depuis /img -->
-    <img id="bg" class="room-img" alt="Pièce" src="" />
+  <main class="stage-wrap" id="room">
+    <img id="bg" class="room-img" alt="Pièce" src=""/>
 
-    <!-- HUD -->
     <div class="hud">
       <div class="bar" id="bHunger"><h3>Faim</h3><div class="meter"><i style="width:60%"></i></div></div>
       <div class="bar" id="bFun"><h3>Fun</h3><div class="meter"><i style="width:60%"></i></div></div>
@@ -77,24 +106,16 @@
       <span class="chip" id="tOdo">Odeur: 0</span>
     </div>
 
-    <!-- STATE / FLASH -->
     <div class="state" id="state"></div>
     <div class="flash" id="flash"></div>
 
-    <!-- SPRITE : un seul conteneur SVG pour superposer FX + <image> du perso -->
-    <div class="stage">
+    <div class="center">
       <svg class="sprite wobble" viewBox="0 0 200 200" id="sprite" aria-label="Cacamochi">
-        <!-- Ombre au sol -->
         <ellipse cx="100" cy="170" rx="60" ry="12" fill="var(--shadow)"/>
-        <!-- Image du perso selon évolution -->
         <image id="evo-img" href="" x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
-        <!-- Vapeur -->
         <g class="steam" id="steam" stroke="#8a6e3a" stroke-width="2" opacity=".6">
-          <line x1="60" y1="70" x2="60" y2="46"/>
-          <line x1="100" y1="60" x2="100" y2="36"/>
-          <line x1="140" y1="70" x2="140" y2="46"/>
+          <line x1="60" y1="70" x2="60" y2="46"/><line x1="100" y1="60" x2="100" y2="36"/><line x1="140" y1="70" x2="140" y2="46"/>
         </g>
-        <!-- Mouches décor -->
         <g class="flies" id="flies" opacity=".9">
           <g transform="translate(100,105)">
             <g transform="rotate(0) translate(46,0)"><circle cx="0" cy="0" r="3" fill="#2a2a2a"/></g>
@@ -104,21 +125,25 @@
       </svg>
     </div>
 
-    <!-- ACTIONS -->
     <div class="actions">
       <button id="feed">🍗 Nourrir</button>
       <button id="play">🎲 Jouer</button>
       <button id="wash">🧼 Laver</button>
+      <button id="toilet">🧻 Toilettes</button>
       <button id="sleep">🌙 Dodo</button>
+
       <button id="pet">🤲 Caresser</button>
-      <button id="deodorize">🌬️ Désodoriser</button>
       <button id="mystery">🎁 Snack mystère</button>
+      <button id="dance">🪩 Danse</button>
+      <button id="heal">💊 Soigner</button>
       <button id="hunt">🪰 Chasse‑mouches</button>
+
+      <button id="photo">📸 Photo</button>
+      <button id="sound">🔈 Son: OFF</button>
       <button id="save">💾 Sauver</button>
       <button id="reset">🗑️ Repartir</button>
     </div>
 
-    <!-- Minigame -->
     <div class="modal" id="modal">
       <div class="panel">
         <button class="close" id="close">✖</button>
@@ -128,14 +153,11 @@
     </div>
   </main>
 
-  <footer><span style="font-size:12px;opacity:.75">Tout est local (localStorage). Dépose tes images dans /img et ajuste CONFIG.</span></footer>
+  <footer></footer>
 </div>
 
 <script>
 (()=> {
-  /* ===========================
-     CONFIG — À ADAPTER SEULEMENT ICI
-     =========================== */
   const CONFIG = {
     background: "img_background.jpg",
     sprites: {
@@ -149,47 +171,42 @@
     }
   };
 
-  /* ====== rien à changer sous cette ligne ====== */
   const $ = (s, r=document)=> r.querySelector(s);
-  const app = {
-    hunger:70, fun:70, hyg:70, energy:70,
-    day:1, alive:true, asleep:false,
-    evo:"bouseau",
-    affection:0, discipline:0, odor:0
-  };
+  const app = { hunger:70, fun:70, hyg:70, energy:70, day:1, alive:true, asleep:false,
+                evo:"bouseau", affection:0, discipline:0, odor:0, sound:false };
 
   // refs
-  const bar = {
-    hunger: $("#bHunger .meter i"),
-    fun: $("#bFun .meter i"),
-    hyg: $("#bHyg .meter i"),
-    energy: $("#bEnergy .meter i"),
-  };
-  const bars = { hunger:$("#bHunger"), fun:$("#bFun"), hyg:$("#bHyg"), energy:$("#bEnergy") };
+  const bar = { hunger: $("#bHunger .meter i"), fun: $("#bFun .meter i"),
+                hyg: $("#bHyg .meter i"), energy: $("#bEnergy .meter i") };
+  const bars={ hunger:$("#bHunger"), fun:$("#bFun"), hyg:$("#bHyg"), energy:$("#bEnergy") };
   const age=$("#age"), state=$("#state"), flashEl=$("#flash");
-  const sprite=$("#sprite"), steam=$("#steam"), flies=$("#flies");
-  const evoImg=$("#evo-img"); const bg=$("#bg");
+  const bg=$("#bg"), sprite=$("#sprite"), evoImg=$("#evo-img"), steam=$("#steam"), flies=$("#flies");
   const traitsEls={aff:$("#tAff"), dis:$("#tDis"), odo:$("#tOdo")};
 
   const evoName = id => ({bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}[id]||"???");
 
+  // tiny "bip" synth
+  let ac=null; function beep(freq=880, dur=0.08){
+    if(!app.sound) return;
+    if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; } }
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type="square"; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.12, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+dur);
+    o.start(); o.stop(ac.currentTime+dur);
+  }
+
   // assets
   function applyBackground(){ if(CONFIG.background) bg.src = CONFIG.background; }
   function applySprite(){
-    const s = CONFIG.sprites[app.evo];
-    if(!s){ console.warn("Sprite manquant pour", app.evo); return; }
+    const s = CONFIG.sprites[app.evo]; if(!s) return;
     evoImg.setAttribute("href", s.src);
-    evoImg.setAttribute("x", s.x ?? 0);
-    evoImg.setAttribute("y", s.y ?? 0);
-    evoImg.setAttribute("width", s.w ?? 200);
-    evoImg.setAttribute("height", s.h ?? 200);
+    evoImg.setAttribute("x", s.x ?? 0); evoImg.setAttribute("y", s.y ?? 0);
+    evoImg.setAttribute("width", s.w ?? 200); evoImg.setAttribute("height", s.h ?? 200);
   }
 
-  // persistence
-  const load=()=>{ try{const saved=JSON.parse(localStorage.getItem("cacamochi-img")); if(saved) Object.assign(app,saved);}catch(e){} };
-  const save=()=>{ localStorage.setItem("cacamochi-img", JSON.stringify(app)); flash("Sauvé !"); };
-
-  // UI
+  // state helpers
   function setMeter(name,val){
     val=Math.max(0,Math.min(100,val));
     bar[name].style.width=val+"%";
@@ -201,57 +218,73 @@
   function setTrait(name,delta,min=-999,max=999){ app[name]=Math.max(min,Math.min(max,app[name]+delta)); }
   function avg(...xs){return xs.reduce((a,b)=>a+b,0)/xs.length;}
   function flash(txt){ const el=document.createElement('span'); el.className="label"; el.textContent=txt; state.appendChild(el); setTimeout(()=>el.remove(),1600); }
-  function boom(){ flashEl.classList.add('on'); sprite.classList.add('shake'); setTimeout(()=>{flashEl.classList.remove('on');sprite.classList.remove('shake');},620); }
+  function boom(){ flashEl.classList.add('on'); sprite.classList.add('shake'); setTimeout(()=>{flashEl.classList.remove('on');sprite.classList.remove('shake');},560); }
   function updateAll(){
     setMeter('hunger',app.hunger); setMeter('fun',app.fun); setMeter('hyg',app.hyg); setMeter('energy',app.energy);
-    traitsEls.aff.textContent="Affection: "+app.affection;
-    traitsEls.dis.textContent="Discipline: "+app.discipline;
-    traitsEls.odo.textContent="Odeur: "+app.odor;
-    steam.style.opacity=(1-app.hyg/100)*0.9+0.1;
-    flies.style.opacity=(1-app.hyg/100)*0.9+0.1;
+    traitsEls.aff.textContent="Affection: "+app.affection; traitsEls.dis.textContent="Discipline: "+app.discipline; traitsEls.odo.textContent="Odeur: "+app.odor;
+    steam.style.opacity=(1-app.hyg/100)*0.9+0.1; flies.style.opacity=(1-app.hyg/100)*0.9+0.1;
     age.textContent=`Jour ${app.day} — ${evoName(app.evo)}`;
     applySprite();
   }
 
-  // actions (identiques v2)
+  // persistence
+  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-v3")); if(s) Object.assign(app,s);}catch(e){} };
+  const save=()=>{ localStorage.setItem("cacamochi-v3", JSON.stringify(app)); flash("Sauvé !"); beep(1320,.06); };
+
+  // actions
   $("#feed").addEventListener('click',()=>{ if(!app.alive) return;
     setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6);
-    setTrait('affection',+1); setTrait('odor',+1);
-    sprite.classList.add('happy'); setTimeout(()=>sprite.classList.remove('happy'),620); updateAll();
+    setTrait('affection',+1); setTrait('odor',+1); sprite.classList.add('wobble'); setTimeout(()=>sprite.classList.remove('wobble'),10); beep(660,.08); updateAll();
   });
   $("#play").addEventListener('click',()=>{ if(!app.alive) return;
     setMeter('fun',app.fun+18); setMeter('energy',app.energy-10); setMeter('hyg',app.hyg-7);
-    setTrait('discipline',+1); setTrait('odor',+1);
-    sprite.classList.add('happy'); setTimeout(()=>sprite.classList.remove('happy'),620); updateAll();
+    setTrait('discipline',+1); setTrait('odor',+1); beep(880,.08); updateAll();
   });
   $("#wash").addEventListener('click',()=>{ if(!app.alive) return;
-    setMeter('hyg',app.hyg+30); setTrait('odor',-3);
-    sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); updateAll();
+    setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); beep(1320,.06); updateAll();
   });
-  $("#sleep").addEventListener('click',()=>{ if(!app.alive) return; app.asleep=!app.asleep; flash(app.asleep?"Bonne nuit...":"Réveil !"); updateAll(); });
-  $("#deodorize").addEventListener('click',()=>{ if(!app.alive) return; setTrait('odor',-5); setMeter('hyg',app.hyg+6); flash("Pschhh !"); updateAll(); });
+  $("#toilet").addEventListener('click',()=>{ if(!app.alive) return;
+    setMeter('hyg',app.hyg+40); setTrait('odor',-6); flash("🧻 Fiuuut !"); beep(420,.08); updateAll();
+  });
+  $("#sleep").addEventListener('click',()=>{ if(!app.alive) return; app.asleep=!app.asleep; flash(app.asleep?"Bonne nuit...":"Réveil !"); beep(520,.06); updateAll(); });
+  $("#dance").addEventListener('click',()=>{ if(!app.alive) return; sprite.classList.add('dance'); setTimeout(()=>sprite.classList.remove('dance'),2800); setMeter('fun',app.fun+10); setMeter('energy',app.energy-6); beep(700,.06); updateAll(); });
+  $("#heal").addEventListener('click',()=>{ if(!app.alive) return;
+    const low = ['hunger','fun','hyg','energy'].map(k=>app[k]).some(v=>v<35);
+    if(low){ setMeter('hunger',app.hunger+8); setMeter('fun',app.fun+8); setMeter('hyg',app.hyg+8); setMeter('energy',app.energy+8); flash("💊 Ça va mieux."); beep(990,.08); }
+    else { flash("💊 Pas besoin pour le moment."); }
+    updateAll();
+  });
+  $("#deodorize")?.addEventListener('click',()=>{ /* laissé si tu veux remettre le bouton un jour */ });
+
   $("#mystery").addEventListener('click',()=>{ if(!app.alive) return;
-    const r=Math.random(); if(r<.34){ setMeter('fun',app.fun+20); setTrait('affection',+2); flash("🎈 Surprise joyeuse !"); }
-    else if(r<.67){ setMeter('hyg',app.hyg-15); setTrait('odor',+4); flash("🤢 Beurk..."); }
-    else { setMeter('energy',app.energy+18); setTrait('discipline',-1); flash("⚡ Boost d’énergie !"); } updateAll();
+    const r=Math.random();
+    if(r<.34){ setMeter('fun',app.fun+20); setTrait('affection',+2); flash("🎈 Surprise joyeuse !"); beep(1180,.08); }
+    else if(r<.67){ setMeter('hyg',app.hyg-15); setTrait('odor',+4); flash("🤢 Beurk..."); beep(280,.1); }
+    else { setMeter('energy',app.energy+18); setTrait('discipline',-1); flash("⚡ Boost !"); beep(1040,.07); }
+    updateAll();
   });
 
   // caresser (drag)
   (()=>{ let pet=false, lastY=0, score=0, t=null;
-    const start=y=>{ pet=true; lastY=y; score=0; t=setTimeout(()=>{ flash("🤲 +Affection"); setTrait('affection',+2); setMeter('fun',app.fun+6); updateAll(); },800); };
+    const start=y=>{ pet=true; lastY=y; score=0; t=setTimeout(()=>{ flash("🤲 +Affection"); setTrait('affection',+2); setMeter('fun',app.fun+6); beep(1100,.06); updateAll(); },800); };
     const move=y=>{ if(!pet) return; if(Math.abs(y-lastY)>10){ score++; lastY=y; } };
-    const end=()=>{ if(!pet) return; pet=false; if(t) clearTimeout(t); if(score>6){ setTrait('affection',+1); setMeter('fun',app.fun+4); updateAll(); } };
-    sprite.addEventListener('mousedown',e=>start(e.clientY)); sprite.addEventListener('mousemove',e=>move(e.clientY)); window.addEventListener('mouseup',end);
-    sprite.addEventListener('touchstart',e=>start(e.touches[0].clientY),{passive:true}); sprite.addEventListener('touchmove',e=>move(e.touches[0].clientY),{passive:true}); window.addEventListener('touchend',end);
+    const end=()=>{ if(!pet) return; pet=false; if(t) clearTimeout(t); if(score>6){ setTrait('affection',+1); setMeter('fun',app.fun+4); beep(950,.06); updateAll(); } };
+    const area=$("#sprite");
+    area.addEventListener('mousedown',e=>start(e.clientY));
+    area.addEventListener('mousemove',e=>move(e.clientY));
+    window.addEventListener('mouseup',end);
+    area.addEventListener('touchstart',e=>start(e.touches[0].clientY),{passive:true});
+    area.addEventListener('touchmove',e=>move(e.touches[0].clientY),{passive:true});
+    window.addEventListener('touchend',end);
     $("#pet").addEventListener('click',()=>flash("Astuce : clique‑glisse sur le Cacamochi pour le caresser."));
   })();
 
-  // Minigame
+  // minigame
   const modal=$("#modal"), arena=$("#arena"), scoreEl=$("#score"); let mgTimer=null, mgTtl=0, mgScore=0;
   function spawnFly(){ const f=document.createElement('div'); f.className="fly";
     const x=Math.random()*(arena.clientWidth-26), y=Math.random()*(arena.clientHeight-20);
     f.style.left=x+"px"; f.style.top=y+"px"; const life=800+Math.random()*1000;
-    f.addEventListener('click',()=>{ mgScore++; scoreEl.textContent=mgScore; f.remove(); });
+    f.addEventListener('click',()=>{ mgScore++; scoreEl.textContent=mgScore; f.remove(); beep(1200,.05); });
     arena.appendChild(f); setTimeout(()=>f.remove(),life);
   }
   function startHunt(){ modal.classList.add('on'); mgScore=0; scoreEl.textContent="0"; mgTtl=20; arena.innerHTML="";
@@ -267,14 +300,14 @@
   $("#hunt").addEventListener('click',()=>{ if(app.alive) startHunt(); });
   $("#close").addEventListener('click',()=>{ modal.classList.remove('on'); if(mgTimer){clearInterval(mgTimer); mgTimer=null;} });
 
-  // Random events
+  // random events
   setInterval(()=>{ if(!app.alive) return;
     const r=Math.random();
     if(r<.18){ flash("Une mouche s’est posée..."); setMeter('hyg',app.hyg-4); setTrait('odor',+1); updateAll(); }
     else if(r<.28){ flash("Petit rot discret."); setMeter('hunger',app.hunger+3); setTrait('odor',+1); updateAll(); }
   }, 30000);
 
-  // Time & evolution
+  // time & evolution
   function tick(){ if(!app.alive) return;
     const k=app.asleep?0.45:1;
     setMeter('hunger',app.hunger-0.6*k); setMeter('fun',app.fun-0.45*k); setMeter('hyg',app.hyg-0.35*k); setMeter('energy',app.energy-(app.asleep?-0.9:0.7));
@@ -288,7 +321,6 @@
   setInterval(tick,1200); setInterval(newDay, 1.2*60*1000);
 
   function evolveCheck(){
-    const avg=(...x)=>x.reduce((a,b)=>a+b,0)/x.length;
     const mood=avg(app.hunger,app.fun,app.hyg,app.energy);
     const clean=app.hyg - app.odor*1.5;
     const playful=app.fun + app.affection;
@@ -304,16 +336,51 @@
       if(app.evo==="crottombe" && (clean<45 || app.energy<40)) evolveTo("thanabouse");
     }
   }
-  function evolveTo(next){ if(app.evo===next) return; app.evo=next; boom(); flash(`✨ Évolution : ${evoName(next)} !`); applySprite(); }
+  function evolveTo(next){ if(app.evo===next) return; app.evo=next; boom(); flash(`✨ Évolution : ${evoName(next)} !`); beep(1500,.09); applySprite(); }
 
-  function disableActions(dis){ ["feed","play","wash","sleep","pet","deodorize","mystery","hunt","save"].forEach(id=>$("#"+id).disabled=dis); }
+  function disableActions(dis){ ["feed","play","wash","toilet","sleep","pet","mystery","dance","heal","hunt","photo","sound","save"].forEach(id=>$("#"+id).disabled=dis); }
+
+  // sound toggle
+  $("#sound").addEventListener('click',()=>{ app.sound=!app.sound; $("#sound").textContent = app.sound ? "🔊 Son: ON" : "🔈 Son: OFF"; beep(900,.06); });
+
+  // save/reset
+  $("#save").addEventListener('click',save);
+  $("#reset").addEventListener('click',()=>{ localStorage.removeItem("cacamochi-v3"); Object.assign(app,{
+    hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0,sound:app.sound
+  }); disableActions(false); flash("Nouveau départ !"); updateAll(); });
+
+  // photo export (background + sprite en PNG)
+  $("#photo").addEventListener('click',()=>{
+    try{
+      const canvas=document.createElement('canvas');
+      canvas.width = Math.min(1920, document.body.clientWidth*2);
+      canvas.height= Math.min(1080, document.body.clientHeight*2);
+      const ctx=canvas.getContext('2d');
+
+      // draw background
+      const bgi=new Image(); bgi.crossOrigin="anonymous"; bgi.onload=()=>{
+        // cover
+        const cw=canvas.width,ch=canvas.height, iw=bgi.width, ih=bgi.height;
+        const scale=Math.max(cw/iw, ch/ih); const nw=iw*scale, nh=ih*scale;
+        ctx.drawImage(bgi,(cw-nw)/2,(ch-nh)/2,nw,nh);
+
+        // draw sprite (centered)
+        const s=CONFIG.sprites[app.evo]; const si=new Image(); si.crossOrigin="anonymous"; si.onload=()=>{
+          const sw = Math.min(cw*0.22, 420), sh = sw; // square-ish
+          ctx.drawImage(si, (cw-sw)/2, (ch-sh)/2 - 20, sw, sh);
+
+          const url=canvas.toDataURL("image/png");
+          const a=document.createElement('a'); a.href=url; a.download=`cacamochi_j${app.day}_${app.evo}.png`; a.click();
+          beep(1300,.06); flash("📸 Photo enregistrée");
+        };
+        si.src=s.src;
+      };
+      bgi.src = CONFIG.background;
+    }catch(e){ flash("📸 Désolé, export non supporté ici."); }
+  });
 
   // init
   applyBackground(); load(); updateAll();
-  $("#save").addEventListener('click',save);
-  $("#reset").addEventListener('click',()=>{ localStorage.removeItem("cacamochi-img"); Object.assign(app,{
-    hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0
-  }); disableActions(false); flash("Nouveau départ !"); updateAll(); });
 })();
 </script>
 </body>
