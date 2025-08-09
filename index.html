@@ -3,23 +3,32 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Cacamochi — Final+</title>
+<title>Cacamochi — v5</title>
 <style>
   :root{
+    /* DA */
     --rose:#f7e4e1; --rose-2:#f3d5cf; --rose-3:#eec0b6;
-    --marron:#8e5f48; --marron-dark:#5d3d30;
+    --marron:#7b5644; --marron-2:#5b3d31;
     --txt:#2a1d16; --glass:#ffffffd8; --shadow:#00000028;
-    --good:#5cc66a; --mid:#ffb84d; --bad:#ff6565;
+
+    /* Jauges (plus doux, DA) */
+    --track:#e9d8d3;
+    --fill-good:#8fd09b;  /* vert amande */
+    --fill-mid:#f2b088;   /* pêche */
+    --fill-bad:#e27d7d;   /* corail */
+
+    /* UI */
     --btn:#ffe7e2; --btnOn:#ffd2c7; --icon:#7c5542;
   }
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--rose);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  html,body{height:100%;margin:0;background:var(--rose);color:var(--txt);
+    font-family:ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, Arial}
   .app{min-height:100%;display:grid;grid-template-rows:auto 1fr}
 
   /* Header */
   header{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;background:linear-gradient(180deg,var(--rose-2),var(--rose))}
-  header h1{margin:0;font-size:1.05rem}
-  .age{margin-left:auto;background:var(--glass);backdrop-filter:blur(6px);padding:.25rem .6rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700;font-size:.85rem}
+  header h1{margin:0;font-size:1.08rem;letter-spacing:.2px;color:var(--marron)}
+  .age{margin-left:auto;background:var(--glass);backdrop-filter:blur(6px);padding:.25rem .6rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:800;font-size:.85rem;color:var(--marron)}
 
   /* Stage */
   .stage{position:relative;overflow:hidden}
@@ -34,21 +43,24 @@
   /* HUD */
   .hud{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);width:min(94vw,560px);
        display:grid;grid-template-columns:1fr 1fr;gap:.6rem;background:var(--glass);backdrop-filter:blur(8px);
-       padding:.6rem;border-radius:18px;box-shadow:0 6px 22px var(--shadow);z-index:5}
-  .bar h3{margin:0 0 .28rem 0;font-size:.9rem}
-  .meter{height:10px;background:#00000015;border-radius:99px;overflow:hidden}
-  .meter>i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--good),#9ee68b);transition:width .26s}
-  .bad>i{background:linear-gradient(90deg,var(--bad),#ff8080)}
-  .mid>i{background:linear-gradient(90deg,var(--mid),#ffd197)}
-  .chips{position:absolute;top:calc(.6rem + 98px);left:50%;transform:translateX(-50%);
-         display:flex;gap:.4rem;flex-wrap:wrap;max-width:94vw;justify-content:center;z-index:5}
-  .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.3rem .6rem;border-radius:999px;font-size:.82rem;box-shadow:0 2px 6px var(--shadow)}
+       padding:.7rem .7rem;border-radius:18px;box-shadow:0 6px 22px var(--shadow);z-index:5}
+  .bar h3{margin:0 0 .28rem 0;font-size:.92rem;color:var(--marron)}
+  .meter{height:12px;background:var(--track);border-radius:99px;overflow:hidden}
+  .meter>i{display:block;height:100%;width:50%;background:var(--fill-good);transition:width .26s}
+  .bad>i{background:var(--fill-bad)}
+  .mid>i{background:var(--fill-mid)}
+  .chips{position:absolute;top:calc(.6rem + 108px);left:50%;transform:translateX(-50%);
+         display:flex;gap:.45rem;flex-wrap:wrap;max-width:94vw;justify-content:center;z-index:5}
+  .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.35rem .7rem;border-radius:999px;font-size:.86rem;font-weight:800;color:var(--marron);box-shadow:0 2px 6px var(--shadow)}
 
   /* Odeur/mouches autour du sprite */
-  .steam line{animation:steam 3.4s ease-in-out infinite}
+  .steam line{animation:steam 3.2s ease-in-out infinite}
   @keyframes steam{0%{opacity:0;transform:translateY(8px)}20%{opacity:.9}100%{opacity:0;transform:translateY(-26px)}}
-  .orbitFlies{animation:orbit 6s linear infinite;transform-origin:center}
-  @keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .orbitFlies{transform-origin:100px 105px} /* centre du sprite */
+  .orbitFlies .f{transform-origin:0 0;animation:flyOrbit linear infinite}
+  .orbitFlies .f > circle{animation:wing .9s ease-in-out infinite}
+  @keyframes flyOrbit{from{transform:rotate(0) translate(var(--r)) rotate(0)}to{transform:rotate(360deg) translate(var(--r)) rotate(-360deg)}}
+  @keyframes wing{0%,100%{r:3px}50%{r:2px}}
 
   /* Nuit */
   .sleepOverlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;z-index:3}
@@ -57,12 +69,12 @@
   .stars{position:absolute;inset:0;overflow:hidden}
   .star{position:absolute;width:3px;height:3px;background:#d8e7ff;border-radius:50%;opacity:.9;animation:tw 2.2s ease-in-out infinite}
   @keyframes tw{0%,100%{transform:scale(1)}50%{transform:scale(1.6)}}
-  .zzz{position:absolute;left:50%;top:38%;transform:translateX(-50%);font:700 18px/1.2 monospace;color:#cfe3ff;animation:zzz 2.6s ease-in-out infinite}
+  .zzz{position:absolute;left:50%;top:38%;transform:translateX(-50%);font:800 18px/1.2 system-ui;color:#cfe3ff;animation:zzz 2.6s ease-in-out infinite}
   @keyframes zzz{0%{opacity:0;transform:translate(-50%,6px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-18px)}}
 
   /* Bulles de notification */
   .speech{position:absolute;left:50%;top:22%;transform:translateX(-50%);z-index:6;pointer-events:none}
-  .speech .b{background:var(--glass);backdrop-filter:blur(8px);padding:.5rem .7rem;border-radius:14px;box-shadow:0 6px 18px var(--shadow);font-weight:800}
+  .speech .b{background:var(--glass);backdrop-filter:blur(8px);padding:.5rem .7rem;border-radius:14px;box-shadow:0 6px 18px var(--shadow);font-weight:800;color:var(--marron)}
   .speech .t{width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid var(--glass);margin:auto}
 
   /* Disco overlay */
@@ -86,21 +98,15 @@
   @keyframes boom{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:var(--tr) scale(1.2);opacity:0}}
 
   /* Dock scrollable */
-  .dockWrap{
-    position:absolute;left:0;right:0;bottom:.7rem;z-index:10;
-    padding:0 .7rem;
-    overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
-    mask-image:linear-gradient(90deg,transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
-  }
+  .dockWrap{position:absolute;left:0;right:0;bottom:.7rem;z-index:10;padding:0 .7rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%)}
   .dockWrap::-webkit-scrollbar{display:none}
-  .dock{ display:flex; gap:.55rem; min-width:max-content; scroll-snap-type:x mandatory; }
-  .btn{ scroll-snap-align:center; width:72px;height:72px;border-radius:18px;border:none;background:var(--btn);
-        box-shadow:0 8px 18px var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .dock{display:flex;gap:.55rem;min-width:max-content;scroll-snap-type:x mandatory}
+  .btn{scroll-snap-align:center;width:72px;height:72px;border-radius:18px;border:none;background:var(--btn);box-shadow:0 8px 18px var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center}
   .btn:active{transform:translateY(2px);background:var(--btnOn)}
   .ico{width:22px;height:22px;color:var(--icon);display:block}
   .lbl{margin-top:4px;font-size:.72rem;font-weight:800;color:var(--marron)}
 
-  /* Mini‑jeux: boutons sur la scène */
+  /* Mini‑jeux: boutons scène */
   .gameBtn{position:absolute;z-index:8;width:62px;height:62px;border-radius:50%;border:none;background:var(--btn);
            box-shadow:0 8px 18px var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center}
   .gameBtn .ico{width:22px;height:22px}
@@ -108,18 +114,18 @@
   .gameBtn.bath{right:.8rem;top:48%}
   .gameBtn.flies{left:.8rem;top:48%}
 
-  /* Modals (jeux) */
+  /* Modals jeux */
   .modal{position:absolute;inset:0;background:#00000070;display:none;align-items:center;justify-content:center;z-index:20}
   .modal.on{display:flex}
   .panelMG{width:min(520px,92vw);height:min(420px,80vh);background:#fff6f4;border-radius:16px;box-shadow:0 10px 30px #00000040;position:relative;overflow:hidden;border:3px solid var(--rose-3)}
   .panelHead{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px}
-  .panelHead h2{margin:0;font-size:16px}
-  .panelHead .score{font-weight:800}
-  .close{border:none;background:#0000;font-size:18px;line-height:1;cursor:pointer}
+  .panelHead h2{margin:0;font-size:16px;color:var(--marron)}
+  .panelHead .score{font-weight:800;color:var(--marron)}
+  .close{border:none;background:#0000;font-size:18px;line-height:1;cursor:pointer;color:var(--marron)}
   .arena{position:absolute;inset:56px 12px 14px 12px;border-radius:12px;overflow:hidden}
   .arena.bath{background:#f6eaf0}
   .arena.flygame{background:#eaf7e6}
-  .bubble{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffffaa 0%, #ffd6f3 40%, #ffc1ea 70%, #f5a7d5 100%);box-shadow:0 2px 6px #00000033}
+  .bubble{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffffaa 0, #ffd6f3 40%, #ffc1ea 70%, #f5a7d5 100%);box-shadow:0 2px 6px #00000033}
   .fly{position:absolute;width:26px;height:20px}
   .fly::after{content:"🪰";font-size:20px;line-height:20px}
 
@@ -128,11 +134,19 @@
   @keyframes hit{to{transform:scale(2);opacity:0}}
   .splat{position:absolute;width:22px;height:22px;background:radial-gradient(circle,#000 0,transparent 70%);border-radius:50%;opacity:.15;animation:splat .5s ease-out forwards}
   @keyframes splat{to{transform:scale(2);opacity:0}}
+
+  /* Game Over */
+  .gameover{position:absolute;inset:0;background:#00000070;display:none;align-items:center;justify-content:center;z-index:30}
+  .gameover.on{display:flex}
+  .goPanel{background:#fff2f0;border:3px solid var(--rose-3);width:min(520px,90vw);border-radius:18px;padding:22px;box-shadow:0 12px 30px #0007;text-align:center}
+  .goPanel h2{margin:.2rem 0;color:var(--marron);font-size:1.4rem}
+  .goPanel p{margin:.2rem 0 .8rem;color:var(--marron)}
+  .goPanel button{background:var(--btn);border:none;border-radius:12px;padding:.7rem 1rem;font-weight:800;color:var(--marron-2);box-shadow:0 6px 14px var(--shadow)}
 </style>
 </head>
 <body>
 
-<!-- SPRITE D’ICÔNES -->
+<!-- SPRITE D’ICÔNES (même qu’avant + 4 nouveaux) -->
 <svg aria-hidden="true" width="0" height="0" style="position:absolute;left:-9999px;top:-9999px;">
   <symbol id="i-food" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8M8 3v8M6 7h2"/><path d="M14 3a3 3 0 0 1 3 3v5a2 2 0 0 1-2 2h-1V3z"/></g></symbol>
   <symbol id="i-soap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 6-6 9a6 6 0 0 0 12 0c0-3-3-5-6-9z"/><path d="M18.5 5.5l1 1m-3 0l1-1"/></g></symbol>
@@ -142,6 +156,11 @@
   <symbol id="i-heal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></g></symbol>
   <symbol id="i-bubbles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="12" r="3"/><circle cx="14.5" cy="10.5" r="2.2"/><circle cx="18" cy="8" r="1.5"/></g></symbol>
   <symbol id="i-flies" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M8 12l8 8"/><path d="M6.5 6.5h3m-3 2h3m-3 2h3"/></g></symbol>
+  <!-- nouveaux -->
+  <symbol id="i-spray" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="8" width="10" height="10" rx="2"/><path d="M8 8V6h6v2M16 6h2M18 9h2M18 12h2"/></g></symbol>
+  <symbol id="i-snack" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M9 12h6M12 9v6"/></g></symbol>
+  <symbol id="i-kiss" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 10c0-2 2-4 4-4s4 2 4 4-2 4-4 4-4-2-4-4z"/><path d="M14 14c1 0 2 .5 3 1.5"/></g></symbol>
+  <symbol id="i-nap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M5 15h14M7 15v3m10-3v3"/><path d="M9 7h6l-2 3h2l-2 3"/></g></symbol>
 </svg>
 
 <div class="app" id="app">
@@ -166,9 +185,7 @@
     </div>
 
     <!-- Notifications -->
-    <div class="speech" id="speech" style="display:none">
-      <div class="b" id="speechText">Hi!</div><div class="t"></div>
-    </div>
+    <div class="speech" id="speech" style="display:none"><div class="b" id="speechText">Hi!</div><div class="t"></div></div>
 
     <!-- Effets -->
     <div id="disco" aria-hidden="true"></div>
@@ -185,20 +202,24 @@
         <g class="steam" id="steam" stroke="#8a6e3a" stroke-width="2" opacity=".6">
           <line x1="60" y1="70" x2="60" y2="46"/><line x1="100" y1="60" x2="100" y2="36"/><line x1="140" y1="70" x2="140" y2="46"/>
         </g>
-        <g class="orbitFlies" id="orbitFlies" opacity=".9">
-          <g transform="translate(100,105)">
-            <g transform="rotate(0) translate(46,0)"><circle cx="0" cy="0" r="3" fill="#2a2a2a"/></g>
-            <g transform="rotate(140) translate(46,0)"><circle cx="0" cy="0" r="3" fill="#2a2a2a"/></g>
-          </g>
+        <!-- Mouches améliorées -->
+        <g class="orbitFlies" id="orbitFlies" opacity=".95">
+          <!-- 6 flies avec rayons/durées variés -->
+          <g class="f" style="--r:45px; animation-duration:7s"><circle cx="100" cy="105" r="3" fill="#2a2a2a"/></g>
+          <g class="f" style="--r:52px; animation-duration:6s"><circle cx="100" cy="105" r="3" fill="#2a2a2a"/></g>
+          <g class="f" style="--r:40px; animation-duration:8s"><circle cx="100" cy="105" r="3" fill="#2a2a2a"/></g>
+          <g class="f" style="--r:58px; animation-duration:5.5s"><circle cx="100" cy="105" r="3" fill="#2a2a2a"/></g>
+          <g class="f" style="--r:35px; animation-duration:7.5s"><circle cx="100" cy="105" r="3" fill="#2a2a2a"/></g>
+          <g class="f" style="--r:50px; animation-duration:6.7s"><circle cx="100" cy="105" r="3" fill="#2a2a2a"/></g>
         </g>
       </svg>
     </div>
 
-    <!-- Mini‑jeux: boutons flottants -->
+    <!-- Mini‑jeux -->
     <button type="button" class="gameBtn flies" id="btnFlies"><svg class="ico"><use href="#i-flies"/></svg><span class="lbl">Mouches</span></button>
     <button type="button" class="gameBtn bath"  id="btnBath"><svg class="ico"><use href="#i-bubbles"/></svg><span class="lbl">Bain</span></button>
 
-    <!-- D O C K  défilant -->
+    <!-- Dock -->
     <div class="dockWrap">
       <div class="dock" id="dock">
         <button type="button" class="btn" id="feed"><svg class="ico"><use href="#i-food"/></svg><span class="lbl">Nourrir</span></button>
@@ -207,29 +228,33 @@
         <button type="button" class="btn" id="sleep"><svg class="ico"><use href="#i-moon"/></svg><span class="lbl">Dodo</span></button>
         <button type="button" class="btn" id="play"><svg class="ico"><use href="#i-play"/></svg><span class="lbl">Jouer</span></button>
         <button type="button" class="btn" id="heal"><svg class="ico"><use href="#i-heal"/></svg><span class="lbl">Soigner</span></button>
-        <!-- ajoute librement d'autres actions ici, le dock scrolle -->
+        <button type="button" class="btn" id="snack"><svg class="ico"><use href="#i-snack"/></svg><span class="lbl">Snack</span></button>
+        <button type="button" class="btn" id="spray"><svg class="ico"><use href="#i-spray"/></svg><span class="lbl">Déso</span></button>
+        <button type="button" class="btn" id="kiss"><svg class="ico"><use href="#i-kiss"/></svg><span class="lbl">Bisou</span></button>
+        <button type="button" class="btn" id="nap"><svg class="ico"><use href="#i-nap"/></svg><span class="lbl">Sieste</span></button>
       </div>
     </div>
 
-    <!-- Modals (2 jeux) -->
+    <!-- Modals jeux -->
     <div class="modal" id="modalBath">
       <div class="panelMG">
-        <div class="panelHead">
-          <h2>Bain Mousse — 20 s</h2>
-          <div class="score" id="scoreBath">0</div>
-          <button type="button" class="close" id="closeBath">✖</button>
-        </div>
+        <div class="panelHead"><h2>Bain Mousse — 20 s</h2><div class="score" id="scoreBath">0</div><button type="button" class="close" id="closeBath">✖</button></div>
         <div class="arena bath" id="arenaBath"></div>
       </div>
     </div>
     <div class="modal" id="modalFlies">
       <div class="panelMG">
-        <div class="panelHead">
-          <h2>Chasse‑mouches — 20 s</h2>
-          <div class="score" id="scoreFlies">0</div>
-          <button type="button" class="close" id="closeFlies">✖</button>
-        </div>
+        <div class="panelHead"><h2>Chasse‑mouches — 20 s</h2><div class="score" id="scoreFlies">0</div><button type="button" class="close" id="closeFlies">✖</button></div>
         <div class="arena flygame" id="arenaFlies"></div>
+      </div>
+    </div>
+
+    <!-- Game Over -->
+    <div class="gameover" id="gameover">
+      <div class="goPanel">
+        <h2>💀 Cacamochi est parti…</h2>
+        <p>Tu peux recommencer une nouvelle vie quand tu veux.</p>
+        <button type="button" id="restart">Recommencer</button>
       </div>
     </div>
   </main>
@@ -258,22 +283,20 @@
   const bar={ hunger:$("#bHunger .meter i"), fun:$("#bFun .meter i"), hyg:$("#bHyg .meter i"), energy:$("#bEnergy .meter i") };
   const bars={ hunger:$("#bHunger"), fun:$("#bFun"), hyg:$("#bHyg"), energy:$("#bEnergy") };
   const age=$("#age"), speech=$("#speech"), speechText=$("#speechText");
-  const bg=$("#bg"), evoImg=$("#evo-img"), sprite=$("#sprite"), steam=$("#steam");
+  const bg=$("#bg"), evoImg=$("#evo-img"), sprite=$("#sprite");
   const traitsEls={aff:$("#tAff"), dis:$("#tDis"), odo:$("#tOdo")};
   const stars=$("#stars");
+  const orbit=$("#orbitFlies"), gameover=$("#gameover");
 
   const evoName=id=>({bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}[id]||"???" );
 
-  // étoiles nuit
-  for(let i=0;i<42;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
-
+  /* utils */
   function say(txt){ speechText.textContent=txt; speech.style.display='block'; clearTimeout(say.t); say.t=setTimeout(()=>speech.style.display='none',1400); }
   function applyBackground(){ bg.src=CONFIG.background; }
   function applySprite(){ const s=CONFIG.sprites[app.evo]; if(!s) return;
     evoImg.setAttribute('href',s.src); evoImg.setAttribute('x',s.x??0); evoImg.setAttribute('y',s.y??0);
     evoImg.setAttribute('width',s.w??200); evoImg.setAttribute('height',s.h??200);
   }
-
   function setMeter(name,val){ val=Math.max(0,Math.min(100,val)); bar[name].style.width=val+"%";
     bars[name].classList.toggle('bad',val<35); bars[name].classList.toggle('mid',val>=35&&val<65); bars[name].classList.toggle('good',val>=65); app[name]=val; }
   function setTrait(name,delta,min=-999,max=999){ app[name]=Math.max(min,Math.min(max,app[name]+delta)); }
@@ -283,37 +306,57 @@
     traitsEls.aff.textContent="Affection: "+app.affection; traitsEls.dis.textContent="Discipline: "+app.discipline; traitsEls.odo.textContent="Odeur: "+app.odor;
     age.textContent=`Jour ${app.day} — ${evoName(app.evo)}`; applySprite();
     document.body.classList.toggle('sleeping', app.asleep);
+    refreshOrbitFlies();
+  }
+  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-v5")); if(s) Object.assign(app,s);}catch(e){} };
+  const save=()=>{ localStorage.setItem("cacamochi-v5", JSON.stringify(app)); };
+
+  /* orbit flies density */
+  function refreshOrbitFlies(){
+    const dirt = Math.max(0, 100-app.hyg) + Math.max(0, app.odor*5);
+    const vis = Math.min(1, dirt/120);
+    $("#orbitFlies").style.opacity = (0.2 + vis*0.8).toFixed(2);
   }
 
-  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-v4lite")); if(s) Object.assign(app,s);}catch(e){} };
-  const save=()=>{ localStorage.setItem("cacamochi-v4lite", JSON.stringify(app)); };
+  /* étoiles nuit */
+  for(let i=0;i<42;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
 
-  // ---- Actions (dock) ----
-  $("#feed").addEventListener('click',()=>{ if(!app.alive) return;
-    setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6);
-    setTrait('affection',+1); setTrait('odor',+1); say("Miam !"); updateAll(); save();
-  });
-  $("#wash").addEventListener('click',()=>{ if(!app.alive) return;
-    setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); say("Tout propre !"); updateAll(); save();
-  });
+  /* actions */
+  $("#feed").addEventListener('click',()=>{ if(!app.alive) return; setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6); setTrait('affection',+1); setTrait('odor',+1); say("Miam !"); updateAll(); save(); });
+  $("#wash").addEventListener('click',()=>{ if(!app.alive) return; setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); say("Tout propre !"); updateAll(); save(); });
   $("#toilet").addEventListener('click',()=>{ if(!app.alive) return; setMeter('hyg',app.hyg+40); setTrait('odor',-6); say("🧻 Fiuuut !"); updateAll(); save(); });
   $("#sleep").addEventListener('click',()=>{ if(!app.alive) return; app.asleep=!app.asleep; say(app.asleep?"Bonne nuit...":"Réveil !"); updateAll(); save(); });
-  $("#play").addEventListener('click',()=>{ if(!app.alive) return;
-    setMeter('fun',app.fun+16); setMeter('energy',app.energy-8); setTrait('discipline',+1); setTrait('odor',+1); say("On joue !"); updateAll(); save();
+  $("#play").addEventListener('click',()=>{ if(!app.alive) return; setMeter('fun',app.fun+16); setMeter('energy',app.energy-8); setTrait('discipline',+1); setTrait('odor',+1); say("On joue !"); updateAll(); save(); });
+  $("#heal").addEventListener('click',()=>{ if(!app.alive) return; const low=['hunger','fun','hyg','energy'].some(k=>app[k]<35); if(low){['hunger','fun','hyg','energy'].forEach(k=>setMeter(k,app[k]+8)); say("💊 Ça va mieux.");} else say("Pas besoin."); updateAll(); save(); });
+
+  /* nouvelles activités */
+  $("#snack").addEventListener('click',()=>{ if(!app.alive) return;
+    const roll=Math.random();
+    if(roll<.33){ setMeter('hunger',app.hunger+16); say("Snack salé 😋"); }
+    else if(roll<.66){ setMeter('fun',app.fun+14); say("Snack sucré 🤤"); }
+    else { setMeter('hunger',app.hunger+8); setTrait('odor',+2); say("Snack douteux 😬"); }
+    updateAll(); save();
   });
-  $("#heal").addEventListener('click',()=>{ if(!app.alive) return;
-    const low=['hunger','fun','hyg','energy'].some(k=>app[k]<35);
-    if(low){ ['hunger','fun','hyg','energy'].forEach(k=>setMeter(k,app[k]+8)); say("💊 Ça va mieux."); } else say("Pas besoin.");
+  $("#spray").addEventListener('click',()=>{ if(!app.alive) return;
+    setTrait('odor',-6); setMeter('hyg',app.hyg+6); setMeter('energy',app.energy-4); say("Pschiiit ! Ça sent bon ✨");
+    updateAll(); save();
+  });
+  $("#kiss").addEventListener('click',()=>{ if(!app.alive) return;
+    setTrait('affection',+3); setMeter('fun',app.fun+6); say("Bisou 💕");
+    updateAll(); save();
+  });
+  $("#nap").addEventListener('click',()=>{ if(!app.alive) return;
+    setMeter('energy',app.energy+14); setMeter('fun',app.fun-4); app.asleep=false; say("Petite sieste 😴");
     updateAll(); save();
   });
 
-  // centrer au clic l’item du dock
+  /* dock UX */
   $("#dock").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     b.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
   });
 
-  // ---- Danse (double‑tap) + Disco ----
+  /* Danse + disco (double tap) */
   (function doubleTapDance(){
     let last=0;
     sprite.addEventListener('touchend',()=>{ const now=Date.now(); if(now-last<300){ dance(); } last=now; },{passive:true});
@@ -328,7 +371,7 @@
     }
   })();
 
-  // ---- Caresser ----
+  /* Caresser */
   (function pet(){
     let pet=false, lastX=0,lastY=0, moves=0, timer=null;
     const start=(x,y)=>{ pet=true; lastX=x; lastY=y; moves=0;
@@ -345,8 +388,7 @@
     window.addEventListener('mouseup',end);
   })();
 
-  /* ---------------- Mini‑jeux ---------------- */
-  // Bain
+  /* Jeux — Bain */
   const modalBath=$("#modalBath"), arenaBath=$("#arenaBath"), scoreBath=$("#scoreBath");
   let tBath=null, scBath=0, timeBath=20;
   function spawnBubble(){
@@ -354,11 +396,7 @@
     const x=Math.random()*(arenaBath.clientWidth-34), y=arenaBath.clientHeight+20;
     f.style.left=x+"px"; f.style.top=y+"px";
     const dur=1200+Math.random()*1200; const start=performance.now();
-    function step(t){
-      const p=(t-start)/dur; if(p>=1){ f.remove(); return; }
-      f.style.top=(y - p*(arenaBath.clientHeight+80))+"px";
-      requestAnimationFrame(step);
-    }
+    function step(t){ const p=(t-start)/dur; if(p>=1){ f.remove(); return; } f.style.top=(y - p*(arenaBath.clientHeight+80))+"px"; requestAnimationFrame(step); }
     function add(ev){
       scBath++; scoreBath.textContent=scBath;
       const r=arenaBath.getBoundingClientRect();
@@ -384,7 +422,7 @@
   $("#btnBath").addEventListener('click',()=>{ if(app.alive) startBath(); });
   $("#closeBath").addEventListener('click',()=>{ modalBath.classList.remove('on'); if(tBath){clearInterval(tBath); tBath=null;} });
 
-  // Mouches
+  /* Jeux — Mouches */
   const modalFlies=$("#modalFlies"), arenaFlies=$("#arenaFlies"), scoreFlies=$("#scoreFlies");
   let tFly=null, scFly=0, timeFly=20;
   function spawnFly(){
@@ -417,7 +455,7 @@
   $("#btnFlies").addEventListener('click',()=>{ if(app.alive) startFlies(); });
   $("#closeFlies").addEventListener('click',()=>{ modalFlies.classList.remove('on'); if(tFly){clearInterval(tFly); tFly=null;} });
 
-  // Random & time
+  /* random events + temps */
   setInterval(()=>{ if(!app.alive) return; const r=Math.random();
     if(r<.18){ say("Une mouche s’est posée..."); setMeter('hyg',app.hyg-4); setTrait('odor',+1); updateAll(); }
     else if(r<.28){ say("Petit rot discret."); setMeter('hunger',app.hunger+3); setTrait('odor',+1); updateAll(); }
@@ -427,7 +465,7 @@
     const k=app.asleep?0.45:1;
     setMeter('hunger',app.hunger-0.6*k); setMeter('fun',app.fun-0.45*k); setMeter('hyg',app.hyg-0.35*k);
     setMeter('energy', app.energy-(app.asleep?-0.9:0.7));
-    if(['hunger','fun','hyg','energy'].filter(x=>app[x]<=0).length>=2){ app.alive=false; say("💀 RIP Cacamochi..."); }
+    if(['hunger','fun','hyg','energy'].filter(x=>app[x]<=0).length>=2){ app.alive=false; gameover.classList.add('on'); say("💀 RIP Cacamochi..."); }
     updateAll();
   }
   function newDay(){ if(!app.alive) return; app.day++; say("☀️ Jour "+app.day);
@@ -436,7 +474,7 @@
   }
   setInterval(tick,1200); setInterval(newDay, 1.2*60*1000);
 
-  // Evolutions + FX
+  /* évolutions + FX */
   function evolveCheck(){
     const mood=avg(app.hunger,app.fun,app.hyg,app.energy);
     const clean=app.hyg - app.odor*1.5, playful=app.fun + app.affection, stoic=app.energy - app.discipline*0.5;
@@ -454,13 +492,12 @@
   function evolveTo(next){
     if(app.evo===next) return;
     app.evo = next;
-    // flash + zoom doux
+    const sprite=$("#sprite");
     sprite.style.transition="transform .35s ease, filter .35s ease";
     sprite.style.transform="scale(1.1)";
     sprite.style.filter="drop-shadow(0 28px 24px var(--shadow)) saturate(1.2)";
     setTimeout(()=>{ applySprite(); },120);
 
-    // particules radial
     const fx=$("#evolveFX"), rect=sprite.getBoundingClientRect();
     const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
     for(let i=0;i<36;i++){
@@ -475,8 +512,13 @@
     say(`✨ Évolution : ${evoName(next)} !`);
   }
 
-  // Init
-  function applyBackground(){ bg.src=CONFIG.background; }
+  /* restart */
+  $("#restart").addEventListener('click',()=>{
+    Object.assign(app,{hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0});
+    gameover.classList.remove('on'); applySprite(); updateAll(); save();
+  });
+
+  /* init */
   applyBackground(); load(); updateAll();
 })();
 </script>
