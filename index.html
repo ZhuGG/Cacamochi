@@ -6,15 +6,11 @@
 <title>Cacamochi — Mobile Panel</title>
 <style>
   :root{
-    --rose:#f7e4e1;
-    --rose-2:#f3d5cf;
-    --rose-3:#eec0b6;
-    --marron:#a97155;
-    --marron-2:#8e5f48;
-    --txt:#2a1d16;
-    --glass:#ffffffcc;
-    --shadow:#00000028;
+    --rose:#f7e4e1; --rose-2:#f3d5cf; --rose-3:#eec0b6;
+    --marron:#a97155; --marron-2:#8e5f48; --txt:#2a1d16;
+    --glass:#ffffffcc; --shadow:#00000028;
     --good:#5cc66a; --mid:#ffb84d; --bad:#ff6565;
+    --panel-peek:64px;
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--rose);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
@@ -49,12 +45,6 @@
   .traits{position:absolute;top:calc(.6rem + 98px);left:50%;transform:translateX(-50%);display:flex;gap:.4rem;flex-wrap:wrap;max-width:94vw;justify-content:center;z-index:3}
   .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.3rem .6rem;border-radius:999px;font-size:.82rem;box-shadow:0 2px 6px var(--shadow)}
 
-  /* Odeur & mouches */
-  .steam line{animation:steam 3.4s ease-in-out infinite}
-  @keyframes steam{0%{opacity:0;transform:translateY(8px)}20%{opacity:.9}100%{opacity:0;transform:translateY(-26px)}}
-  .flies{animation:orbit 6s linear infinite;transform-origin:center}
-  @keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
   /* Sleep overlay */
   .sleepOverlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;z-index:2}
   .sleeping .sleepOverlay{opacity:1}
@@ -65,18 +55,24 @@
   .zzz{position:absolute;left:50%;top:38%;transform:translateX(-50%);font:700 18px/1.2 monospace;color:#cfe3ff;animation:zzz 2.6s ease-in-out infinite}
   @keyframes zzz{0%{opacity:0;transform:translate(-50%,6px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-18px)}}
 
-  /* Messages (au-dessus du panneau) */
-  .state{position:absolute;left:.8rem;bottom:calc(72px + 1.1rem);display:flex;gap:.4rem;flex-wrap:wrap;z-index:2}
+  /* Messages */
+  .state{position:absolute;left:.8rem;bottom:calc(var(--panel-peek) + 1.1rem);display:flex;gap:.4rem;flex-wrap:wrap;z-index:2}
   .label{background:var(--glass);backdrop-filter:blur(6px);padding:.35rem .7rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700}
 
-  /* Panneau d’actions (rabattable) */
-  .panel{position:fixed;left:0;right:0;bottom:0;transform:translateY(72%);
-         background:linear-gradient(180deg, #ffeceb, #ffe0dc);
-         border-top-left-radius:22px;border-top-right-radius:22px;box-shadow:0 -10px 26px var(--shadow);
-         transition:transform .28s ease; z-index:4}
-  .panel.open{transform:translateY(0)}
-  .handle{width:44px;height:6px;background:var(--marron);border-radius:6px;margin:10px auto}
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;padding:.6rem .8rem 1rem .8rem}
+  /* Panel (never lost) */
+  .panel{
+    position:fixed;left:0;right:0;bottom:0;z-index:4;
+    background:linear-gradient(180deg,#ffeceb,#ffe0dc);
+    border-top-left-radius:22px;border-top-right-radius:22px;
+    box-shadow:0 -10px 26px var(--shadow);
+    transform:translateY(calc(100% - var(--panel-peek)));
+    transition:transform .25s ease; touch-action:none;
+  }
+  .panel.open{ transform:translateY(0) }
+  .handle{width:72px;height:8px;border-radius:8px;margin:10px auto 6px;background:var(--marron)}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;padding:.4rem .8rem 1rem}
+
+  /* Buttons (pill + SVG icon) */
   button{
     -webkit-tap-highlight-color:transparent; cursor:pointer;border:none;border-radius:16px;
     padding:.9rem .95rem;background:#f7d9d2;color:#331e16;font-weight:800;font-size:1rem;
@@ -85,16 +81,31 @@
   }
   button:active{ transform:translateY(2px); box-shadow:0 6px 12px var(--shadow)}
   button[disabled]{opacity:.5;pointer-events:none}
+  .ic{width:18px;height:18px;display:inline-block}
+  .ic svg{width:18px;height:18px;display:block}
 
-  /* Modal minijeu */
+  /* FAB Actions */
+  #fabActions{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;z-index:6;border:none;border-radius:999px;
+              padding:.7rem 1rem;background:var(--marron);color:#fff;font-weight:800;
+              box-shadow:0 10px 22px var(--shadow)}
+
+  /* Modals (two games) */
   .modal{position:absolute;inset:0;background:#00000070;display:none;align-items:center;justify-content:center;z-index:5}
   .modal.on{display:flex}
   .panelMG{width:min(520px,92vw);height:min(420px,80vh);background:#fff6f4;border-radius:16px;box-shadow:0 10px 30px #00000040;position:relative;overflow:hidden;border:3px solid var(--rose-3)}
   .panelMG h2{margin:10px 12px;font-size:16px}
-  .arena{position:absolute;inset:56px 12px 14px 12px;background:#f6eaf0;border-radius:12px;overflow:hidden}
+  .arena{position:absolute;inset:56px 12px 14px 12px;border-radius:12px;overflow:hidden}
+  .arena.bath{background:#f6eaf0}
+  .arena.flies{background:#eaf7e6}
   .bubble{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffffaa 0%, #ffd6f3 40%, #ffc1ea 70%, #f5a7d5 100%);box-shadow:0 2px 6px #00000033}
+  .fly{position:absolute;width:26px;height:20px}
+  .fly::after{content:"🪰";font-size:20px;line-height:20px}
   .score{position:absolute;right:12px;top:12px;font-weight:800}
   .close{position:absolute;right:10px;top:8px}
+
+  /* Badges (bonus) */
+  .badges{position:absolute;top:calc(.6rem + 146px);left:50%;transform:translateX(-50%);display:flex;gap:.4rem;z-index:3}
+  .badge{background:#fff0;border:2px dashed #d9b; color:#8a5874; padding:.14rem .5rem;border-radius:999px;font-weight:800;font-size:.78rem}
 </style>
 </head>
 <body>
@@ -118,15 +129,14 @@
       <span class="chip" id="tDis">Discipline: 0</span>
       <span class="chip" id="tOdo">Odeur: 0</span>
     </div>
+    <div class="badges" id="badges"></div>
 
     <div class="state" id="state"></div>
     <div class="flash" id="flash"></div>
 
     <!-- Nuit -->
     <div class="sleepOverlay" id="sleepOverlay">
-      <div class="tint"></div>
-      <div class="stars" id="stars"></div>
-      <div class="zzz">Z z z ...</div>
+      <div class="tint"></div><div class="stars" id="stars"></div><div class="zzz">Z z z ...</div>
     </div>
 
     <!-- Sprite -->
@@ -146,32 +156,43 @@
       </svg>
     </div>
 
-    <!-- Panneau d’actions -->
+    <!-- Panel d’actions -->
     <div class="panel" id="panel">
       <div class="handle" id="handle"></div>
       <div class="actions">
-        <button id="feed">🍗 Nourrir</button>
-        <button id="play">🎲 Jouer</button>
-        <button id="wash">🧼 Laver</button>
-        <button id="toilet">🧻 Toilettes</button>
-        <button id="sleep">🌙 Dodo</button>
-        <button id="pet">🤲 Caresser</button>
-        <button id="mystery">🎁 Snack mystère</button>
-        <button id="dance">🪩 Danse</button>
-        <button id="heal">💊 Soigner</button>
-        <button id="bath">🫧 Bain Mousse</button>
-        <button id="hunt">🪰 Chasse‑mouches</button>
-        <button id="save">💾 Sauver</button>
-        <button id="reset">🗑️ Repartir</button>
+        <button id="feed"><span class="ic"><svg viewBox="0 0 24 24"><path fill="#8e5f48" d="M3 12c0-4 5-7 9-7s9 3 9 7-5 7-9 7-9-3-9-7z"/></svg></span>Nourrir</button>
+        <button id="play"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="#8e5f48"/><circle cx="15" cy="15" r="3" fill="#8e5f48"/></svg></span>Jouer</button>
+        <button id="wash"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="8" rx="4" fill="#8e5f48"/></svg></span>Laver</button>
+        <button id="toilet"><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="8" rx="4" fill="#8e5f48"/><rect x="9" y="16" width="6" height="3" rx="1" fill="#8e5f48"/></svg></span>Toilettes</button>
+        <button id="sleep"><span class="ic"><svg viewBox="0 0 24 24"><path fill="#8e5f48" d="M16 3a7 7 0 1 0 5 12A8 8 0 0 1 16 3z"/></svg></span>Dodo</button>
+        <button id="pet"><span class="ic"><svg viewBox="0 0 24 24"><path fill="#8e5f48" d="M5 13c2-4 4-6 7-6s5 2 7 6l-7 5z"/></svg></span>Caresser</button>
+        <button id="mystery"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2" fill="#8e5f48"/><path d="M4 10h16" stroke="#fff" stroke-width="2"/></svg></span>Snack mystère</button>
+        <button id="dance"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3" fill="#8e5f48"/><rect x="11" y="10" width="2" height="8" fill="#8e5f48"/></svg></span>Danse</button>
+        <button id="heal"><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="4" rx="2" fill="#8e5f48"/><rect x="10" y="5" width="4" height="14" rx="2" fill="#8e5f48"/></svg></span>Soigner</button>
+        <button id="bath"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="8" cy="10" r="3" fill="#8e5f48"/><circle cx="14" cy="12" r="2" fill="#8e5f48"/><circle cx="17" cy="9" r="1.5" fill="#8e5f48"/></svg></span>Bain Mousse</button>
+        <button id="hunt"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="2" fill="#8e5f48"/><circle cx="16" cy="12" r="2" fill="#8e5f48"/><path d="M6 12h12" stroke="#8e5f48" stroke-width="2"/></svg></span>Chasse‑mouches</button>
+        <button id="save"><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2" fill="#8e5f48"/><rect x="8" y="7" width="8" height="4" fill="#fff"/></svg></span>Sauver</button>
+        <button id="reset"><span class="ic"><svg viewBox="0 0 24 24"><path fill="#8e5f48" d="M6 6h12v12H6z M8 8h8v8H8z"/></svg></span>Repartir</button>
       </div>
     </div>
 
-    <!-- Modal mini‑jeu -->
-    <div class="modal" id="modal">
+    <!-- FAB -->
+    <button id="fabActions" aria-label="Ouvrir les actions">≡ Actions</button>
+
+    <!-- Modal Bain Mousse -->
+    <div class="modal" id="modalBath">
       <div class="panelMG">
-        <button class="close" id="close">✖</button>
-        <h2 style="margin:10px 12px">Bain Mousse — 20 s ! <span class="score" id="score">0</span></h2>
-        <div class="arena" id="arena"></div>
+        <button class="close" id="closeBath">✖</button>
+        <h2 style="margin:10px 12px">Bain Mousse — 20 s ! <span class="score" id="scoreBath">0</span></h2>
+        <div class="arena bath" id="arenaBath"></div>
+      </div>
+    </div>
+    <!-- Modal Chasse‑mouches -->
+    <div class="modal" id="modalFlies">
+      <div class="panelMG">
+        <button class="close" id="closeFlies">✖</button>
+        <h2 style="margin:10px 12px">Chasse‑mouches — 20 s ! <span class="score" id="scoreFlies">0</span></h2>
+        <div class="arena flies" id="arenaFlies"></div>
       </div>
     </div>
   </main>
@@ -194,18 +215,20 @@
 
   const $=(s,r=document)=>r.querySelector(s);
   const app={hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,
-             evo:"bouseau",affection:0,discipline:0,odor:0};
+             evo:"bouseau",affection:0,discipline:0,odor:0,
+             badgeSoap:false,badgeFly:false};
 
   // refs
   const bar={ hunger:$("#bHunger .meter i"), fun:$("#bFun .meter i"), hyg:$("#bHyg .meter i"), energy:$("#bEnergy .meter i") };
   const bars={ hunger:$("#bHunger"), fun:$("#bFun"), hyg:$("#bHyg"), energy:$("#bEnergy") };
-  const age=$("#age"), state=$("#state"), flashEl=$("#flash"), panel=$("#panel"), handle=$("#handle");
+  const age=$("#age"), state=$("#state"), flashEl=$("#flash"), badges=$("#badges");
+  const panel=$("#panel"), handle=$("#handle"), fab=$("#fabActions");
   const bg=$("#bg"), evoImg=$("#evo-img"), sprite=$("#sprite"), steam=$("#steam"), flies=$("#flies");
-  const sleepOverlay=$("#sleepOverlay"), stars=$("#stars");
+  const stars=$("#stars");
   const traitsEls={aff:$("#tAff"), dis:$("#tDis"), odo:$("#tOdo")};
   const evoName=id=>({bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}[id]||"???");
 
-  // stars
+  // Stars
   for(let i=0;i<48;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
 
   function applyBackground(){ bg.src=CONFIG.background; }
@@ -220,11 +243,16 @@
   function avg(...xs){return xs.reduce((a,b)=>a+b,0)/xs.length;}
   function flash(txt){ const el=document.createElement('span'); el.className="label"; el.textContent=txt; state.appendChild(el); setTimeout(()=>el.remove(),1600); }
   function boom(){ flashEl.classList.add('on'); setTimeout(()=>flashEl.classList.remove('on'),560); }
+  function updateBadges(){
+    badges.innerHTML="";
+    if(app.badgeSoap){ const b=document.createElement('span'); b.className="badge"; b.textContent="Savonnette dorée"; badges.appendChild(b); }
+    if(app.badgeFly){ const b=document.createElement('span'); b.className="badge"; b.textContent="Tapette pro"; badges.appendChild(b); }
+  }
   function updateAll(){
     setMeter('hunger',app.hunger); setMeter('fun',app.fun); setMeter('hyg',app.hyg); setMeter('energy',app.energy);
     traitsEls.aff.textContent="Affection: "+app.affection; traitsEls.dis.textContent="Discipline: "+app.discipline; traitsEls.odo.textContent="Odeur: "+app.odor;
     steam.style.opacity=(1-app.hyg/100)*0.9+0.1; flies.style.opacity=(1-app.hyg/100)*0.9+0.1;
-    age.textContent=`Jour ${app.day} — ${evoName(app.evo)}`; applySprite();
+    age.textContent=`Jour ${app.day} — ${evoName(app.evo)}`; applySprite(); updateBadges();
     document.body.classList.toggle('sleeping', app.asleep);
   }
 
@@ -272,31 +300,52 @@
     window.addEventListener('mouseup',end);
   })();
 
-  // Mini‑jeu (Bain Mousse)
-  const modal=$("#modal"), arena=$("#arena"), scoreEl=$("#score"); let mgTimer=null, mgScore=0, mgTime=20;
+  /* ---------------- Minijeu 1 : Bain Mousse ---------------- */
+  const modalBath=$("#modalBath"), arenaBath=$("#arenaBath"), scoreBath=$("#scoreBath");
+  let tBath=null, scBath=0, timeBath=20;
   function spawnBubble(){ const f=document.createElement('div'); f.className="bubble";
-    const x=Math.random()*(arena.clientWidth-34), y=arena.clientHeight+20; f.style.left=x+"px"; f.style.top=y+"px";
+    const x=Math.random()*(arenaBath.clientWidth-34), y=arenaBath.clientHeight+20; f.style.left=x+"px"; f.style.top=y+"px";
     const dur=1200+Math.random()*1200; const start=performance.now();
-    function step(t){ const p=(t-start)/dur; if(p>=1){ f.remove(); return; } f.style.top=(y - p*(arena.clientHeight+80))+"px"; requestAnimationFrame(step); }
-    f.addEventListener('click',()=>{ mgScore++; scoreEl.textContent=mgScore; f.remove(); });
-    f.addEventListener('touchstart',()=>{ mgScore++; scoreEl.textContent=mgScore; f.remove(); },{passive:true});
-    arena.appendChild(f); requestAnimationFrame(step);
+    function step(t){ const p=(t-start)/dur; if(p>=1){ f.remove(); return; } f.style.top=(y - p*(arenaBath.clientHeight+80))+"px"; requestAnimationFrame(step); }
+    const add=()=>{ scBath++; scoreBath.textContent=scBath; f.remove(); };
+    f.addEventListener('click',add); f.addEventListener('touchstart',add,{passive:true});
+    arenaBath.appendChild(f); requestAnimationFrame(step);
   }
-  function startBath(){ modal.classList.add('on'); arena.innerHTML=""; scoreEl.textContent="0"; mgScore=0; mgTime=20;
-    mgTimer=setInterval(()=>{ if(mgTime<=0){ endBath(); return; } mgTime--; for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawnBubble(); },1000);
-  }
-  function endBath(){ clearInterval(mgTimer); mgTimer=null; setTimeout(()=>{ modal.classList.remove('on'); arena.innerHTML=""; rewardBath(); },400); }
-  function rewardBath(){ const s=mgScore;
-    if(s>=25){ setMeter('hyg',app.hyg+30); setMeter('fun',app.fun+18); setTrait('odor',-4); flash("🫧 Roi de la mousse !"); }
+  function startBath(){ modalBath.classList.add('on'); arenaBath.innerHTML=""; scBath=0; scoreBath.textContent="0"; timeBath=20;
+    tBath=setInterval(()=>{ if(timeBath<=0){ endBath(); return; } timeBath--; for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawnBubble(); },1000); }
+  function endBath(){ clearInterval(tBath); tBath=null; setTimeout(()=>{ modalBath.classList.remove('on'); arenaBath.innerHTML=""; rewardBath(); },400); }
+  function rewardBath(){ const s=scBath;
+    if(s>=25){ setMeter('hyg',app.hyg+30); setMeter('fun',app.fun+18); setTrait('odor',-4); if(!app.badgeSoap){ app.badgeSoap=true; flash("🏅 Bonus débloqué: Savonnette dorée"); } else { flash("🫧 Roi de la mousse !"); } }
     else if(s>=12){ setMeter('hyg',app.hyg+20); setMeter('fun',app.fun+12); setTrait('odor',-3); flash("🫧 Bien joué !"); }
     else { setMeter('hyg',app.hyg+12); setMeter('fun',app.fun+6); setTrait('odor',-2); flash("🫧 Pas mal."); }
-    updateAll();
+    updateAll(); save();
   }
   $("#bath").addEventListener('click',()=>{ if(app.alive) startBath(); });
-  $("#hunt").addEventListener('click',()=>{ if(app.alive) startBath(); });
-  $("#close").addEventListener('click',()=>{ modal.classList.remove('on'); if(mgTimer){clearInterval(mgTimer); mgTimer=null;} });
+  $("#closeBath").addEventListener('click',()=>{ modalBath.classList.remove('on'); if(tBath){clearInterval(tBath); tBath=null;} });
 
-  // Random / ticks / day / evolutions
+  /* ---------------- Minijeu 2 : Chasse‑mouches ---------------- */
+  const modalFlies=$("#modalFlies"), arenaFlies=$("#arenaFlies"), scoreFlies=$("#scoreFlies");
+  let tFly=null, scFly=0, timeFly=20;
+  function spawnFly(){ const f=document.createElement('div'); f.className="fly";
+    const x=Math.random()*(arenaFlies.clientWidth-26), y=Math.random()*(arenaFlies.clientHeight-20);
+    f.style.left=x+"px"; f.style.top=y+"px";
+    const life=800+Math.random()*1000, killer=()=>{ scFly++; scoreFlies.textContent=scFly; f.remove(); };
+    f.addEventListener('click',killer); f.addEventListener('touchstart',killer,{passive:true});
+    arenaFlies.appendChild(f); setTimeout(()=>f.remove(),life);
+  }
+  function startFlies(){ modalFlies.classList.add('on'); arenaFlies.innerHTML=""; scFly=0; scoreFlies.textContent="0"; timeFly=20;
+    tFly=setInterval(()=>{ if(timeFly<=0){ endFlies(); return; } timeFly--; const n=1+Math.floor(Math.random()*3); for(let i=0;i<n;i++) spawnFly(); },1000); }
+  function endFlies(){ clearInterval(tFly); tFly=null; setTimeout(()=>{ modalFlies.classList.remove('on'); arenaFlies.innerHTML=""; rewardFlies(); },400); }
+  function rewardFlies(){ const s=scFly;
+    if(s>=20){ setMeter('fun',app.fun+24); setTrait('discipline',+4); setTrait('odor',-2); if(!app.badgeFly){ app.badgeFly=true; flash("🏅 Bonus débloqué: Tapette pro"); } else { flash("Maître moucheur !"); } }
+    else if(s>=10){ setMeter('fun',app.fun+16); setTrait('discipline',+2); setTrait('odor',-2); flash("👏 Bonne chasse !"); }
+    else { setMeter('fun',app.fun+8); setTrait('discipline',+1); setTrait('odor',-1); flash("👍 Pas mal."); }
+    updateAll(); save();
+  }
+  $("#hunt").addEventListener('click',()=>{ if(app.alive) startFlies(); });
+  $("#closeFlies").addEventListener('click',()=>{ modalFlies.classList.remove('on'); if(tFly){clearInterval(tFly); tFly=null;} });
+
+  // Random events & ticks
   setInterval(()=>{ if(!app.alive) return; const r=Math.random();
     if(r<.18){ flash("Une mouche s’est posée..."); setMeter('hyg',app.hyg-4); setTrait('odor',+1); updateAll(); }
     else if(r<.28){ flash("Petit rot discret."); setMeter('hunger',app.hunger+3); setTrait('odor',+1); updateAll(); }
@@ -311,10 +360,15 @@
     updateAll();
   }
   function newDay(){ if(!app.alive) return; app.day++; flash("☀️ Jour "+app.day);
-    setMeter('hyg',app.hyg-5); setMeter('hunger',app.hunger-6); evolveCheck(); save(); updateAll();
+    // bonus quotidiens si badges débloqués
+    if(app.badgeSoap) setMeter('hyg', app.hyg+5);
+    if(app.badgeFly)  setTrait('discipline', +2);
+    setMeter('hyg',app.hyg-5); setMeter('hunger',app.hunger-6);
+    evolveCheck(); save(); updateAll();
   }
   setInterval(tick,1200); setInterval(newDay, 1.2*60*1000);
 
+  // Evolutions
   function evolveCheck(){
     const mood=avg(app.hunger,app.fun,app.hyg,app.energy);
     const clean=app.hyg - app.odor*1.5, playful=app.fun + app.affection, stoic=app.energy - app.discipline*0.5;
@@ -333,23 +387,53 @@
 
   function disable(dis){ ["feed","play","wash","toilet","sleep","pet","mystery","dance","heal","bath","hunt","save"].forEach(id=>$("#"+id).disabled=dis); }
 
-  // Panel toggle + gesture
-  handle.addEventListener('click',()=>panel.classList.toggle('open'));
-  (()=>{ let startY=0, curY=0, dragging=false;
-    panel.addEventListener('touchstart',e=>{ dragging=true; startY=e.touches[0].clientY; curY=startY; },{passive:true});
-    panel.addEventListener('touchmove',e=>{ if(!dragging) return; curY=e.touches[0].clientY; const dy=curY-startY;
-      const base=panel.classList.contains('open')?0:0.72*window.innerHeight;
-      let ty=Math.max(0, Math.min(0.72*window.innerHeight, base+dy)); panel.style.transform=`translateY(${ty}px)`; },{passive:true});
-    panel.addEventListener('touchend',()=>{ dragging=false; const ty=parseFloat((panel.style.transform||'translateY(0)').match(/-?\d+\.?\d*/)?.[0]||0);
-      panel.style.transform=''; if(ty>window.innerHeight*0.36){ panel.classList.remove('open'); } else { panel.classList.add('open'); } });
-  })();
+  // Panel: never lost + drag safe + persist
+  let panelOpen = JSON.parse(localStorage.getItem("panelOpen")||"false");
+  function openPanel(save=true){ panel.classList.add("open"); if(save) localStorage.setItem("panelOpen","true"); }
+  function closePanel(save=true){ panel.classList.remove("open"); if(save) localStorage.setItem("panelOpen","false"); }
+  handle.addEventListener("click", ()=> panel.classList.toggle("open") ? localStorage.setItem("panelOpen","true")
+                                                                     : localStorage.setItem("panelOpen","false"));
+  fab.addEventListener("click", openPanel);
+
+  let startY=0, startOpen=false, dragging=false, closedY=0;
+  function recalc(){ closedY = window.innerHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue("--panel-peek")); }
+  recalc(); window.addEventListener("resize", recalc);
+
+  panel.addEventListener("pointerdown", (e)=>{
+    dragging=true; startY=e.clientY; startOpen=panel.classList.contains("open");
+    panel.style.transition="none"; panel.setPointerCapture(e.pointerId);
+  });
+  panel.addEventListener("pointermove", (e)=>{
+    if(!dragging) return;
+    const dy = e.clientY - startY;
+    let target = startOpen ? Math.max(0, dy) : Math.min(closedY, closedY + dy);
+    panel.style.transform = `translateY(${target}px)`;
+  });
+  panel.addEventListener("pointerup", ()=>{
+    if(!dragging) return; dragging=false; panel.style.transition="";
+    const current = parseFloat(panel.style.transform.match(/-?\d+\.?\d*/)?.[0]||"0");
+    const threshold = closedY * 0.35;
+    if(current > threshold){ closePanel(); panel.style.transform=""; }
+    else { openPanel(); panel.style.transform=""; }
+  });
+
+  if(panelOpen) openPanel(false); else closePanel(false);
+  setTimeout(()=>{ const y = panel.getBoundingClientRect().top; if(y > window.innerHeight){ closePanel(); } }, 300);
+  document.addEventListener("touchstart",(e)=>{ const t=e.touches[0]; if(t.clientY>window.innerHeight-20 && !panel.classList.contains("open")) openPanel(); },{passive:true});
 
   // init
-  applyBackground(); load(); updateAll();
+  function starsInit(){ /* already added */ }
+  function applyBackground(){ bg.src=CONFIG.background; }
+  applyBackground();
+  try{ const s=JSON.parse(localStorage.getItem("cacamochi-mobile")); if(s) Object.assign(app,s);}catch(e){}
+  updateAll();
+
+  // Save/Reset
   $("#save").addEventListener('click',save);
   $("#reset").addEventListener('click',()=>{ localStorage.removeItem("cacamochi-mobile"); Object.assign(app,{
-    hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0
+    hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0,badgeSoap:false,badgeFly:false
   }); disable(false); flash("Nouveau départ !"); updateAll(); });
+
 })();
 </script>
 </body>
