@@ -3,27 +3,33 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Cacamochi — Mobile</title>
+<title>Cacamochi — Mobile Panel</title>
 <style>
   :root{
-    --glass:#ffffffcc; --shadow:#00000030;
+    --rose:#f7e4e1;
+    --rose-2:#f3d5cf;
+    --rose-3:#eec0b6;
+    --marron:#a97155;
+    --marron-2:#8e5f48;
+    --txt:#2a1d16;
+    --glass:#ffffffcc;
+    --shadow:#00000028;
     --good:#5cc66a; --mid:#ffb84d; --bad:#ff6565;
-    --pill:#fff; --pillText:#222;
   }
-  html,body{margin:0;height:100%;background:#e9e4da;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--rose);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
   .app{min-height:100%;display:grid;grid-template-rows:auto 1fr}
 
-  /* Header compact */
-  header{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;background:#ece8df}
+  /* Header */
+  header{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;background:linear-gradient(180deg, var(--rose-2), var(--rose))}
   header h1{margin:0;font-size:1.05rem}
-  .age{margin-left:auto;background:var(--glass);backdrop-filter:blur(6px);padding:.2rem .6rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700;font-size:.85rem}
+  .age{margin-left:auto;background:var(--glass);backdrop-filter:blur(6px);padding:.25rem .6rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700;font-size:.85rem}
 
-  /* Stage (mobile-first) */
+  /* Stage */
   .stage{position:relative;overflow:hidden}
-  .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.02) brightness(1.02)}
+  .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.03) brightness(1.02)}
   .center{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-  .sprite{width:clamp(180px, 48vw, 320px); pointer-events:auto; filter:drop-shadow(0 16px 12px var(--shadow));
-          touch-action:none; /* important: pour capturer les gestes de caresse */ }
+  .sprite{width:clamp(180px, 48vw, 340px); pointer-events:auto; filter:drop-shadow(0 16px 12px var(--shadow)); touch-action:none}
   .wobble{animation:wobble 2.4s ease-in-out infinite}
   @keyframes wobble{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3%) scale(1.02)}}
   .wash{animation:wash .7s ease-in-out 3}@keyframes wash{0%{filter:hue-rotate(0)}50%{filter:hue-rotate(90deg) saturate(1.2)}100%{filter:hue-rotate(0)}}
@@ -31,42 +37,17 @@
   .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
   .flash.on{animation:flash .55s ease}@keyframes flash{0%{opacity:0}10%{opacity:.9}100%{opacity:0}}
 
-  /* Nuit (dodo) */
-  .sleepOverlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s}
-  .sleeping .sleepOverlay{opacity:1}
-  .sleepOverlay .tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%, #003a7a33 0%, #001c3f7a 60%, #00142f9c 100%);}
-  .sleepOverlay .stars{position:absolute;inset:0;overflow:hidden}
-  .star{position:absolute;width:3px;height:3px;background:#d8e7ff;border-radius:50%;opacity:.9;animation:tw 2.2s ease-in-out infinite}
-  @keyframes tw{0%,100%{transform:scale(1)}50%{transform:scale(1.6)}}
-  .zzz{position:absolute;left:50%;top:38%;transform:translateX(-50%);font:700 18px/1.2 monospace;color:#cfe3ff;animation:zzz 2.6s ease-in-out infinite}
-  @keyframes zzz{0%{opacity:0;transform:translate(-50%,6px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-18px)}}
-
-  /* HUD en haut (2x2) */
+  /* HUD */
   .hud{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);width:min(94vw,560px);
-       display:grid;grid-template-columns:1fr 1fr;gap:.6rem;background:var(--glass);backdrop-filter:blur(6px);
-       padding:.6rem;border-radius:16px;box-shadow:0 6px 20px var(--shadow)}
-  .bar h3{margin:0 0 .25rem 0;font-size:.85rem}
+       display:grid;grid-template-columns:1fr 1fr;gap:.6rem;background:var(--glass);backdrop-filter:blur(8px);
+       padding:.6rem;border-radius:18px;box-shadow:0 6px 22px var(--shadow);z-index:3}
+  .bar h3{margin:0 0 .28rem 0;font-size:.9rem}
   .meter{height:10px;background:#00000015;border-radius:99px;overflow:hidden}
-  .meter>i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--good),#9ee68b);transition:width .28s}
+  .meter>i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--good),#9ee68b);transition:width .26s}
   .bad>i{background:linear-gradient(90deg,var(--bad),#ff8080)}
   .mid>i{background:linear-gradient(90deg,var(--mid),#ffd197)}
-
-  /* Chips (traits) réduits sous HUD */
-  .traits{position:absolute;top:calc(.6rem + 92px);left:50%;transform:translateX(-50%);
-          display:flex;gap:.4rem;flex-wrap:wrap;max-width:94vw;justify-content:center}
-  .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.25rem .55rem;border-radius:999px;font-size:.8rem;box-shadow:0 2px 6px var(--shadow)}
-
-  /* Actions : grille 2 colonnes, gros boutons */
-  .actions{position:absolute;left:50%;bottom:.8rem;transform:translateX(-50%);width:min(94vw,560px);
-           display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-  button{
-    -webkit-tap-highlight-color:transparent; cursor:pointer;border:none;border-radius:16px;
-    padding:.9rem .95rem;background:var(--pill);color:var(--pillText);font-weight:800;font-size:1rem;
-    box-shadow:0 10px 22px var(--shadow);display:flex;gap:.6rem;align-items:center;justify-content:center;
-    transition:transform .08s ease, box-shadow .08s ease, filter .08s ease;
-  }
-  button:active{ transform:translateY(2px); box-shadow:0 6px 12px var(--shadow)}
-  button[disabled]{opacity:.5;pointer-events:none}
+  .traits{position:absolute;top:calc(.6rem + 98px);left:50%;transform:translateX(-50%);display:flex;gap:.4rem;flex-wrap:wrap;max-width:94vw;justify-content:center;z-index:3}
+  .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.3rem .6rem;border-radius:999px;font-size:.82rem;box-shadow:0 2px 6px var(--shadow)}
 
   /* Odeur & mouches */
   .steam line{animation:steam 3.4s ease-in-out infinite}
@@ -74,20 +55,50 @@
   .flies{animation:orbit 6s linear infinite;transform-origin:center}
   @keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-  /* Modal minijeu (Bain Mousse) */
-  .modal{position:absolute;inset:0;background:#00000070;display:none;align-items:center;justify-content:center}
+  /* Sleep overlay */
+  .sleepOverlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;z-index:2}
+  .sleeping .sleepOverlay{opacity:1}
+  .sleepOverlay .tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%, #143a6a33 0%, #0822458a 60%, #061a3666 100%)}
+  .stars{position:absolute;inset:0;overflow:hidden}
+  .star{position:absolute;width:3px;height:3px;background:#d8e7ff;border-radius:50%;opacity:.9;animation:tw 2.2s ease-in-out infinite}
+  @keyframes tw{0%,100%{transform:scale(1)}50%{transform:scale(1.6)}}
+  .zzz{position:absolute;left:50%;top:38%;transform:translateX(-50%);font:700 18px/1.2 monospace;color:#cfe3ff;animation:zzz 2.6s ease-in-out infinite}
+  @keyframes zzz{0%{opacity:0;transform:translate(-50%,6px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-18px)}}
+
+  /* Messages (au-dessus du panneau) */
+  .state{position:absolute;left:.8rem;bottom:calc(72px + 1.1rem);display:flex;gap:.4rem;flex-wrap:wrap;z-index:2}
+  .label{background:var(--glass);backdrop-filter:blur(6px);padding:.35rem .7rem;border-radius:999px;box-shadow:0 2px 6px var(--shadow);font-weight:700}
+
+  /* Panneau d’actions (rabattable) */
+  .panel{position:fixed;left:0;right:0;bottom:0;transform:translateY(72%);
+         background:linear-gradient(180deg, #ffeceb, #ffe0dc);
+         border-top-left-radius:22px;border-top-right-radius:22px;box-shadow:0 -10px 26px var(--shadow);
+         transition:transform .28s ease; z-index:4}
+  .panel.open{transform:translateY(0)}
+  .handle{width:44px;height:6px;background:var(--marron);border-radius:6px;margin:10px auto}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;padding:.6rem .8rem 1rem .8rem}
+  button{
+    -webkit-tap-highlight-color:transparent; cursor:pointer;border:none;border-radius:16px;
+    padding:.9rem .95rem;background:#f7d9d2;color:#331e16;font-weight:800;font-size:1rem;
+    box-shadow:0 10px 22px var(--shadow);display:flex;gap:.6rem;align-items:center;justify-content:center;
+    transition:transform .08s ease, box-shadow .08s ease, filter .08s ease;
+  }
+  button:active{ transform:translateY(2px); box-shadow:0 6px 12px var(--shadow)}
+  button[disabled]{opacity:.5;pointer-events:none}
+
+  /* Modal minijeu */
+  .modal{position:absolute;inset:0;background:#00000070;display:none;align-items:center;justify-content:center;z-index:5}
   .modal.on{display:flex}
-  .panel{width:min(520px,92vw);height:min(420px,80vh);background:#f6f3ee;border-radius:16px;box-shadow:0 10px 30px #00000040;position:relative;overflow:hidden}
-  .panel h2{margin:10px 12px;font-size:16px}
-  .arena{position:absolute;inset:56px 12px 14px 12px;background:#d4edf7;border-radius:12px;overflow:hidden}
-  .bubble{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffffaa 0%, #aee6ff 40%, #7ed8ff 70%, #5ab4e3 100%);box-shadow:0 2px 6px #00000033}
+  .panelMG{width:min(520px,92vw);height:min(420px,80vh);background:#fff6f4;border-radius:16px;box-shadow:0 10px 30px #00000040;position:relative;overflow:hidden;border:3px solid var(--rose-3)}
+  .panelMG h2{margin:10px 12px;font-size:16px}
+  .arena{position:absolute;inset:56px 12px 14px 12px;background:#f6eaf0;border-radius:12px;overflow:hidden}
+  .bubble{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffffaa 0%, #ffd6f3 40%, #ffc1ea 70%, #f5a7d5 100%);box-shadow:0 2px 6px #00000033}
   .score{position:absolute;right:12px;top:12px;font-weight:800}
   .close{position:absolute;right:10px;top:8px}
-  .hidden{display:none}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
   <header>
     <h1>💩 Cacamochi</h1>
     <div class="age" id="age">Jour 1 — Bouseau</div>
@@ -96,7 +107,6 @@
   <main class="stage" id="room">
     <img id="bg" class="bg" alt="Pièce" src=""/>
 
-    <!-- HUD -->
     <div class="hud">
       <div class="bar" id="bHunger"><h3>Faim</h3><div class="meter"><i></i></div></div>
       <div class="bar" id="bFun"><h3>Fun</h3><div class="meter"><i></i></div></div>
@@ -109,11 +119,10 @@
       <span class="chip" id="tOdo">Odeur: 0</span>
     </div>
 
-    <!-- Messages + flash -->
-    <div class="state" id="state" style="position:absolute;left:.8rem;bottom:calc(100px + 1.2rem);display:flex;gap:.4rem;flex-wrap:wrap"></div>
+    <div class="state" id="state"></div>
     <div class="flash" id="flash"></div>
 
-    <!-- Nuit overlay -->
+    <!-- Nuit -->
     <div class="sleepOverlay" id="sleepOverlay">
       <div class="tint"></div>
       <div class="stars" id="stars"></div>
@@ -137,26 +146,29 @@
       </svg>
     </div>
 
-    <!-- Actions (mobile) -->
-    <div class="actions">
-      <button id="feed">🍗 Nourrir</button>
-      <button id="play">🎲 Jouer</button>
-      <button id="wash">🧼 Laver</button>
-      <button id="toilet">🧻 Toilettes</button>
-      <button id="sleep">🌙 Dodo</button>
-      <button id="pet">🤲 Caresser</button>
-      <button id="mystery">🎁 Snack mystère</button>
-      <button id="dance">🪩 Danse</button>
-      <button id="heal">💊 Soigner</button>
-      <button id="bath">🫧 Bain Mousse</button>
-      <button id="hunt">🪰 Chasse‑mouches</button>
-      <button id="save">💾 Sauver</button>
-      <button id="reset">🗑️ Repartir</button>
+    <!-- Panneau d’actions -->
+    <div class="panel" id="panel">
+      <div class="handle" id="handle"></div>
+      <div class="actions">
+        <button id="feed">🍗 Nourrir</button>
+        <button id="play">🎲 Jouer</button>
+        <button id="wash">🧼 Laver</button>
+        <button id="toilet">🧻 Toilettes</button>
+        <button id="sleep">🌙 Dodo</button>
+        <button id="pet">🤲 Caresser</button>
+        <button id="mystery">🎁 Snack mystère</button>
+        <button id="dance">🪩 Danse</button>
+        <button id="heal">💊 Soigner</button>
+        <button id="bath">🫧 Bain Mousse</button>
+        <button id="hunt">🪰 Chasse‑mouches</button>
+        <button id="save">💾 Sauver</button>
+        <button id="reset">🗑️ Repartir</button>
+      </div>
     </div>
 
-    <!-- Modal Bain Mousse -->
+    <!-- Modal mini‑jeu -->
     <div class="modal" id="modal">
-      <div class="panel">
+      <div class="panelMG">
         <button class="close" id="close">✖</button>
         <h2 style="margin:10px 12px">Bain Mousse — 20 s ! <span class="score" id="score">0</span></h2>
         <div class="arena" id="arena"></div>
@@ -167,7 +179,6 @@
 
 <script>
 (()=> {
-  /* ASSETS (garde tes noms de fichiers actuels) */
   const CONFIG = {
     background: "img_background.jpg",
     sprites: {
@@ -185,22 +196,17 @@
   const app={hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,
              evo:"bouseau",affection:0,discipline:0,odor:0};
 
-  // Refs
+  // refs
   const bar={ hunger:$("#bHunger .meter i"), fun:$("#bFun .meter i"), hyg:$("#bHyg .meter i"), energy:$("#bEnergy .meter i") };
   const bars={ hunger:$("#bHunger"), fun:$("#bFun"), hyg:$("#bHyg"), energy:$("#bEnergy") };
-  const age=$("#age"), state=$("#state"), flashEl=$("#flash"), sleepOverlay=$("#sleepOverlay"), stars=$("#stars");
+  const age=$("#age"), state=$("#state"), flashEl=$("#flash"), panel=$("#panel"), handle=$("#handle");
   const bg=$("#bg"), evoImg=$("#evo-img"), sprite=$("#sprite"), steam=$("#steam"), flies=$("#flies");
+  const sleepOverlay=$("#sleepOverlay"), stars=$("#stars");
   const traitsEls={aff:$("#tAff"), dis:$("#tDis"), odo:$("#tOdo")};
   const evoName=id=>({bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}[id]||"???");
 
-  // Setup nuit étoiles
-  (function makeStars(n=40){
-    for(let i=0;i<n;i++){
-      const s=document.createElement('div'); s.className='star';
-      s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%';
-      s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s);
-    }
-  })();
+  // stars
+  for(let i=0;i<48;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
 
   function applyBackground(){ bg.src=CONFIG.background; }
   function applySprite(){ const s=CONFIG.sprites[app.evo]; if(!s) return;
@@ -208,12 +214,11 @@
     evoImg.setAttribute('width',s.w??200); evoImg.setAttribute('height',s.h??200);
   }
 
-  // Utils
   function setMeter(name,val){ val=Math.max(0,Math.min(100,val)); bar[name].style.width=val+"%";
     bars[name].classList.toggle('bad',val<35); bars[name].classList.toggle('mid',val>=35&&val<65); bars[name].classList.toggle('good',val>=65); app[name]=val; }
   function setTrait(name,delta,min=-999,max=999){ app[name]=Math.max(min,Math.min(max,app[name]+delta)); }
   function avg(...xs){return xs.reduce((a,b)=>a+b,0)/xs.length;}
-  function flash(txt){ const el=document.createElement('span'); el.className="chip"; el.textContent=txt; state.appendChild(el); setTimeout(()=>el.remove(),1600); }
+  function flash(txt){ const el=document.createElement('span'); el.className="label"; el.textContent=txt; state.appendChild(el); setTimeout(()=>el.remove(),1600); }
   function boom(){ flashEl.classList.add('on'); setTimeout(()=>flashEl.classList.remove('on'),560); }
   function updateAll(){
     setMeter('hunger',app.hunger); setMeter('fun',app.fun); setMeter('hyg',app.hyg); setMeter('energy',app.energy);
@@ -223,84 +228,62 @@
     document.body.classList.toggle('sleeping', app.asleep);
   }
 
-  // Save
-  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-m")); if(s) Object.assign(app,s);}catch(e){} };
-  const save=()=>{ localStorage.setItem("cacamochi-m", JSON.stringify(app)); flash("Sauvé !"); };
+  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-mobile")); if(s) Object.assign(app,s);}catch(e){} };
+  const save=()=>{ localStorage.setItem("cacamochi-mobile", JSON.stringify(app)); flash("Sauvé !"); };
 
-  // Actions
+  // actions
   $("#feed").addEventListener('click',()=>{ if(!app.alive) return;
     setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6);
-    setTrait('affection',+1); setTrait('odor',+1); flash("Miam !");
-    updateAll();
+    setTrait('affection',+1); setTrait('odor',+1); flash("Miam !"); updateAll();
   });
   $("#play").addEventListener('click',()=>{ if(!app.alive) return;
     setMeter('fun',app.fun+18); setMeter('energy',app.energy-10); setMeter('hyg',app.hyg-7);
-    setTrait('discipline',+1); setTrait('odor',+1); flash("On s’éclate !");
-    updateAll();
+    setTrait('discipline',+1); setTrait('odor',+1); flash("On s’éclate !"); updateAll();
   });
   $("#wash").addEventListener('click',()=>{ if(!app.alive) return;
-    setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); flash("Tout propre !");
-    updateAll();
+    setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); flash("Tout propre !"); updateAll();
   });
-  $("#toilet").addEventListener('click',()=>{ if(!app.alive) return;
-    setMeter('hyg',app.hyg+40); setTrait('odor',-6); flash("🧻 Fiuuut !"); updateAll();
-  });
-  $("#sleep").addEventListener('click',()=>{ if(!app.alive) return;
-    app.asleep=!app.asleep; flash(app.asleep?"Bonne nuit...":"Réveil !");
-    updateAll();
-  });
-  $("#dance").addEventListener('click',()=>{ if(!app.alive) return;
-    sprite.classList.add('dance'); setTimeout(()=>sprite.classList.remove('dance'),2800);
-    setMeter('fun',app.fun+10); setMeter('energy',app.energy-6); flash("Disco !");
-    updateAll();
-  });
-  $("#heal").addEventListener('click',()=>{ if(!app.alive) return;
-    const low=['hunger','fun','hyg','energy'].some(k=>app[k]<35);
-    if(low){ ['hunger','fun','hyg','energy'].forEach(k=>setMeter(k,app[k]+8)); flash("💊 Ça va mieux."); }
-    else flash("💊 Pas besoin pour l’instant.");
-    updateAll();
-  });
-  $("#mystery").addEventListener('click',()=>{ if(!app.alive) return;
-    const r=Math.random();
+  $("#toilet").addEventListener('click',()=>{ if(!app.alive) return; setMeter('hyg',app.hyg+40); setTrait('odor',-6); flash("🧻 Fiuuut !"); updateAll(); });
+  $("#sleep").addEventListener('click',()=>{ if(!app.alive) return; app.asleep=!app.asleep; flash(app.asleep?"Bonne nuit...":"Réveil !"); updateAll(); });
+  $("#dance").addEventListener('click',()=>{ if(!app.alive) return; sprite.classList.add('dance'); setTimeout(()=>sprite.classList.remove('dance'),2800); setMeter('fun',app.fun+10); setMeter('energy',app.energy-6); flash("Disco !"); updateAll(); });
+  $("#heal").addEventListener('click',()=>{ if(!app.alive) return; const low=['hunger','fun','hyg','energy'].some(k=>app[k]<35);
+    if(low){ ['hunger','fun','hyg','energy'].forEach(k=>setMeter(k,app[k]+8)); flash("💊 Ça va mieux."); } else flash("💊 Pas besoin.");
+    updateAll(); });
+  $("#mystery").addEventListener('click',()=>{ if(!app.alive) return; const r=Math.random();
     if(r<.34){ setMeter('fun',app.fun+20); setTrait('affection',+2); flash("🎈 Surprise joyeuse !"); }
     else if(r<.67){ setMeter('hyg',app.hyg-15); setTrait('odor',+4); flash("🤢 Beurk..."); }
     else { setMeter('energy',app.energy+18); setTrait('discipline',-1); flash("⚡ Boost !"); }
-    updateAll();
-  });
+    updateAll(); });
 
-  // Caresser (fix mobile) — oscillations verticales ou circulaires rapides
+  // Caresser (mobile fiable)
   (function enablePet(){
     let pet=false, lastX=0,lastY=0, moves=0, timer=null;
     const start=(x,y)=>{ pet=true; lastX=x; lastY=y; moves=0;
       timer=setTimeout(()=>{ if(pet){ setTrait('affection',+2); setMeter('fun',app.fun+6); flash("🤲 +Affection"); updateAll(); } },700);
     };
-    const move=(x,y)=>{ if(!pet) return; const dx=Math.abs(x-lastX), dy=Math.abs(y-lastY);
-      if(dx+dy>14){ moves++; lastX=x; lastY=y; }
-    };
-    const end=()=>{ if(!pet) return; pet=false; if(timer) clearTimeout(timer);
-      if(moves>8){ setTrait('affection',+1); setMeter('fun',app.fun+4); flash("Il adore !"); updateAll(); }
-    };
+    const move=(x,y)=>{ if(!pet) return; if(Math.abs(x-lastX)+Math.abs(y-lastY)>14){ moves++; lastX=x; lastY=y; } };
+    const end=()=>{ if(!pet) return; pet=false; if(timer) clearTimeout(timer); if(moves>8){ setTrait('affection',+1); setMeter('fun',app.fun+4); flash("Il adore !"); updateAll(); } };
     const area=$("#sprite");
     area.addEventListener('touchstart',e=>{const t=e.touches[0]; start(t.clientX,t.clientY);},{passive:true});
     area.addEventListener('touchmove', e=>{const t=e.touches[0]; move(t.clientX,t.clientY);},{passive:true});
     window.addEventListener('touchend', end);
-    // souris (utile en dev)
     area.addEventListener('mousedown',e=>start(e.clientX,e.clientY));
     area.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
     window.addEventListener('mouseup',end);
   })();
 
-  // Minijeu 1: Chasse‑mouches (existant, simplifié pour mobile)
+  // Mini‑jeu (Bain Mousse)
   const modal=$("#modal"), arena=$("#arena"), scoreEl=$("#score"); let mgTimer=null, mgScore=0, mgTime=20;
-  function spawnFly(){ const f=document.createElement('div'); f.className="bubble"; // visuel bulle -> mouche c'est moche sur fond bleu
+  function spawnBubble(){ const f=document.createElement('div'); f.className="bubble";
     const x=Math.random()*(arena.clientWidth-34), y=arena.clientHeight+20; f.style.left=x+"px"; f.style.top=y+"px";
     const dur=1200+Math.random()*1200; const start=performance.now();
     function step(t){ const p=(t-start)/dur; if(p>=1){ f.remove(); return; } f.style.top=(y - p*(arena.clientHeight+80))+"px"; requestAnimationFrame(step); }
     f.addEventListener('click',()=>{ mgScore++; scoreEl.textContent=mgScore; f.remove(); });
+    f.addEventListener('touchstart',()=>{ mgScore++; scoreEl.textContent=mgScore; f.remove(); },{passive:true});
     arena.appendChild(f); requestAnimationFrame(step);
   }
   function startBath(){ modal.classList.add('on'); arena.innerHTML=""; scoreEl.textContent="0"; mgScore=0; mgTime=20;
-    mgTimer=setInterval(()=>{ if(mgTime<=0){ endBath(); return; } mgTime--; for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawnFly(); },1000);
+    mgTimer=setInterval(()=>{ if(mgTime<=0){ endBath(); return; } mgTime--; for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawnBubble(); },1000);
   }
   function endBath(){ clearInterval(mgTimer); mgTimer=null; setTimeout(()=>{ modal.classList.remove('on'); arena.innerHTML=""; rewardBath(); },400); }
   function rewardBath(){ const s=mgScore;
@@ -310,12 +293,11 @@
     updateAll();
   }
   $("#bath").addEventListener('click',()=>{ if(app.alive) startBath(); });
-  $("#hunt").addEventListener('click',()=>{ if(app.alive) startBath(); /* on réutilise le bain (plus mobile friendly) */ });
+  $("#hunt").addEventListener('click',()=>{ if(app.alive) startBath(); });
   $("#close").addEventListener('click',()=>{ modal.classList.remove('on'); if(mgTimer){clearInterval(mgTimer); mgTimer=null;} });
 
-  // Random events & ticks
-  setInterval(()=>{ if(!app.alive) return;
-    const r=Math.random();
+  // Random / ticks / day / evolutions
+  setInterval(()=>{ if(!app.alive) return; const r=Math.random();
     if(r<.18){ flash("Une mouche s’est posée..."); setMeter('hyg',app.hyg-4); setTrait('odor',+1); updateAll(); }
     else if(r<.28){ flash("Petit rot discret."); setMeter('hunger',app.hunger+3); setTrait('odor',+1); updateAll(); }
   }, 30000);
@@ -324,9 +306,7 @@
     const k=app.asleep?0.45:1;
     setMeter('hunger',app.hunger-0.6*k); setMeter('fun',app.fun-0.45*k); setMeter('hyg',app.hyg-0.35*k);
     setMeter('energy', app.energy-(app.asleep?-0.9:0.7));
-    if(['hunger','fun','hyg','energy'].filter(x=>app[x]<=0).length>=2){
-      app.alive=false; flash("💀 RIP Cacamochi..."); disable(true);
-    }
+    if(['hunger','fun','hyg','energy'].filter(x=>app[x]<=0).length>=2){ app.alive=false; flash("💀 RIP Cacamochi..."); disable(true); }
     $("#sprite .flies").style.animationDuration=(5+Math.random()*3).toFixed(1)+"s";
     updateAll();
   }
@@ -335,7 +315,6 @@
   }
   setInterval(tick,1200); setInterval(newDay, 1.2*60*1000);
 
-  // Evolutions (inchangé)
   function evolveCheck(){
     const mood=avg(app.hunger,app.fun,app.hyg,app.energy);
     const clean=app.hyg - app.odor*1.5, playful=app.fun + app.affection, stoic=app.energy - app.discipline*0.5;
@@ -354,10 +333,21 @@
 
   function disable(dis){ ["feed","play","wash","toilet","sleep","pet","mystery","dance","heal","bath","hunt","save"].forEach(id=>$("#"+id).disabled=dis); }
 
-  // Init
+  // Panel toggle + gesture
+  handle.addEventListener('click',()=>panel.classList.toggle('open'));
+  (()=>{ let startY=0, curY=0, dragging=false;
+    panel.addEventListener('touchstart',e=>{ dragging=true; startY=e.touches[0].clientY; curY=startY; },{passive:true});
+    panel.addEventListener('touchmove',e=>{ if(!dragging) return; curY=e.touches[0].clientY; const dy=curY-startY;
+      const base=panel.classList.contains('open')?0:0.72*window.innerHeight;
+      let ty=Math.max(0, Math.min(0.72*window.innerHeight, base+dy)); panel.style.transform=`translateY(${ty}px)`; },{passive:true});
+    panel.addEventListener('touchend',()=>{ dragging=false; const ty=parseFloat((panel.style.transform||'translateY(0)').match(/-?\d+\.?\d*/)?.[0]||0);
+      panel.style.transform=''; if(ty>window.innerHeight*0.36){ panel.classList.remove('open'); } else { panel.classList.add('open'); } });
+  })();
+
+  // init
   applyBackground(); load(); updateAll();
   $("#save").addEventListener('click',save);
-  $("#reset").addEventListener('click',()=>{ localStorage.removeItem("cacamochi-m"); Object.assign(app,{
+  $("#reset").addEventListener('click',()=>{ localStorage.removeItem("cacamochi-mobile"); Object.assign(app,{
     hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0
   }); disable(false); flash("Nouveau départ !"); updateAll(); });
 })();
