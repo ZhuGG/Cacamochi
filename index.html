@@ -556,8 +556,10 @@
     }
 
     function start(){
-      const href = document.getElementById('evo-img').getAttribute('href');
-      targetImg.src = href || 'img_bouseau.png';
+      // On utilise l'état actuel du personnage
+const evoId = app.evo || "bouseau";
+targetImg.src = CONFIG.sprites[evoId].src;
+
 
       score=0; scoreEl.textContent='0';
       flies.length=0; spawnCoolDown=0; tStart=0; loop.prev=0;
