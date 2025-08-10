@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Cacamochi — mobile (PNG)</title>
+<title>Cacamochi — mobile (PNG + Flies Arcade)</title>
 <style>
   :root{
     --rose:#f7e4e1; --rose-2:#f3d5cf; --rose-3:#eec0b6;
@@ -52,7 +52,7 @@
   .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.35rem .7rem;border-radius:999px;
     font-size:.86rem;font-weight:800;color:var(--marron);box-shadow:0 2px 6px var(--shadow)}
 
-  /* Mouches autour du sprite */
+  /* Odeur/mouches autour du sprite */
   .steam line{animation:steam 3.2s ease-in-out infinite}
   @keyframes steam{0%{opacity:0;transform:translateY(8px)}20%{opacity:.9}100%{opacity:0;transform:translateY(-26px)}}
   .orbitFlies .f{transform-origin:100px 105px;animation:flyOrbit linear infinite}
@@ -135,12 +135,25 @@
   .goPanel h2{margin:.2rem 0;color:var(--marron);font-size:1.4rem}
   .goPanel p{margin:.2rem 0 .8rem;color:var(--marron)}
   .goPanel button{background:var(--btn);border:none;border-radius:12px;padding:.7rem 1rem;font-weight:800;color:var(--marron-2);box-shadow:0 6px 14px var(--shadow)}
+
+  /* ------- Mini‑jeu MOUCHES – ARCADE (PNG) ------- */
+  .flySprite{position:absolute;will-change:transform;pointer-events:auto;
+    width:38px;height:30px;transform:translate(-50%,-50%) rotate(0deg)}
+  .flySprite.small{width:32px;height:26px}
+  .flySprite.big{width:46px;height:36px}
+  .flySprite.gold{width:40px;height:30px}
+  .splatFX{position:absolute;width:24px;height:24px;transform:translate(-50%,-50%);
+    opacity:.9;animation:splatFX .4s ease-out forwards}
+  @keyframes splatFX{to{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
+  .sparkFX{position:absolute;width:18px;height:18px;transform:translate(-50%,-50%);
+    animation:spark .6s ease-out forwards}
+  @keyframes spark{to{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <header>
-    <div class="brand"><img src="img/header/logo_cacamochi.png" alt="Cacamochi"></div>
+    <div class="brand"><img src="img/header/logo_cacamochi.svg" alt="Cacamochi"></div>
     <div class="age" id="age">Jour 1 — Bouseau</div>
   </header>
 
@@ -196,7 +209,7 @@
       <div class="dock" id="dock">
         <button class="btn" id="feed"><img class="ico" src="img/icons/nourrir.png" alt=""><span class="lbl">Nourrir</span></button>
         <button class="btn" id="wash"><img class="ico" src="img/icons/laver.png" alt=""><span class="lbl">Laver</span></button>
-        <button class="btn" id="toilet"><img class="ico" src="img/icons/WC.png" alt=""><span class="lbl">WC</span></button>
+        <button class="btn" id="toilet"><img class="ico" src="img/icons/wc.png" alt=""><span class="lbl">WC</span></button>
         <button class="btn" id="sleep"><img class="ico" src="img/icons/dodo.png" alt=""><span class="lbl">Dodo</span></button>
         <button class="btn" id="play"><img class="ico" src="img/icons/jouer.png" alt=""><span class="lbl">Jouer</span></button>
         <button class="btn" id="heal"><img class="ico" src="img/icons/soigner.png" alt=""><span class="lbl">Soigner</span></button>
@@ -289,7 +302,7 @@
   for(let i=0;i<42;i++){ const s=document.createElement('div'); s.className='star';
     s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
 
-  /* Actions */
+  /* Actions (dock) */
   $("#feed").addEventListener('click',()=>{ if(!app.alive) return;
     setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6);
     setTrait('affection',+1); setTrait('odor',+1); say("Miam !"); updateAll(); save();
@@ -314,8 +327,6 @@
     else say("Pas besoin.");
     updateAll(); save();
   });
-
-  /* Nouvelles activités */
   $("#snack").addEventListener('click',()=>{ if(!app.alive) return;
     const r=Math.random();
     if(r<.33){ setMeter('hunger',app.hunger+16); say("Snack salé 😋"); }
@@ -335,7 +346,7 @@
     say("Petite sieste 😴"); updateAll(); save();
   });
 
-  /* Dock UX : centre le bouton tapé sans faire bouger la page */
+  /* Dock UX : centre le bouton tapé sans bouger la page */
   const wrap = document.querySelector('.dockWrap');
   document.getElementById('dock').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
@@ -347,12 +358,13 @@
   /* Danse (double‑tap) */
   (function(){
     let last=0;
-    sprite.addEventListener('touchend',()=>{ const now=Date.now(); if(now-last<300){ dance(); } last=now; },{passive:true});
-    sprite.addEventListener('click',()=>{ const now=Date.now(); if(now-last<300){ dance(); } last=now; });
+    const s = document.getElementById('sprite');
+    s.addEventListener('touchend',()=>{ const now=Date.now(); if(now-last<300){ dance(); } last=now; },{passive:true});
+    s.addEventListener('click',()=>{ const now=Date.now(); if(now-last<300){ dance(); } last=now; });
     function dance(){
       if(!app.alive) return;
-      document.body.classList.add('disco-on'); sprite.classList.add('dance');
-      setTimeout(()=>{ sprite.classList.remove('dance'); document.body.classList.remove('disco-on'); }, 2800);
+      document.body.classList.add('disco-on'); s.classList.add('dance');
+      setTimeout(()=>{ s.classList.remove('dance'); document.body.classList.remove('disco-on'); }, 2800);
       setMeter('fun',app.fun+10); setMeter('energy',app.energy-6); say("Disco !");
       updateAll(); save();
     }
@@ -375,74 +387,188 @@
     window.addEventListener('mouseup',end);
   })();
 
-  /* Mini‑jeu Bain */
-  const modalBath=$("#modalBath"), arenaBath=$("#arenaBath"), scoreBath=$("#scoreBath");
-  let tBath=null, scBath=0, timeBath=20;
-  function spawnBubble(){
-    const f=document.createElement('div'); f.className="bubble";
-    const x=Math.random()*(arenaBath.clientWidth-34), y=arenaBath.clientHeight+20;
-    f.style.left=x+"px"; f.style.top=y+"px";
-    const dur=1200+Math.random()*1200; const start=performance.now();
-    function step(t){ const p=(t-start)/dur; if(p>=1){ f.remove(); return; } f.style.top=(y - p*(arenaBath.clientHeight+80))+"px"; requestAnimationFrame(step); }
-    function add(ev){
-      scBath++; scoreBath.textContent=scBath;
-      const r=arenaBath.getBoundingClientRect();
-      const ring=document.createElement('div'); ring.className="hit";
-      const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left-12;
-      const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top-12;
-      ring.style.left=cx+"px"; ring.style.top=cy+"px";
-      arenaBath.appendChild(ring); setTimeout(()=>ring.remove(),350);
-      f.remove();
-    }
-    f.addEventListener('click',add); f.addEventListener('touchstart',add,{passive:true});
-    arenaBath.appendChild(f); requestAnimationFrame(step);
-  }
-  function startBath(){ modalBath.classList.add('on'); arenaBath.innerHTML=""; scBath=0; scoreBath.textContent="0"; timeBath=20;
-    tBath=setInterval(()=>{ if(timeBath<=0){ endBath(); return; } timeBath--; for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawnBubble(); },1000); }
-  function endBath(){ clearInterval(tBath); tBath=null; setTimeout(()=>{ modalBath.classList.remove('on'); arenaBath.innerHTML=""; rewardBath(); },400); }
-  function rewardBath(){ const s=scBath;
-    if(s>=25){ setMeter('hyg',app.hyg+30); setMeter('fun',app.fun+18); setTrait('odor',-4); say("🫧 Roi de la mousse !"); }
-    else if(s>=12){ setMeter('hyg',app.hyg+20); setMeter('fun',app.fun+12); setTrait('odor',-3); say("🫧 Bien joué !"); }
-    else { setMeter('hyg',app.hyg+12); setMeter('fun',app.fun+6); setTrait('odor',-2); say("🫧 Pas mal."); }
-    updateAll(); save();
-  }
-  $("#btnBath").addEventListener('click',()=>{ if(app.alive) startBath(); });
-  $("#closeBath").addEventListener('click',()=>{ modalBath.classList.remove('on'); if(tBath){clearInterval(tBath); tBath=null;} });
+  /* ===== Mini‑jeu MOUCHES — ARCADE (PNG assets) ===== */
+  (function(){
+    const modal = document.getElementById('modalFlies');
+    const arena = document.getElementById('arenaFlies');
+    const scoreEl = document.getElementById('scoreFlies');
+    const btnOpen = document.getElementById('btnFlies');
+    const btnClose = document.getElementById('closeFlies');
 
-  /* Mini‑jeu Mouches */
-  const modalFlies=$("#modalFlies"), arenaFlies=$("#arenaFlies"), scoreFlies=$("#scoreFlies");
-  let tFly=null, scFly=0, timeFly=20;
-  function spawnFly(){
-    const f=document.createElement('div'); f.className="fly";
-    const x=Math.random()*(arenaFlies.clientWidth-26), y=Math.random()*(arenaFlies.clientHeight-20);
-    f.style.left=x+"px"; f.style.top=y+"px";
-    const life=800+Math.random()*1000;
-    function killer(ev){
-      scFly++; scoreFlies.textContent=scFly;
-      const r=arenaFlies.getBoundingClientRect();
-      const sp=document.createElement('div'); sp.className="splat";
-      const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left-11;
-      const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top-11;
-      sp.style.left=cx+"px"; sp.style.top=cy+"px";
-      arenaFlies.appendChild(sp); setTimeout(()=>sp.remove(),500);
-      f.remove();
-    }
-    f.addEventListener('click',killer); f.addEventListener('touchstart',killer,{passive:true});
-    arenaFlies.appendChild(f); setTimeout(()=>f.remove(),life);
-  }
-  function startFlies(){ modalFlies.classList.add('on'); arenaFlies.innerHTML=""; scFly=0; scoreFlies.textContent="0"; timeFly=20;
-    tFly=setInterval(()=>{ if(timeFly<=0){ endFlies(); return; } timeFly--; const n=1+Math.floor(Math.random()*3); for(let i=0;i<n;i++) spawnFly(); },1000); }
-  function endFlies(){ clearInterval(tFly); tFly=null; setTimeout(()=>{ modalFlies.classList.remove('on'); arenaFlies.innerHTML=""; rewardFlies(); },400); }
-  function rewardFlies(){ const s=scFly;
-    if(s>=20){ setMeter('fun',app.fun+24); setTrait('discipline',+4); setTrait('odor',-2); say("Maître moucheur !"); }
-    else if(s>=10){ setMeter('fun',app.fun+16); setTrait('discipline',+2); setTrait('odor',-2); say("Bonne chasse !"); }
-    else { setMeter('fun',app.fun+8); setTrait('discipline',+1); setTrait('odor',-1); say("Pas mal."); }
-    updateAll(); save();
-  }
-  $("#btnFlies").addEventListener('click',()=>{ if(app.alive) startFlies(); });
-  $("#closeFlies").addEventListener('click',()=>{ modalFlies.classList.remove('on'); if(tFly){clearInterval(tFly); tFly=null;} });
+    const ASSETS = {
+      flySmall: 'img/flies/fly_small.png',
+      flyBig:   'img/flies/fly_big.png',
+      flyGold:  'img/flies/fly_gold.png',
+      splat:    'img/flies/splat.png',
+      spark:    'img/flies/spark.png'
+    };
 
-  /* Random & temps */
+    let RAF = 0, running = false, tStart = 0, duration = 20000;
+    let flies = [], score = 0, spawnTimer = 0;
+
+    const CENTER = ()=>{
+      const r = arena.getBoundingClientRect();
+      return { x: r.width*0.5, y: r.height*0.6 };
+    };
+
+    function rand(a,b){ return a + Math.random()*(b-a); }
+
+    function spawnFly(){
+      const w = arena.clientWidth, h = arena.clientHeight;
+      const edge = Math.floor(Math.random()*4);
+      const m = document.createElement('img');
+
+      const r = Math.random();
+      let type = 'small', speed=110, hp=1, img=ASSETS.flySmall, pts=1;
+      if(r>0.7){ type='big';  speed=70;  hp=2; img=ASSETS.flyBig;  pts=2; }
+      if(r>0.93){ type='gold'; speed=130; hp=1; img=ASSETS.flyGold; pts=5; }
+
+      m.src = img;
+      m.className = `flySprite ${type}`;
+      arena.appendChild(m);
+
+      let x=0,y=0;
+      if(edge===0){ x=rand(0,w); y=-20; }
+      if(edge===1){ x=w+20; y=rand(0,h); }
+      if(edge===2){ x=rand(0,w); y=h+20; }
+      if(edge===3){ x=-20; y=rand(0,h); }
+
+      const fly = {el:m, x, y, speed, hp, pts, a:0};
+
+      const hit = (ev)=>{
+        ev.stopPropagation();
+        fly.hp--; popEffect(fly.x, fly.y, fly.hp<=0, type==='gold');
+        if(fly.hp<=0){
+          score += fly.pts;
+          scoreEl.textContent = score;
+          m.remove(); fly.dead = true;
+        }
+      };
+      m.addEventListener('touchstart', hit, {passive:true});
+      m.addEventListener('mousedown', hit);
+
+      flies.push(fly);
+    }
+
+    function popEffect(x,y,dead,isGold){
+      const fx = document.createElement('img');
+      fx.src = dead ? ASSETS.splat : ASSETS.spark;
+      fx.className = dead ? 'splatFX' : 'sparkFX';
+      fx.style.left = x+'px'; fx.style.top = y+'px';
+      arena.appendChild(fx);
+      setTimeout(()=>fx.remove(), dead?400:600);
+
+      if(isGold && dead){
+        const fx2 = document.createElement('img');
+        fx2.src = ASSETS.spark; fx2.className = 'sparkFX';
+        fx2.style.left = (x+10)+'px'; fx2.style.top = (y-10)+'px';
+        arena.appendChild(fx2); setTimeout(()=>fx2.remove(),600);
+      }
+    }
+
+    function loop(t){
+      if(!running) return;
+      if(!tStart) tStart = t;
+      const dt = Math.min(32, t - (loop.prev||t)); loop.prev = t;
+
+      // spawn progressif
+      spawnTimer -= dt;
+      if(spawnTimer <= 0){
+        const s = Math.max(300, 1200 - (t - tStart)/4);
+        spawnTimer = s;
+        const n = Math.random()<0.2 ? 2 : 1;
+        for(let i=0;i<n;i++) spawnFly();
+      }
+
+      const c = CENTER();
+      for(const f of flies){
+        if(f.dead) continue;
+        const dx = c.x - f.x, dy = c.y - f.y;
+        const d = Math.max(1, Math.hypot(dx,dy));
+        const vx = f.speed * dx / d * (dt/1000);
+        const vy = f.speed * dy / d * (dt/1000);
+        f.x += vx; f.y += vy;
+        f.a = Math.atan2(dy,dx);
+        f.el.style.transform = `translate(${f.x}px,${f.y}px) rotate(${f.a}rad)`;
+
+        // collision centre (Cacamochi)
+        if(d < 40){
+          if(window.setMeter){ setMeter('hyg', Math.max(0, app.hyg-4)); setTrait('odor', +1); }
+          popEffect(f.x, f.y, true, false);
+          f.el.remove(); f.dead = true;
+        }
+      }
+      flies = flies.filter(f=>!f.dead);
+
+      if((t - tStart) >= duration){
+        stop(true);
+        return;
+      }
+      RAF = requestAnimationFrame(loop);
+    }
+
+    function start(){
+      arena.innerHTML = '';
+      flies.length = 0;
+      score = 0; scoreEl.textContent = '0';
+      spawnTimer = 0; tStart = 0; loop.prev = 0;
+      running = true; modal.classList.add('on');
+      RAF = requestAnimationFrame(loop);
+    }
+    function stop(withReward){
+      running = false; cancelAnimationFrame(RAF);
+      setTimeout(()=>{ modal.classList.remove('on'); arena.innerHTML=''; }, 250);
+      if(withReward){
+        if(score>=25){ setMeter('fun', app.fun+24); setTrait('discipline',+3); setTrait('odor',-2); say("Maître moucheur !"); }
+        else if(score>=12){ setMeter('fun', app.fun+16); setTrait('discipline',+2); setTrait('odor',-2); say("Bonne chasse !"); }
+        else { setMeter('fun',app.fun+8); setTrait('discipline',+1); setTrait('odor',-1); say("Pas mal."); }
+        updateAll(); save();
+      }
+    }
+
+    btnOpen.addEventListener('click', ()=>{ if(app.alive) start(); });
+    btnClose.addEventListener('click', ()=> stop(false));
+    modal.addEventListener('click', e=>{ if(e.target===modal) stop(false); });
+  })();
+
+  /* ===== Mini‑jeu BAIN (inchangé basique) ===== */
+  (function(){
+    const modalBath=$("#modalBath"), arenaBath=$("#arenaBath"), scoreBath=$("#scoreBath");
+    let tBath=null, scBath=0, timeBath=20;
+
+    function spawnBubble(){
+      const f=document.createElement('div'); f.className="bubble";
+      const x=Math.random()*(arenaBath.clientWidth-34), y=arenaBath.clientHeight+20;
+      f.style.left=x+"px"; f.style.top=y+"px";
+      const dur=1200+Math.random()*1200; const start=performance.now();
+      function step(t){ const p=(t-start)/dur; if(p>=1){ f.remove(); return; } f.style.top=(y - p*(arenaBath.clientHeight+80))+"px"; requestAnimationFrame(step); }
+      function add(ev){
+        scBath++; scoreBath.textContent=scBath;
+        const r=arenaBath.getBoundingClientRect();
+        const ring=document.createElement('div'); ring.className="hit";
+        const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left-12;
+        const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top-12;
+        ring.style.left=cx+"px"; ring.style.top=cy+"px";
+        arenaBath.appendChild(ring); setTimeout(()=>ring.remove(),350);
+        f.remove();
+      }
+      f.addEventListener('click',add); f.addEventListener('touchstart',add,{passive:true});
+      arenaBath.appendChild(f); requestAnimationFrame(step);
+    }
+    function startBath(){ modalBath.classList.add('on'); arenaBath.innerHTML=""; scBath=0; scoreBath.textContent="0"; timeBath=20;
+      tBath=setInterval(()=>{ if(timeBath<=0){ endBath(); return; } timeBath--; for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawnBubble(); },1000); }
+    function endBath(){ clearInterval(tBath); tBath=null; setTimeout(()=>{ modalBath.classList.remove('on'); arenaBath.innerHTML=""; rewardBath(); },400); }
+    function rewardBath(){ const s=scBath;
+      if(s>=25){ setMeter('hyg',app.hyg+30); setMeter('fun',app.fun+18); setTrait('odor',-4); say("🫧 Roi de la mousse !"); }
+      else if(s>=12){ setMeter('hyg',app.hyg+20); setMeter('fun',app.fun+12); setTrait('odor',-3); say("🫧 Bien joué !"); }
+      else { setMeter('hyg',app.hyg+12); setMeter('fun',app.fun+6); setTrait('odor',-2); say("🫧 Pas mal."); }
+      updateAll(); save();
+    }
+    $("#btnBath").addEventListener('click',()=>{ if(app.alive) startBath(); });
+    $("#closeBath").addEventListener('click',()=>{ modalBath.classList.remove('on'); if(tBath){clearInterval(tBath); tBath=null;} });
+  })();
+
+  /* Random & temps + évolutions + restart */
   setInterval(()=>{ if(!app.alive) return; const r=Math.random();
     if(r<.18){ say("Une mouche s’est posée..."); setMeter('hyg',app.hyg-4); setTrait('odor',+1); updateAll(); }
     else if(r<.28){ say("Petit rot discret."); setMeter('hunger',app.hunger+3); setTrait('odor',+1); updateAll(); }
@@ -463,7 +589,6 @@
   }
   setInterval(tick,1200); setInterval(newDay, 1.2*60*1000);
 
-  /* Évolutions + FX */
   function evolveCheck(){
     const mood=avg(app.hunger,app.fun,app.hyg,app.energy);
     const clean=app.hyg - app.odor*1.5, playful=app.fun + app.affection, stoic=app.energy - app.discipline*0.5;
@@ -505,7 +630,6 @@
     gameover.classList.remove('on'); applySprite(); updateAll(); save();
   });
 
-  /* Init */
   applyBackground(); load(); updateAll();
 })();
 </script>
