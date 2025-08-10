@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Cacamochi — mobile</title>
+<title>Cacamochi — mobile (PNG)</title>
 <style>
   :root{
     --rose:#f7e4e1; --rose-2:#f3d5cf; --rose-3:#eec0b6;
@@ -13,7 +13,7 @@
     --btn:#ffe7e2; --btnOn:#ffd2c7; --icon:#7c5542;
   }
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--rose);color:var(--txt);
+  html,body{height:100%;margin:0;background:var(--rose);color:var(--txt);overflow-x:hidden;
     font-family:ui-rounded,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
   .app{min-height:100%;display:grid;grid-template-rows:auto 1fr}
 
@@ -52,7 +52,7 @@
   .chip{background:var(--glass);backdrop-filter:blur(6px);padding:.35rem .7rem;border-radius:999px;
     font-size:.86rem;font-weight:800;color:var(--marron);box-shadow:0 2px 6px var(--shadow)}
 
-  /* Odeur/mouches autour du sprite */
+  /* Mouches autour du sprite */
   .steam line{animation:steam 3.2s ease-in-out infinite}
   @keyframes steam{0%{opacity:0;transform:translateY(8px)}20%{opacity:.9}100%{opacity:0;transform:translateY(-26px)}}
   .orbitFlies .f{transform-origin:100px 105px;animation:flyOrbit linear infinite}
@@ -96,23 +96,25 @@
   @keyframes boom{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:var(--tr) scale(1.2);opacity:0}}
 
   /* Dock scrollable */
-  .dockWrap{position:absolute;left:0;right:0;bottom:.7rem;z-index:10;padding:0 .7rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%)}
+  .dockWrap{position:absolute;left:0;right:0;bottom:.7rem;z-index:10;padding:0 .7rem;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%)}
   .dockWrap::-webkit-scrollbar{display:none}
   .dock{display:flex;gap:.55rem;min-width:max-content;scroll-snap-type:x mandatory}
   .btn{scroll-snap-align:center;width:72px;height:72px;border-radius:18px;border:none;background:var(--btn);
-    box-shadow:0 8px 18px var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center}
+    box-shadow:0 8px 18px var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    touch-action:manipulation;}
   .btn:active{transform:translateY(2px);background:var(--btnOn)}
-  .ico{width:22px;height:22px;color:var(--icon);display:block}
+  .ico{width:22px;height:22px;display:block;object-fit:contain}
   .lbl{margin-top:4px;font-size:.72rem;font-weight:800;color:var(--marron)}
 
-  /* Mini‑jeux : boutons scène */
+  /* Boutons scène */
   .gameBtn{position:absolute;z-index:8;width:62px;height:62px;border-radius:50%;border:none;background:var(--btn);
     box-shadow:0 8px 18px var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .gameBtn .ico{width:22px;height:22px}
-  .gameBtn .lbl{font-size:.7rem;margin-top:2px;color:var(--marron)}
+  .gameBtn .ico{width:22px;height:22px} .gameBtn .lbl{font-size:.7rem;margin-top:2px;color:var(--marron)}
   .gameBtn.flies{left:.8rem;top:48%} .gameBtn.bath{right:.8rem;top:48%}
 
-  /* Modals, feedback, gameover (identiques) */
+  /* Modals + gameover */
   .modal{position:absolute;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:20}
   .modal.on{display:flex}
   .panelMG{width:min(520px,92vw);height:min(420px,80vh);background:#fff6f4;border-radius:16px;box-shadow:0 10px 30px #0006;position:relative;overflow:hidden;border:3px solid var(--rose-3)}
@@ -136,26 +138,7 @@
 </style>
 </head>
 <body>
-
-<!-- SPRITE SVG D’ICÔNES (caché, réutilisé via <use>) -->
-<svg aria-hidden="true" width="0" height="0" style="position:absolute;left:-9999px;top:-9999px;">
-  <symbol id="i-food" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8M8 3v8M6 7h2"/><path d="M14 3a3 3 0 0 1 3 3v5a2 2 0 0 1-2 2h-1V3z"/></g></symbol>
-  <symbol id="i-soap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 6-6 9a6 6 0 0 0 12 0c0-3-3-5-6-9z"/><path d="M18.5 5.5l1 1m-3 0l1-1"/></g></symbol>
-  <symbol id="i-toilet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="10" rx="4"/><circle cx="7" cy="12" r="2"/><path d="M17 7h2a2 2 0 0 1 2 2v8"/></g></symbol>
-  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15a8 8 0 1 1-6-12a7 7 0 0 0 6 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/></g><circle cx="10" cy="10" r="1.6" fill="currentColor"/><circle cx="14" cy="14" r="1.6" fill="currentColor"/></symbol>
-  <symbol id="i-heal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></g></symbol>
-  <symbol id="i-bubbles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="12" r="3"/><circle cx="14.5" cy="10.5" r="2.2"/><circle cx="18" cy="8" r="1.5"/></g></symbol>
-  <symbol id="i-flies" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8" rx="1"/><path d="M8 12l8 8"/><path d="M6.5 6.5h3m-3 2h3m-3 2h3"/></g></symbol>
-  <symbol id="i-spray" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="8" width="10" height="10" rx="2"/><path d="M8 8V6h6v2M16 6h2M18 9h2M18 12h2"/></g></symbol>
-  <symbol id="i-snack" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M9 12h6M12 9v6"/></g></symbol>
-  <symbol id="i-kiss" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 10c0-2 2-4 4-4s4 2 4 4-2 4-4 4-4-2-4-4z"/><path d="M14 14c1 0 2 .5 3 1.5"/></g></symbol>
-  <symbol id="i-nap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M5 15h14M7 15v3m10-3v3"/><path d="M9 7h6l-2 3h2l-2 3"/></g></symbol>
-</svg>
-
 <div class="app" id="app">
-
-  <!-- Header avec logo -->
   <header>
     <div class="brand"><img src="img/header/logo_cacamochi.svg" alt="Cacamochi"></div>
     <div class="age" id="age">Jour 1 — Bouseau</div>
@@ -176,14 +159,9 @@
       <span class="chip" id="tOdo">Odeur: 0</span>
     </div>
 
-    <!-- Notifications -->
     <div class="speech" id="speech" style="display:none"><div class="b" id="speechText">Hi!</div><div class="t"></div></div>
-
-    <!-- Effets -->
     <div id="disco" aria-hidden="true"></div>
     <div id="evolveFX" aria-hidden="true"></div>
-
-    <!-- Nuit -->
     <div class="sleepOverlay" id="sleepOverlay"><div class="tint"></div><div class="stars" id="stars"></div><div class="zzz">Z z z ...</div></div>
 
     <!-- Sprite -->
@@ -207,25 +185,25 @@
 
     <!-- Mini‑jeux (scène) -->
     <button type="button" class="gameBtn flies" id="btnFlies">
-      <svg class="ico"><use href="#i-flies"/></svg><span class="lbl">Mouches</span>
+      <img class="ico" src="img/icons/mouches.png" alt=""><span class="lbl">Mouches</span>
     </button>
     <button type="button" class="gameBtn bath" id="btnBath">
-      <svg class="ico"><use href="#i-bubbles"/></svg><span class="lbl">Bain</span>
+      <img class="ico" src="img/icons/bain.png" alt=""><span class="lbl">Bain</span>
     </button>
 
     <!-- Dock -->
     <div class="dockWrap">
       <div class="dock" id="dock">
-        <button type="button" class="btn" id="feed"><svg class="ico"><use href="#i-food"/></svg><span class="lbl">Nourrir</span></button>
-        <button type="button" class="btn" id="wash"><svg class="ico"><use href="#i-soap"/></svg><span class="lbl">Laver</span></button>
-        <button type="button" class="btn" id="toilet"><svg class="ico"><use href="#i-toilet"/></svg><span class="lbl">WC</span></button>
-        <button type="button" class="btn" id="sleep"><svg class="ico"><use href="#i-moon"/></svg><span class="lbl">Dodo</span></button>
-        <button type="button" class="btn" id="play"><svg class="ico"><use href="#i-play"/></svg><span class="lbl">Jouer</span></button>
-        <button type="button" class="btn" id="heal"><svg class="ico"><use href="#i-heal"/></svg><span class="lbl">Soigner</span></button>
-        <button type="button" class="btn" id="snack"><svg class="ico"><use href="#i-snack"/></svg><span class="lbl">Snack</span></button>
-        <button type="button" class="btn" id="spray"><svg class="ico"><use href="#i-spray"/></svg><span class="lbl">Déso</span></button>
-        <button type="button" class="btn" id="kiss"><svg class="ico"><use href="#i-kiss"/></svg><span class="lbl">Bisou</span></button>
-        <button type="button" class="btn" id="nap"><svg class="ico"><use href="#i-nap"/></svg><span class="lbl">Sieste</span></button>
+        <button class="btn" id="feed"><img class="ico" src="img/icons/nourrir.png" alt=""><span class="lbl">Nourrir</span></button>
+        <button class="btn" id="wash"><img class="ico" src="img/icons/laver.png" alt=""><span class="lbl">Laver</span></button>
+        <button class="btn" id="toilet"><img class="ico" src="img/icons/wc.png" alt=""><span class="lbl">WC</span></button>
+        <button class="btn" id="sleep"><img class="ico" src="img/icons/dodo.png" alt=""><span class="lbl">Dodo</span></button>
+        <button class="btn" id="play"><img class="ico" src="img/icons/jouer.png" alt=""><span class="lbl">Jouer</span></button>
+        <button class="btn" id="heal"><img class="ico" src="img/icons/soigner.png" alt=""><span class="lbl">Soigner</span></button>
+        <button class="btn" id="snack"><img class="ico" src="img/icons/snack.png" alt=""><span class="lbl">Snack</span></button>
+        <button class="btn" id="spray"><img class="ico" src="img/icons/desodoriser.png" alt=""><span class="lbl">Déso</span></button>
+        <button class="btn" id="kiss"><img class="ico" src="img/icons/bisou.png" alt=""><span class="lbl">Bisou</span></button>
+        <button class="btn" id="nap"><img class="ico" src="img/icons/dodo.png" alt=""><span class="lbl">Sieste</span></button>
       </div>
     </div>
 
@@ -299,17 +277,15 @@
     document.body.classList.toggle('sleeping', app.asleep);
     refreshOrbitFlies();
   }
-  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-v6svg")); if(s) Object.assign(app,s);}catch(e){} };
-  const save=()=>{ localStorage.setItem("cacamochi-v6svg", JSON.stringify(app)); };
+  const load=()=>{ try{const s=JSON.parse(localStorage.getItem("cacamochi-png")); if(s) Object.assign(app,s);}catch(e){} };
+  const save=()=>{ localStorage.setItem("cacamochi-png", JSON.stringify(app)); };
 
-  /* Mouches (densité = hygiène/odeur) */
   function refreshOrbitFlies(){
     const dirt = Math.max(0, 100-app.hyg) + Math.max(0, app.odor*5);
     const vis = Math.min(1, dirt/120);
     $("#orbitFlies").style.opacity=(0.2 + vis*0.8).toFixed(2);
   }
 
-  /* étoiles nuit */
   for(let i=0;i<42;i++){ const s=document.createElement('div'); s.className='star';
     s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
 
@@ -359,13 +335,16 @@
     say("Petite sieste 😴"); updateAll(); save();
   });
 
-  /* Dock UX */
-  $("#dock").addEventListener("click", e=>{
-    const b=e.target.closest("button"); if(!b) return;
-    b.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+  /* Dock UX : centre le bouton tapé sans faire bouger la page */
+  const wrap = document.querySelector('.dockWrap');
+  document.getElementById('dock').addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    const target = b.offsetLeft - (wrap.clientWidth - b.clientWidth)/2;
+    wrap.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+    setTimeout(()=>b.blur(), 150);
   });
 
-  /* Danse (double‑tap sur le sprite) */
+  /* Danse (double‑tap) */
   (function(){
     let last=0;
     sprite.addEventListener('touchend',()=>{ const now=Date.now(); if(now-last<300){ dance(); } last=now; },{passive:true});
