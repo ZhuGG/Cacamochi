@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Cacamochi — stable</title>
+<title>Cacamochi — Deluxe</title>
 <style>
   :root{
     --rose:#f7e4e1; --rose-2:#f3d5cf; --rose-3:#eec0b6;
@@ -50,7 +50,7 @@
   /* Sleep overlay */
   .sleepOverlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;z-index:3}
   .sleeping .sleepOverlay{opacity:1}
-  .sleepOverlay .tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,#143a6a33 0%,#0822458a 60%,#061a3666 100%)}
+  .sleepOverlay .tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,#143a6a33 0,#0822458a 60%,#061a3666 100%)}
   .stars{position:absolute;inset:0;overflow:hidden}
   .star{position:absolute;width:3px;height:3px;background:#d8e7ff;border-radius:50%;opacity:.9;animation:tw 2.2s ease-in-out infinite}
   @keyframes tw{0%,100%{transform:scale(1)}50%{transform:scale(1.6)}}
@@ -77,6 +77,15 @@
   .fx{position:absolute;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffd9ee 60%,transparent 70%);animation:boom 900ms ease-out forwards}
   @keyframes boom{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:var(--tr) scale(1.2);opacity:0}}
 
+  /* Sun overlay (boost) */
+  .sunBoost{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;z-index:4}
+  .sunBoost.on{opacity:.9}
+  .sunBoost:before{content:"";position:absolute;inset:-20%;background:
+    radial-gradient(circle at 70% 10%, #fff0a8aa 0, transparent 35%),
+    radial-gradient(circle at 10% 30%, #ffd27faa 0, transparent 35%),
+    radial-gradient(circle at 50% 80%, #ffe7a1aa 0, transparent 35%);
+    filter:blur(12px);mix-blend-mode:screen;animation:spin 9s linear infinite}
+
   /* Dock (safe-area) */
   .dockWrap{
     position:absolute; left:0; right:0;
@@ -97,18 +106,21 @@
   .gameBtn .ico{width:22px;height:22px} .gameBtn .lbl{font-size:.7rem;margin-top:2px;color:var(--marron)}
   .gameBtn.flies{left:.8rem;top:48%} .gameBtn.bath{right:.8rem;top:48%}
 
-  /* Plant above dock */
-  .plant{position:absolute;right:14px;bottom:calc(120px + env(safe-area-inset-bottom, 0px));z-index:12;opacity:.95;transform-origin:50% 100%}
-  .plant img{width:64px;filter:drop-shadow(0 6px 8px #0002)}
-  @media (max-height:700px){ .plant{bottom:calc(100px + env(safe-area-inset-bottom, 0px))} }
-  .plant.grow{animation:grow 2s ease-out}@keyframes grow{from{transform:scale(.8)}to{transform:scale(1)}}
+  /* Plant above dock (SVG) */
+  .plant{position:absolute;right:14px;bottom:calc(120px + env(safe-area-inset-bottom, 0px));z-index:12;opacity:.98;transform-origin:50% 100%}
+  .plant svg{width:76px;height:auto;display:block;filter:drop-shadow(0 6px 8px #0002)}
+  .plant .sway{transform-origin:38px 64px;animation:plantSway 4.5s ease-in-out infinite}
+  @keyframes plantSway{0%,100%{transform:rotate(0)}50%{transform:rotate(2.8deg)}}
+  .plant.grow{animation:grow 0.6s ease-out}@keyframes grow{from{transform:scale(.88)}to{transform:scale(1)}}
 
-  /* Modal + games */
+  /* Modals + games */
   .modal{position:absolute;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:20}
   .modal.on{display:flex}
   .panelMG{width:min(520px,92vw);height:min(420px,80vh);background:#fff6f4;border-radius:16px;box-shadow:0 10px 30px #0006;position:relative;overflow:hidden;border:3px solid var(--rose-3)}
-  .panelHead{display:flex;align-items:center;justify-content:space-between;padding:10px 12px}
-  .panelHead h2{margin:0;font-size:16px;color:var(--marron)} .panelHead .score{font-weight:800;color:var(--marron)}
+  .panelHead{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px}
+  .panelHead h2{margin:0;font-size:16px;color:var(--marron)}
+  .panelHead .info{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--marron)}
+  .timer,.score{padding:.15rem .5rem;border-radius:8px;background:#ffffffb8;box-shadow:0 1px 4px #0001;min-width:36px;text-align:center}
   .close{border:none;background:#0000;font-size:18px;line-height:1;cursor:pointer;color:var(--marron)}
   .arena{position:absolute;inset:56px 12px 14px 12px;border-radius:12px;overflow:hidden}
   .arena.bath{background:#f6eaf0} .arena.flygame{background:#eaf7e6}
@@ -150,6 +162,7 @@
     <div class="speech" id="speech" style="display:none"><div class="b" id="speechText">Hi!</div><div class="t"></div></div>
     <div id="disco" aria-hidden="true"></div>
     <div id="evolveFX" aria-hidden="true"></div>
+    <div class="sunBoost" id="sunBoost" aria-hidden="true"></div>
     <div class="sleepOverlay" id="sleepOverlay"><div class="tint"></div><div class="stars" id="stars"></div><div class="zzz">Z z z ...</div></div>
 
     <!-- Sprite -->
@@ -164,8 +177,43 @@
     <button type="button" class="gameBtn flies" id="btnFlies"><img class="ico" src="img/icons/mouches.png" alt=""><span class="lbl">Mouches</span></button>
     <button type="button" class="gameBtn bath"  id="btnBath"><img class="ico" src="img/icons/bain.png" alt=""><span class="lbl">Bain</span></button>
 
-    <!-- Plant -->
-    <div class="plant" id="plant"><img src="img/icons/bain.png" alt="plant"></div>
+    <!-- Plant (SVG, évolutive) -->
+    <div class="plant" id="plant">
+      <svg viewBox="0 0 80 90" aria-label="Plante">
+        <!-- Pot -->
+        <g fill="#c48f6d">
+          <rect x="20" y="62" width="40" height="16" rx="4"></rect>
+          <rect x="16" y="54" width="48" height="10" rx="5" fill="#b57f5e"></rect>
+        </g>
+        <!-- STADE 0 : germe -->
+        <g id="p0" class="sway" style="display:none">
+          <path d="M40 62 C40 55, 40 50, 40 46" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M40 50 C32 46, 30 44, 28 41 C33 41, 35 42, 40 45" fill="#79a45f"/>
+          <path d="M40 50 C48 46, 50 44, 52 41 C47 41, 45 42, 40 45" fill="#79a45f"/>
+        </g>
+        <!-- STADE 1 : jeune plant -->
+        <g id="p1" class="sway" style="display:none">
+          <path d="M40 62 C40 54, 40 47, 40 42" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <ellipse cx="32" cy="46" rx="8" ry="5" fill="#79a45f"/>
+          <ellipse cx="48" cy="46" rx="8" ry="5" fill="#79a45f"/>
+        </g>
+        <!-- STADE 2 : buisson -->
+        <g id="p2" class="sway" style="display:none">
+          <path d="M40 62 C40 52, 40 40, 40 36" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="32" cy="44" r="10" fill="#6e9e57"/>
+          <circle cx="48" cy="44" r="10" fill="#6e9e57"/>
+          <circle cx="40" cy="36" r="9" fill="#79a45f"/>
+        </g>
+        <!-- STADE 3 : fleur -->
+        <g id="p3" class="sway" style="display:none">
+          <path d="M40 62 C40 50, 40 34, 40 30" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="32" cy="44" r="10" fill="#6e9e57"/>
+          <circle cx="48" cy="44" r="10" fill="#6e9e57"/>
+          <circle cx="40" cy="34" r="12" fill="#79a45f"/>
+          <circle cx="40" cy="28" r="6" fill="#ffd7e6" stroke="#eaa0be" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
 
     <!-- Dock -->
     <div class="dockWrap">
@@ -180,13 +228,27 @@
         <button class="btn" id="spray"><img class="ico" src="img/icons/desodoriser.png"><span class="lbl">Déso</span></button>
         <button class="btn" id="kiss"><img class="ico" src="img/icons/bisou.png"><span class="lbl">Bisou</span></button>
         <button class="btn" id="nap"><img class="ico" src="img/icons/dodo.png"><span class="lbl">Sieste</span></button>
+        <!-- Nouveaux boutons -->
+        <button class="btn" id="water">
+          <!-- Icône goutte SVG inline pour éviter dépendance -->
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C9 6 6 9 6 13a6 6 0 1 0 12 0c0-4-3-7-6-11z" fill="none" stroke="#7b5644" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="lbl">Arroser</span>
+        </button>
+        <button class="btn" id="sun">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="#7b5644" stroke-width="2"/><g stroke="#7b5644" stroke-width="2"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M4.6 19.4l2.1-2.1"/></g></svg>
+          <span class="lbl">Soleil</span>
+        </button>
       </div>
     </div>
 
     <!-- Modal: Bain -->
     <div class="modal" id="modalBath">
       <div class="panelMG">
-        <div class="panelHead"><h2>Bain Mousse — 20 s</h2><div class="score" id="scoreBath">0</div><button type="button" class="close" id="closeBath">✖</button></div>
+        <div class="panelHead">
+          <h2>Bain Mousse</h2>
+          <div class="info"><span class="timer" id="timeBath">20</span><span class="score" id="scoreBath">0</span></div>
+          <button type="button" class="close" id="closeBath">✖</button>
+        </div>
         <div class="arena bath" id="arenaBath"></div>
       </div>
     </div>
@@ -194,7 +256,11 @@
     <!-- Modal: Mouches -->
     <div class="modal" id="modalFlies">
       <div class="panelMG">
-        <div class="panelHead"><h2>Chasse‑mouches — 20 s</h2><div class="score" id="scoreFlies">0</div><button type="button" class="close" id="closeFlies">✖</button></div>
+        <div class="panelHead">
+          <h2>Chasse‑mouches</h2>
+          <div class="info"><span class="timer" id="timeFlies">20</span><span class="score" id="scoreFlies">0</span></div>
+          <button type="button" class="close" id="closeFlies">✖</button>
+        </div>
         <div class="arena flygame" id="arenaFlies"></div>
       </div>
     </div>
@@ -213,6 +279,7 @@
 
 <script>
 (()=> {
+  /* ---------- Base & état ---------- */
   const CONFIG = {
     background: "img_background.jpg",
     sprites: {
@@ -226,7 +293,7 @@
     }
   };
 
-  const $=(s,r=document)=>r.querySelector(s);
+  function $(s,r){ return (r||document).querySelector(s); }
   const app={hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,
              evo:"bouseau",affection:0,discipline:0,odor:0};
 
@@ -235,74 +302,117 @@
   const age=$("#age"), speech=$("#speech"), speechText=$("#speechText");
   const bg=$("#bg"), evoImg=$("#evo-img"), sprite=$("#sprite");
   const traitsEls={aff:$("#tAff"), dis:$("#tDis"), odo:$("#tOdo")};
-  const stars=$("#stars"), gameover=$("#gameover");
+  const stars=$("#stars"), gameover=$("#gameover"), sunOverlay=$("#sunBoost");
 
-  const evoName=id=>({bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}[id]||"???" );
-  const say=(txt)=>{ speechText.textContent=txt; speech.style.display='block'; clearTimeout(say.t); say.t=setTimeout(()=>speech.style.display='none',1400); };
-  const applyBackground=()=>{ bg.src=CONFIG.background; };
-  function applySprite(){ const s=CONFIG.sprites[app.evo]; if(!s) return;
-    evoImg.setAttribute('href',s.src); evoImg.setAttribute('x',s.x??0); evoImg.setAttribute('y',s.y??0);
-    evoImg.setAttribute('width',s.w??200); evoImg.setAttribute('height',s.h??200);
+  const evoName=function(id){ var m={bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}; return m[id]||"???"; };
+  const say=function(txt){ speechText.textContent=txt; speech.style.display='block'; clearTimeout(say.t); say.t=setTimeout(function(){speech.style.display='none';},1400); };
+  const applyBackground=function(){ bg.src=CONFIG.background; };
+  function applySprite(){ var s=CONFIG.sprites[app.evo]; if(!s) return;
+    evoImg.setAttribute('href',s.src); evoImg.setAttribute('x',s.x||0); evoImg.setAttribute('y',s.y||0);
+    evoImg.setAttribute('width',s.w||200); evoImg.setAttribute('height',s.h||200);
   }
   function setMeter(name,val){ val=Math.max(0,Math.min(100,val)); bar[name].style.width=val+"%";
     bars[name].classList.toggle('bad',val<35); bars[name].classList.toggle('mid',val>=35&&val<65); bars[name].classList.toggle('good',val>=65); app[name]=val; }
-  function setTrait(name,delta,min=-999,max=999){ app[name]=Math.max(min,Math.min(max,app[name]+delta)); }
-  const avg=(...xs)=> xs.reduce((a,b)=>a+b,0)/xs.length;
+  function setTrait(name,delta,min,max){ min=(typeof min==='number')?min:-999; max=(typeof max==='number')?max:999; app[name]=Math.max(min,Math.min(max,app[name]+delta)); }
+  function avg(){ var s=0; for(var i=0;i<arguments.length;i++) s+=arguments[i]; return s/arguments.length; }
   function updateAll(){
     setMeter('hunger',app.hunger); setMeter('fun',app.fun); setMeter('hyg',app.hyg); setMeter('energy',app.energy);
     traitsEls.aff.textContent="Affection: "+app.affection; traitsEls.dis.textContent="Discipline: "+app.discipline; traitsEls.odo.textContent="Odeur: "+app.odor;
-    age.textContent=`Jour ${app.day} — ${evoName(app.evo)}`; applySprite();
+    age.textContent="Jour "+app.day+" — "+evoName(app.evo); applySprite();
     document.body.classList.toggle('sleeping', app.asleep);
   }
-  const load=()=>{ try{Object.assign(app, JSON.parse(localStorage.getItem("cacamochi-stable"))||{});}catch(e){} };
-  const save=()=>{ localStorage.setItem("cacamochi-stable", JSON.stringify(app)); };
+  const load=function(){ try{var s=JSON.parse(localStorage.getItem("cacamochi-deluxe")); if(s) for(var k in s) app[k]=s[k];}catch(e){} };
+  const save=function(){ localStorage.setItem("cacamochi-deluxe", JSON.stringify(app)); };
 
-  /* Stars */
-  for(let i=0;i<36;i++){ const s=document.createElement('div'); s.className='star';
-    s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(s); }
+  /* Night stars */
+  for(var i=0;i<36;i++){ var st=document.createElement('div'); st.className='star';
+    st.style.left=(Math.random()*100)+'%'; st.style.top=(Math.random()*100)+'%'; st.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(st); }
 
-  /* Dock actions */
-  $("#feed").onclick = ()=>{ if(!app.alive) return; setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6); setTrait('affection',+1); setTrait('odor',+1); say("Miam !"); updateAll(); save(); };
-  $("#wash").onclick = ()=>{ if(!app.alive) return; setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(()=>sprite.classList.remove('wash'),2100); say("Tout propre !"); updateAll(); save(); };
-  $("#toilet").onclick= ()=>{ if(!app.alive) return; setMeter('hyg',app.hyg+40); setTrait('odor',-6); say("🧻 Fiuuut !"); updateAll(); save(); };
-  $("#sleep").onclick = ()=>{ if(!app.alive) return; app.asleep=!app.asleep; say(app.asleep?"Bonne nuit...":"Réveil !"); updateAll(); save(); };
-  $("#play").onclick  = ()=>{ if(!app.alive) return; setMeter('fun',app.fun+16); setMeter('energy',app.energy-8); setTrait('discipline',+1); setTrait('odor',+1); say("On joue !"); updateAll(); save(); };
-  $("#heal").onclick  = ()=>{ if(!app.alive) return; const low=['hunger','fun','hyg','energy'].some(k=>app[k]<35); if(low){['hunger','fun','hyg','energy'].forEach(k=>setMeter(k,app[k]+8)); say("💊 Ça va mieux.");} else say("Pas besoin."); updateAll(); save(); };
-  $("#snack").onclick = ()=>{ if(!app.alive) return; const r=Math.random(); if(r<.33){ setMeter('hunger',app.hunger+16); say("Snack salé 😋"); } else if(r<.66){ setMeter('fun',app.fun+14); say("Snack sucré 🤤"); } else { setMeter('hunger',app.hunger+8); setTrait('odor',+2); say("Snack douteux 😬"); } updateAll(); save(); };
-  $("#spray").onclick = ()=>{ if(!app.alive) return; setTrait('odor',-6); setMeter('hyg',app.hyg+6); setMeter('energy',app.energy-4); say("Pschiiit ! Ça sent bon ✨"); updateAll(); save(); };
-  $("#kiss").onclick  = ()=>{ if(!app.alive) return; setTrait('affection',+3); setMeter('fun',app.fun+6); say("Bisou 💕"); updateAll(); save(); };
-  $("#nap").onclick   = ()=>{ if(!app.alive) return; setMeter('energy',app.energy+14); setMeter('fun',app.fun-4); app.asleep=false; say("Petite sieste 😴"); updateAll(); save(); };
+  /* ---------- Plante évolutive ---------- */
+  var plantState = { xp:0, stage:0, boost:false, boostEnd:0, waterCd:0 };
+  var PLANT_KEY="cacamochi-plant";
+  function plantLoad(){ try{var s=JSON.parse(localStorage.getItem(PLANT_KEY)); if(s){ plantState.xp=s.xp||0; }}catch(e){} }
+  function plantSave(){ localStorage.setItem(PLANT_KEY, JSON.stringify({xp:plantState.xp})); }
+  function plantStageFromXp(xp){ if(xp>=24) return 3; if(xp>=14) return 2; if(xp>=6) return 1; return 0; }
+  function plantRender(){
+    var st=plantStageFromXp(plantState.xp); plantState.stage=st;
+    for(var j=0;j<=3;j++){ var g=document.getElementById("p"+j); if(g) g.style.display=(j===st)?"block":"none"; }
+  }
+  function plantGain(n){
+    if(plantState.boost) n = Math.ceil(n*1.8);
+    plantState.xp=Math.max(0, Math.min(999, plantState.xp + n));
+    plantRender(); plantSave();
+    var p=document.getElementById('plant'); p.classList.add('grow'); setTimeout(function(){p.classList.remove('grow');},600);
+  }
+  function plantInit(){ plantLoad(); plantRender(); }
+
+  /* Boost soleil (20s) */
+  function sunOn(){
+    if(plantState.boost) return; // déjà actif
+    if(app.energy<50 || app.hyg<40){ say("Pas assez en forme pour bronzer !"); return; }
+    plantState.boost=true; plantState.boostEnd=Date.now()+20000;
+    sunOverlay.classList.add('on'); say("☀️ Soleil : boost 20s !");
+    setTimeout(function(){ sunOff(); }, 20000);
+  }
+  function sunOff(){ plantState.boost=false; sunOverlay.classList.remove('on'); }
+
+  /* Arroser : +XP, coût énergie, cooldown 10s */
+  function canWater(){ return Date.now() > plantState.waterCd; }
+  function waterOnce(){
+    if(!canWater()){ say("Patiente un peu… 💧"); return; }
+    if(app.energy<8){ say("Trop fatigué pour arroser."); return; }
+    setMeter('energy', app.energy-8);
+    plantGain(2);
+    plantState.waterCd = Date.now()+10000;
+    say("💧 Glou glou !");
+    updateAll(); save();
+  }
+
+  /* ---------- Actions dock ---------- */
+  $("#feed").onclick = function(){ if(!app.alive) return; setMeter('hunger',app.hunger+22); setMeter('hyg',app.hyg-6); setMeter('energy',app.energy+6); setTrait('affection',+1); setTrait('odor',+1); plantGain(1); say("Miam !"); updateAll(); save(); };
+  $("#wash").onclick = function(){ if(!app.alive) return; setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(function(){sprite.classList.remove('wash');},2100); plantGain(1); say("Tout propre !"); updateAll(); save(); };
+  $("#toilet").onclick= function(){ if(!app.alive) return; setMeter('hyg',app.hyg+40); setTrait('odor',-6); plantGain(1); say("🧻 Fiuuut !"); updateAll(); save(); };
+  $("#sleep").onclick = function(){ if(!app.alive) return; app.asleep=!app.asleep; say(app.asleep?"Bonne nuit...":"Réveil !"); updateAll(); save(); };
+  $("#play").onclick  = function(){ if(!app.alive) return; setMeter('fun',app.fun+16); setMeter('energy',app.energy-8); setTrait('discipline',+1); setTrait('odor',+1); say("On joue !"); updateAll(); save(); };
+  $("#heal").onclick  = function(){ if(!app.alive) return; var low=['hunger','fun','hyg','energy'].some(function(k){ return app[k]<35; }); if(low){['hunger','fun','hyg','energy'].forEach(function(k){ setMeter(k,app[k]+8); }); say("💊 Ça va mieux.");} else say("Pas besoin."); updateAll(); save(); };
+  $("#snack").onclick = function(){ if(!app.alive) return; var r=Math.random(); if(r<.33){ setMeter('hunger',app.hunger+16); plantGain(1); say("Snack salé 😋"); } else if(r<.66){ setMeter('fun',app.fun+14); say("Snack sucré 🤤"); } else { setMeter('hunger',app.hunger+8); setTrait('odor',+2); say("Snack douteux 😬"); } updateAll(); save(); };
+  $("#spray").onclick = function(){ if(!app.alive) return; setTrait('odor',-6); setMeter('hyg',app.hyg+6); setMeter('energy',app.energy-4); plantGain(1); say("Pschiiit ! Ça sent bon ✨"); updateAll(); save(); };
+  $("#kiss").onclick  = function(){ if(!app.alive) return; setTrait('affection',+3); setMeter('fun',app.fun+6); say("Bisou 💕"); updateAll(); save(); };
+  $("#nap").onclick   = function(){ if(!app.alive) return; setMeter('energy',app.energy+14); setMeter('fun',app.fun-4); app.asleep=false; say("Petite sieste 😴"); updateAll(); save(); };
+  $("#water").onclick = function(){ if(!app.alive) return; waterOnce(); };
+  $("#sun").onclick   = function(){ if(!app.alive) return; sunOn(); };
 
   /* Dock centering UX */
-  const wrap = document.querySelector('.dockWrap');
-  document.getElementById('dock').addEventListener('click', e=>{
-    const b = e.target.closest('button'); if(!b) return;
-    const target = b.offsetLeft - (wrap.clientWidth - b.clientWidth)/2;
+  var wrap = document.querySelector('.dockWrap');
+  document.getElementById('dock').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    var target = b.offsetLeft - (wrap.clientWidth - b.clientWidth)/2;
     wrap.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
-    setTimeout(()=>b.blur(), 120);
+    setTimeout(function(){ b.blur(); }, 120);
   });
 
   /* Double‑tap dance */
-  (function(){ let last=0;
-    sprite.addEventListener('touchend',()=>{const now=Date.now(); if(now-last<300){dance();} last=now;},{passive:true});
-    sprite.addEventListener('click',()=>{const now=Date.now(); if(now-last<300){dance();} last=now;});
-    function dance(){ if(!app.alive) return; document.body.classList.add('disco-on'); sprite.classList.add('dance'); setTimeout(()=>{ sprite.classList.remove('dance'); document.body.classList.remove('disco-on'); }, 2800); setMeter('fun',app.fun+10); setMeter('energy',app.energy-6); say("Disco !"); updateAll(); save(); }
+  (function(){ var last=0;
+    sprite.addEventListener('touchend',function(){var now=Date.now(); if(now-last<300){dance();} last=now;},{passive:true});
+    sprite.addEventListener('click',function(){var now=Date.now(); if(now-last<300){dance();} last=now;});
+    function dance(){ if(!app.alive) return; document.body.classList.add('disco-on'); sprite.classList.add('dance'); setTimeout(function(){ sprite.classList.remove('dance'); document.body.classList.remove('disco-on'); }, 2800); setMeter('fun',app.fun+10); setMeter('energy',app.energy-6); say("Disco !"); updateAll(); save(); }
   })();
 
-  /* Plant nod */
-  const plant = $("#plant"); let plantTimer=0;
-  function plantNod(){ plant.classList.add('grow'); clearTimeout(plantTimer); plantTimer=setTimeout(()=>plant.classList.remove('grow'), 1200); }
-  ["feed","wash","toilet","snack","spray"].forEach(id=>{ $("#"+id).addEventListener('click',plantNod); });
+  /* Plant nod on good actions */
+  var plantEl = $("#plant"); var plantTimer=0;
+  function plantNod(){ plantEl.classList.add('grow'); clearTimeout(plantTimer); plantTimer=setTimeout(function(){plantEl.classList.remove('grow');}, 600); }
+  ["feed","wash","toilet","snack","spray","water"].forEach(function(id){ $("#"+id).addEventListener('click',plantNod); });
 
-  /* ===== Flies game v3.1 ===== */
+  /* ---------- Jeu MOUCHES v3.2 ---------- */
   (function(){
-    const modal   = $("#modalFlies");
-    const arena   = $("#arenaFlies");
-    const scoreEl = $("#scoreFlies");
-    const btnOpen = $("#btnFlies");
-    const btnClose= $("#closeFlies");
+    var modal   = $("#modalFlies");
+    var arena   = $("#arenaFlies");
+    var scoreEl = $("#scoreFlies");
+    var timeEl  = $("#timeFlies");
+    var btnOpen = $("#btnFlies");
+    var btnClose= $("#closeFlies");
 
-    const A = {
+    var A = {
       small:"img/flies/fly_small.png",
       big  :"img/flies/fly_big.png",
       gold :"img/flies/fly_gold.png",
@@ -310,111 +420,137 @@
       spark:"img/flies/spark.png"
     };
 
-    let RAF=0, running=false, startTs=0, score=0;
-    const flies=[]; let spawnTimer=0;
+    var RAF=0, running=false, startTs=0, score=0, spawnTimer=0, timeLeft=20;
+    var flies=[];
 
-    function spawn(){
-      const w=arena.clientWidth, h=arena.clientHeight;
-      const img=document.createElement('img');
-      const r=Math.random();
-      let type='small', speed=55, hp=1, pts=1, src=A.small;
+    function spawnOne(){
+      var w=arena.clientWidth, h=arena.clientHeight;
+      var img=document.createElement('img');
+      var r=Math.random();
+      var type='small', speed=55, hp=1, pts=1, src=A.small;
       if(r>0.8){ type='big'; speed=42; hp=2; pts=2; src=A.big; }
-      if(r<0.1){ type='gold'; speed=75; hp=1; pts=5; src=A.gold; }
+      if(r<0.10){ type='gold'; speed=75; hp=1; pts=5; src=A.gold; }
       img.src=src; img.className='fly '+type; img.draggable=false; arena.appendChild(img);
-      const f={ el:img, x:Math.random()*w, y:Math.random()*h, vx:(Math.random()*2-1)*speed, vy:(Math.random()*2-1)*speed, t:0, hp, pts, dead:false };
-      const hit=(ev)=>{ ev.stopPropagation(); f.hp--; pop(f.x,f.y,f.hp<=0,type==='gold'); if(f.hp<=0){ f.dead=true; score+=f.pts; scoreEl.textContent=score; img.remove(); } };
+      var f={ el:img, x:Math.random()*w, y:Math.random()*h, vx:(Math.random()*2-1)*speed, vy:(Math.random()*2-1)*speed, t:0, hp:hp, pts:pts, dead:false };
+      var hit=function(ev){ ev.stopPropagation(); f.hp--; pop(f.x,f.y,f.hp<=0,type==='gold'); if(f.hp<=0){ f.dead=true; score+=f.pts; scoreEl.textContent=score; img.remove(); } };
       img.addEventListener('mousedown',hit); img.addEventListener('touchstart',hit,{passive:true});
       flies.push(f);
     }
     function pop(x,y,dead,gold){
-      const fx=document.createElement('img'); fx.src=dead?A.splat:(A.spark||A.splat); fx.className=dead?'sfx splat':'sfx spark';
-      fx.style.left=x+'px'; fx.style.top=y+'px'; arena.appendChild(fx); setTimeout(()=>fx.remove(), dead?380:600);
-      if(gold && A.spark){ const fx2=document.createElement('img'); fx2.src=A.spark; fx2.className='sfx spark'; fx2.style.left=(x+10)+'px'; fx2.style.top=(y-10)+'px'; arena.appendChild(fx2); setTimeout(()=>fx2.remove(),600); }
+      var fx=document.createElement('img'); fx.src=dead?A.splat:(A.spark||A.splat); fx.className=dead?'sfx splat':'sfx spark';
+      fx.style.left=x+'px'; fx.style.top=y+'px'; arena.appendChild(fx); setTimeout(function(){fx.remove();}, dead?380:600);
+      if(gold && A.spark){ var fx2=document.createElement('img'); fx2.src=A.spark; fx2.className='sfx spark'; fx2.style.left=(x+10)+'px'; fx2.style.top=(y-10)+'px'; arena.appendChild(fx2); setTimeout(function(){fx2.remove();},600); }
     }
     function loop(t){
       if(!running) return;
       if(!startTs) startTs=t;
-      const dt=Math.min(32, t-(loop.prev||t)); loop.prev=t;
-      const w=arena.clientWidth, h=arena.clientHeight;
-      for(const f of flies){
-        if(f.dead) continue; f.t+=dt;
+      var dt=Math.min(32, t-(loop.prev||t)); loop.prev=t;
+      var w=arena.clientWidth, h=arena.clientHeight;
+      for(var i=0;i<flies.length;i++){
+        var f=flies[i]; if(f.dead) continue; f.t+=dt;
         if(f.t>400){ f.vx += (Math.random()*2-1)*22; f.vy += (Math.random()*2-1)*22; f.t=0; }
         f.x += f.vx*dt/1000; f.y += f.vy*dt/1000;
         if(f.x<12||f.x>w-12) f.vx*=-1; if(f.y<12||f.y>h-12) f.vy*=-1;
-        f.el.style.transform=`translate(${f.x}px,${f.y}px)`;
+        f.el.style.transform="translate("+f.x+"px,"+f.y+"px)";
       }
-      if((t-startTs)/1000 >= 20){ stop(true); return; }
+      var elapsed=(t-startTs)/1000;
+      var remain=Math.max(0, 20 - Math.floor(elapsed));
+      if(remain!==timeLeft){ timeLeft=remain; timeEl.textContent=timeLeft; }
+      if(elapsed>=20){ stop(true); return; }
       RAF=requestAnimationFrame(loop);
     }
     function cadence(){
       if(!running) return;
-      const alive=flies.filter(f=>!f.dead).length;
-      if(alive<10) spawn();
+      var alive=0; for(var i=0;i<flies.length;i++) if(!flies[i].dead) alive++;
+      if(alive<10) spawnOne();
       spawnTimer=setTimeout(cadence, 600+Math.random()*200);
     }
     function start(){
-      score=0; scoreEl.textContent='0'; flies.length=0; loop && (loop.prev=0); startTs=0;
+      score=0; scoreEl.textContent='0'; timeLeft=20; timeEl.textContent='20';
+      flies.length=0; loop.prev=0; startTs=0;
       modal.classList.add('on'); running=true;
-      requestAnimationFrame(()=>{ for(let i=0;i<6;i++) spawn(); cadence(); RAF=requestAnimationFrame(loop); });
+      requestAnimationFrame(function(){ for(var i=0;i<6;i++) spawnOne(); cadence(); RAF=requestAnimationFrame(loop); });
     }
     function stop(reward){
       running=false; cancelAnimationFrame(RAF); clearTimeout(spawnTimer);
-      flies.forEach(f=>f.el && f.el.remove()); flies.length=0;
-      setTimeout(()=>modal.classList.remove('on'),150);
+      for(var i=0;i<flies.length;i++){ if(flies[i].el) flies[i].el.remove(); }
+      flies.length=0;
+      setTimeout(function(){ modal.classList.remove('on'); },150);
       if(reward){
-        const s=score;
-        if(s>=24){ setMeter('fun',app.fun+24); setTrait('discipline',+4); setTrait('odor',-2); say("Maître moucheur !"); }
-        else if(s>=12){ setMeter('fun',app.fun+16); setTrait('discipline',+2); setTrait('odor',-2); say("Bonne chasse !"); }
-        else { setMeter('fun',app.fun+8); setTrait('discipline',+1); setTrait('odor',-1); say("Pas mal."); }
+        var s=score;
+        if(s>=24){ setMeter('fun',app.fun+24); setTrait('discipline',+4); setTrait('odor',-2); plantGain(3); say("Maître moucheur !"); }
+        else if(s>=12){ setMeter('fun',app.fun+16); setTrait('discipline',+2); setTrait('odor',-2); plantGain(2); say("Bonne chasse !"); }
+        else { setMeter('fun',app.fun+8); setTrait('discipline',+1); setTrait('odor',-1); plantGain(1); say("Pas mal."); }
         updateAll(); save();
       }
     }
-    $("#btnFlies").addEventListener('click',()=> app.alive && start());
-    $("#closeFlies").addEventListener('click',()=> stop(false));
-    modal.addEventListener('click',e=>{ if(e.target===modal) stop(false); });
+    $("#btnFlies").addEventListener('click', function(){ if(app.alive) start(); });
+    $("#closeFlies").addEventListener('click', function(){ stop(false); });
+    modal.addEventListener('click', function(e){ if(e.target===modal) stop(false); });
   })();
 
-  /* ===== Bath game (fixed) ===== */
+  /* ---------- Jeu BAIN (robuste) ---------- */
   (function(){
-    const modal=$("#modalBath"), arena=$("#arenaBath"), scoreEl=$("#scoreBath");
-    let timer=null, left=20, score=0, alive=false;
+    var modal=$("#modalBath"), arena=$("#arenaBath"), scoreEl=$("#scoreBath"), timeEl=$("#timeBath");
+    var timer=null, left=20, score=0, alive=false;
+
     function spawn(){
-      const b=document.createElement('div'); b.className='bubble';
-      const x=Math.random()*(arena.clientWidth-30)+15, y=arena.clientHeight+20;
+      var b=document.createElement('div'); b.className='bubble';
+      var x=Math.random()*(arena.clientWidth-30)+15, y=arena.clientHeight+20;
       b.style.left=(x-14)+'px'; b.style.top=(y-14)+'px';
-      const dur=1000+Math.random()*1400; const start=performance.now();
-      const step=(t)=>{ if(!alive) return b.remove(); const p=(t-start)/dur; if(p>=1){ b.remove(); return; } b.style.top=(y - p*(arena.clientHeight+80) - 14)+'px'; requestAnimationFrame(step); };
-      const hit=()=>{ score++; scoreEl.textContent=score; b.remove(); };
+      var dur=1000+Math.random()*1400; var start=performance.now();
+      var step=function(t){ if(!alive){ b.remove(); return; } var p=(t-start)/dur; if(p>=1){ b.remove(); return; } b.style.top=(y - p*(arena.clientHeight+80) - 14)+'px'; requestAnimationFrame(step); };
+      var hit=function(){ score++; scoreEl.textContent=score; b.remove(); };
       b.addEventListener('click',hit); b.addEventListener('touchstart',hit,{passive:true});
       arena.appendChild(b); requestAnimationFrame(step);
     }
-    function tick(){ if(!alive) return; left--; if(left<=0) return end(true); for(let i=0;i<2+Math.floor(Math.random()*3);i++) spawn(); timer=setTimeout(tick,1000); }
-    function start(){ modal.classList.add('on'); arena.innerHTML=''; score=0; scoreEl.textContent='0'; left=20; alive=true; tick(); }
-    function end(reward){ alive=false; clearTimeout(timer); setTimeout(()=>{ modal.classList.remove('on'); arena.innerHTML=''; if(reward){ const s=score; if(s>=25){ setMeter('hyg',app.hyg+30); setMeter('fun',app.fun+18); setTrait('odor',-4); say("🫧 Roi de la mousse !"); } else if(s>=12){ setMeter('hyg',app.hyg+20); setMeter('fun',app.fun+12); setTrait('odor',-3); say("🫧 Bien joué !"); } else { setMeter('hyg',app.hyg+12); setMeter('fun',app.fun+6); setTrait('odor',-2); say("🫧 Pas mal."); } updateAll(); save(); } },200); }
-    $("#btnBath").addEventListener('click',()=> app.alive && start());
-    $("#closeBath").addEventListener('click',()=> end(false));
-    $("#modalBath").addEventListener('click',e=>{ if(e.target===modal) end(false); });
+    function tick(){
+      if(!alive) return;
+      left--; timeEl.textContent=left;
+      if(left<=0){ end(true); return; }
+      for(var i=0;i<2+Math.floor(Math.random()*3);i++) spawn();
+      timer=setTimeout(tick,1000);
+    }
+    function start(){ modal.classList.add('on'); arena.innerHTML=''; score=0; scoreEl.textContent='0'; left=20; timeEl.textContent='20'; alive=true; tick(); }
+    function end(reward){ alive=false; clearTimeout(timer);
+      setTimeout(function(){
+        modal.classList.remove('on'); arena.innerHTML='';
+        if(reward){
+          var s=score;
+          if(s>=25){ setMeter('hyg',app.hyg+30); setMeter('fun',app.fun+18); setTrait('odor',-4); plantGain(2); say("🫧 Roi de la mousse !"); }
+          else if(s>=12){ setMeter('hyg',app.hyg+20); setMeter('fun',app.fun+12); setTrait('odor',-3); plantGain(2); say("🫧 Bien joué !"); }
+          else { setMeter('hyg',app.hyg+12); setMeter('fun',app.fun+6); setTrait('odor',-2); plantGain(1); say("🫧 Pas mal."); }
+          updateAll(); save();
+        }
+      },200);
+    }
+    $("#btnBath").addEventListener('click', function(){ if(app.alive) start(); });
+    $("#closeBath").addEventListener('click', function(){ end(false); });
+    $("#modalBath").addEventListener('click', function(e){ if(e.target===modal) end(false); });
   })();
 
-  /* time + random + evolution */
-  setInterval(()=>{ if(!app.alive) return; const r=Math.random();
+  /* ---------- Événements aléatoires + temps ---------- */
+  setInterval(function(){ if(!app.alive) return; var r=Math.random();
     if(r<.18){ say("Une mouche s’est posée..."); setMeter('hyg',app.hyg-4); setTrait('odor',+1); updateAll(); }
     else if(r<.28){ say("Petit rot discret."); setMeter('hunger',app.hunger+3); setTrait('odor',+1); updateAll(); }
   }, 30000);
 
   function tick(){ if(!app.alive) return;
-    const k=app.asleep?0.45:1;
+    var k=app.asleep?0.45:1;
     setMeter('hunger',app.hunger-0.6*k); setMeter('fun',app.fun-0.45*k); setMeter('hyg',app.hyg-0.35*k);
     setMeter('energy', app.energy-(app.asleep?-0.9:0.7));
-    if(['hunger','fun','hyg','energy'].filter(x=>app[x]<=0).length>=2){ app.alive=false; gameover.classList.add('on'); say("💀 RIP Cacamochi..."); }
+    if(['hunger','fun','hyg','energy'].filter(function(x){return app[x]<=0;}).length>=2){ app.alive=false; gameover.classList.add('on'); say("💀 RIP Cacamochi..."); }
+    // Fin de boost soleil si temps écoulé
+    if(plantState.boost && Date.now()>plantState.boostEnd){ sunOff(); }
     updateAll();
   }
   function newDay(){ if(!app.alive) return; app.day++; say("☀️ Jour "+app.day); setMeter('hyg',app.hyg-5); setMeter('hunger',app.hunger-6); evolveCheck(); save(); updateAll(); }
   setInterval(tick,1200); setInterval(newDay, 1.2*60*1000);
 
+  /* ---------- Évolutions ---------- */
   function evolveCheck(){
-    const mood=avg(app.hunger,app.fun,app.hyg,app.energy);
-    const clean=app.hyg - app.odor*1.5, playful=app.fun + app.affection, stoic=app.energy - app.discipline*0.5;
+    var mood=avg(app.hunger,app.fun,app.hyg,app.energy);
+    var clean=app.hyg - app.odor*1.5, playful=app.fun + app.affection, stoic=app.energy - app.discipline*0.5;
     if(app.day>=2 && app.evo==="bouseau"){
       if(clean>=60 && playful>=60) evolveTo("cacabra");
       else if(playful>=65 && clean<60) evolveTo("skatour");
@@ -428,20 +564,25 @@
   }
   function evolveTo(next){
     if(app.evo===next) return; app.evo=next;
-    const sEl=$("#sprite"); sEl.style.transition="transform .35s ease, filter .35s ease";
+    var sEl=$("#sprite"); sEl.style.transition="transform .35s ease, filter .35s ease";
     sEl.style.transform="scale(1.1)"; sEl.style.filter="drop-shadow(0 28px 24px var(--shadow)) saturate(1.2)";
-    setTimeout(()=>{ applySprite(); },120);
-    const fx=$("#evolveFX"), rect=sEl.getBoundingClientRect();
-    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    for(let i=0;i<32;i++){ const a=Math.random()*Math.PI*2, d=60+Math.random()*120; const dx=Math.cos(a)*d, dy=Math.sin(a)*d; const p=document.createElement('div'); p.className='fx'; p.style.left=(cx-5)+"px"; p.style.top=(cy-5)+"px"; p.style.setProperty('--tr',`translate(${dx}px,${dy}px)`); fx.appendChild(p); setTimeout(()=>p.remove(),900); }
-    setTimeout(()=>{ sEl.style.transform=""; sEl.style.filter=""; },400);
-    say(`✨ Évolution : ${evoName(next)} !`);
+    setTimeout(function(){ applySprite(); },120);
+    var fx=$("#evolveFX"), rect=sEl.getBoundingClientRect();
+    var cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    for(var i=0;i<32;i++){ var a=Math.random()*Math.PI*2, d=60+Math.random()*120; var dx=Math.cos(a)*d, dy=Math.sin(a)*d; var p=document.createElement('div'); p.className='fx'; p.style.left=(cx-5)+"px"; p.style.top=(cy-5)+"px"; p.style.setProperty('--tr',"translate("+dx+"px,"+dy+"px)"); fx.appendChild(p); setTimeout((function(el){return function(){el.remove();};})(p),900); }
+    setTimeout(function(){ sEl.style.transform=""; sEl.style.filter=""; },400);
+    say("✨ Évolution : "+evoName(next)+" !");
   }
 
-  $("#restart").onclick = ()=>{ Object.assign(app,{hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0}); gameover.classList.remove('on'); applySprite(); updateAll(); save(); };
+  /* ---------- Restart ---------- */
+  $("#restart").onclick = function(){
+    var fresh={hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0};
+    for(var k in fresh) app[k]=fresh[k];
+    gameover.classList.remove('on'); applySprite(); updateAll(); save();
+  };
 
-  /* init */
-  applyBackground(); load(); updateAll();
+  /* ---------- Init ---------- */
+  applyBackground(); load(); updateAll(); plantInit();
 })();
 </script>
 </body>
