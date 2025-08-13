@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Cacamochi — Deluxe</title>
+<title>Cacamochi — Deluxe+ Anim</title>
 <style>
   :root{
     --rose:#f7e4e1; --rose-2:#f3d5cf; --rose-3:#eec0b6;
@@ -34,6 +34,11 @@
   @keyframes wobble{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3%) scale(1.02)}}
   .wash{animation:wash .7s ease-in-out 3}@keyframes wash{0%{filter:hue-rotate(0)}50%{filter:hue-rotate(90deg) saturate(1.2)}100%{filter:hue-rotate(0)}}
   .dance{animation:dance .7s ease-in-out 4}@keyframes dance{0%{transform:translateX(0) rotate(0)}25%{transform:translateX(-8%) rotate(-6deg)}50%{transform:translateX(0)}75%{transform:translateX(8%) rotate(6deg)}100%{transform:translateX(0)}}
+  /* Jouer wiggle */
+  .playshake{animation:playshake .8s cubic-bezier(.2,.8,.2,1)}@keyframes playshake{
+    0%{transform:rotate(0) scale(1)}20%{transform:rotate(-9deg) scale(1.06)}40%{transform:rotate(7deg)}
+    60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}100%{transform:rotate(0) scale(1)}
+  }
 
   /* HUD */
   .hud{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);
@@ -62,7 +67,7 @@
   .speech .b{background:var(--glass);backdrop-filter:blur(8px);padding:.5rem .7rem;border-radius:14px;box-shadow:0 6px 18px var(--shadow);font-weight:800;color:var(--marron)}
   .speech .t{width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid var(--glass);margin:auto}
 
-  /* Disco */
+  /* Disco + Sun overlay */
   #disco{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;z-index:4}
   #disco::before,#disco::after{content:"";position:absolute;inset:-30%;background:
       radial-gradient(circle at 20% 30%, #ff9cf780 0, transparent 35%),
@@ -72,19 +77,15 @@
   @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
   .disco-on #disco{opacity:.9}
 
-  /* Evolution FX */
-  #evolveFX{position:absolute;inset:0;pointer-events:none;z-index:7}
-  .fx{position:absolute;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffd9ee 60%,transparent 70%);animation:boom 900ms ease-out forwards}
-  @keyframes boom{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:var(--tr) scale(1.2);opacity:0}}
-
-  /* Sun overlay (boost) */
   .sunBoost{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;z-index:4}
-  .sunBoost.on{opacity:.9}
+  .sunBoost.on{opacity:.75}
   .sunBoost:before{content:"";position:absolute;inset:-20%;background:
     radial-gradient(circle at 70% 10%, #fff0a8aa 0, transparent 35%),
     radial-gradient(circle at 10% 30%, #ffd27faa 0, transparent 35%),
     radial-gradient(circle at 50% 80%, #ffe7a1aa 0, transparent 35%);
     filter:blur(12px);mix-blend-mode:screen;animation:spin 9s linear infinite}
+  /* halo autour de la plante pendant le boost */
+  .plant.boost svg{filter:drop-shadow(0 0 10px #ffd86a) drop-shadow(0 0 18px #ffd86a80)}
 
   /* Dock (safe-area) */
   .dockWrap{
@@ -106,12 +107,17 @@
   .gameBtn .ico{width:22px;height:22px} .gameBtn .lbl{font-size:.7rem;margin-top:2px;color:var(--marron)}
   .gameBtn.flies{left:.8rem;top:48%} .gameBtn.bath{right:.8rem;top:48%}
 
-  /* Plant above dock (SVG) */
+  /* Plant (SVG) */
   .plant{position:absolute;right:14px;bottom:calc(120px + env(safe-area-inset-bottom, 0px));z-index:12;opacity:.98;transform-origin:50% 100%}
   .plant svg{width:76px;height:auto;display:block;filter:drop-shadow(0 6px 8px #0002)}
   .plant .sway{transform-origin:38px 64px;animation:plantSway 4.5s ease-in-out infinite}
   @keyframes plantSway{0%,100%{transform:rotate(0)}50%{transform:rotate(2.8deg)}}
-  .plant.grow{animation:grow 0.6s ease-out}@keyframes grow{from{transform:scale(.88)}to{transform:scale(1)}}
+  .plant.grow{animation:grow 0.6s ease-out}@keyframes grow{from{transform:scale(.9)}to{transform:scale(1)}}
+  .leafWiggle{animation:leafW 1.2s ease-in-out}@keyframes leafW{0%{transform:rotate(0)}30%{transform:rotate(-8deg)}60%{transform:rotate(6deg)}100%{transform:rotate(0)}}
+
+  /* Particules */
+  .p{position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;opacity:.9;animation:pop .8s ease-out forwards}
+  @keyframes pop{0%{transform:translate(0,0) scale(.6)}100%{transform:var(--tr) scale(1);opacity:0}}
 
   /* Modals + games */
   .modal{position:absolute;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:20}
@@ -135,6 +141,9 @@
 
   /* Bath bubble */
   .bubble{position:absolute;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffffaa 0, #ffd6f3 40%, #ffc1ea 70%, #f5a7d5 100%);box-shadow:0 2px 6px #0002}
+
+  /* Ambient stray fly (scene) */
+  .stray{position:absolute;top:20%;left:-40px;z-index:3;opacity:.9;filter:drop-shadow(0 3px 4px #0002)}
 </style>
 </head>
 <body>
@@ -177,7 +186,7 @@
     <button type="button" class="gameBtn flies" id="btnFlies"><img class="ico" src="img/icons/mouches.png" alt=""><span class="lbl">Mouches</span></button>
     <button type="button" class="gameBtn bath"  id="btnBath"><img class="ico" src="img/icons/bain.png" alt=""><span class="lbl">Bain</span></button>
 
-    <!-- Plant (SVG, évolutive) -->
+    <!-- Plant (SVG, évolutive, + animations) -->
     <div class="plant" id="plant">
       <svg viewBox="0 0 80 90" aria-label="Plante">
         <!-- Pot -->
@@ -188,27 +197,27 @@
         <!-- STADE 0 : germe -->
         <g id="p0" class="sway" style="display:none">
           <path d="M40 62 C40 55, 40 50, 40 46" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M40 50 C32 46, 30 44, 28 41 C33 41, 35 42, 40 45" fill="#79a45f"/>
-          <path d="M40 50 C48 46, 50 44, 52 41 C47 41, 45 42, 40 45" fill="#79a45f"/>
+          <path class="leafW" d="M40 50 C32 46, 30 44, 28 41 C33 41, 35 42, 40 45" fill="#79a45f"/>
+          <path class="leafW" d="M40 50 C48 46, 50 44, 52 41 C47 41, 45 42, 40 45" fill="#79a45f"/>
         </g>
         <!-- STADE 1 : jeune plant -->
         <g id="p1" class="sway" style="display:none">
           <path d="M40 62 C40 54, 40 47, 40 42" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <ellipse cx="32" cy="46" rx="8" ry="5" fill="#79a45f"/>
-          <ellipse cx="48" cy="46" rx="8" ry="5" fill="#79a45f"/>
+          <ellipse cx="32" cy="46" rx="8" ry="5" fill="#79a45f" class="leafW"/>
+          <ellipse cx="48" cy="46" rx="8" ry="5" fill="#79a45f" class="leafW"/>
         </g>
         <!-- STADE 2 : buisson -->
         <g id="p2" class="sway" style="display:none">
           <path d="M40 62 C40 52, 40 40, 40 36" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <circle cx="32" cy="44" r="10" fill="#6e9e57"/>
-          <circle cx="48" cy="44" r="10" fill="#6e9e57"/>
-          <circle cx="40" cy="36" r="9" fill="#79a45f"/>
+          <circle cx="32" cy="44" r="10" fill="#6e9e57" class="leafW"/>
+          <circle cx="48" cy="44" r="10" fill="#6e9e57" class="leafW"/>
+          <circle cx="40" cy="36" r="9" fill="#79a45f" class="leafW"/>
         </g>
         <!-- STADE 3 : fleur -->
         <g id="p3" class="sway" style="display:none">
           <path d="M40 62 C40 50, 40 34, 40 30" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <circle cx="32" cy="44" r="10" fill="#6e9e57"/>
-          <circle cx="48" cy="44" r="10" fill="#6e9e57"/>
+          <circle cx="32" cy="44" r="10" fill="#6e9e57" class="leafW"/>
+          <circle cx="48" cy="44" r="10" fill="#6e9e57" class="leafW"/>
           <circle cx="40" cy="34" r="12" fill="#79a45f"/>
           <circle cx="40" cy="28" r="6" fill="#ffd7e6" stroke="#eaa0be" stroke-width="2"/>
         </g>
@@ -228,9 +237,8 @@
         <button class="btn" id="spray"><img class="ico" src="img/icons/desodoriser.png"><span class="lbl">Déso</span></button>
         <button class="btn" id="kiss"><img class="ico" src="img/icons/bisou.png"><span class="lbl">Bisou</span></button>
         <button class="btn" id="nap"><img class="ico" src="img/icons/dodo.png"><span class="lbl">Sieste</span></button>
-        <!-- Nouveaux boutons -->
+        <!-- Nouveaux -->
         <button class="btn" id="water">
-          <!-- Icône goutte SVG inline pour éviter dépendance -->
           <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C9 6 6 9 6 13a6 6 0 1 0 12 0c0-4-3-7-6-11z" fill="none" stroke="#7b5644" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span class="lbl">Arroser</span>
         </button>
@@ -321,14 +329,14 @@
     age.textContent="Jour "+app.day+" — "+evoName(app.evo); applySprite();
     document.body.classList.toggle('sleeping', app.asleep);
   }
-  const load=function(){ try{var s=JSON.parse(localStorage.getItem("cacamochi-deluxe")); if(s) for(var k in s) app[k]=s[k];}catch(e){} };
-  const save=function(){ localStorage.setItem("cacamochi-deluxe", JSON.stringify(app)); };
+  const load=function(){ try{var s=JSON.parse(localStorage.getItem("cacamochi-deluxe+")); if(s) for(var k in s) app[k]=s[k];}catch(e){} };
+  const save=function(){ localStorage.setItem("cacamochi-deluxe+", JSON.stringify(app)); };
 
   /* Night stars */
   for(var i=0;i<36;i++){ var st=document.createElement('div'); st.className='star';
     st.style.left=(Math.random()*100)+'%'; st.style.top=(Math.random()*100)+'%'; st.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(st); }
 
-  /* ---------- Plante évolutive ---------- */
+  /* ---------- Plante évolutive + anim ---------- */
   var plantState = { xp:0, stage:0, boost:false, boostEnd:0, waterCd:0 };
   var PLANT_KEY="cacamochi-plant";
   function plantLoad(){ try{var s=JSON.parse(localStorage.getItem(PLANT_KEY)); if(s){ plantState.xp=s.xp||0; }}catch(e){} }
@@ -337,24 +345,39 @@
   function plantRender(){
     var st=plantStageFromXp(plantState.xp); plantState.stage=st;
     for(var j=0;j<=3;j++){ var g=document.getElementById("p"+j); if(g) g.style.display=(j===st)?"block":"none"; }
+    // wiggle des feuilles (légère secousse périodique)
+    var leaves=document.querySelectorAll('#p'+st+' .leafW, #p'+st+' .leafWiggle');
+    for(var k=0;k<leaves.length;k++){ leaves[k].classList.add('leafWiggle'); (function(el){ setTimeout(function(){ el.classList.remove('leafWiggle'); }, 1200); })(leaves[k]); }
+  }
+  function addBurstAround(el, color){
+    var rect=el.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    for(var i=0;i<6;i++){ var a=Math.random()*Math.PI*2, d=20+Math.random()*26; var dx=Math.cos(a)*d, dy=Math.sin(a)*d;
+      var p=document.createElement('div'); p.className='p'; p.style.background=color||'#ffd6a3';
+      p.style.left=(cx-5)+'px'; p.style.top=(cy-5)+'px'; p.style.setProperty('--tr',"translate("+dx+"px,"+dy+"px)");
+      document.body.appendChild(p); setTimeout((function(el){return function(){el.remove();};})(p),800);
+    }
   }
   function plantGain(n){
     if(plantState.boost) n = Math.ceil(n*1.8);
     plantState.xp=Math.max(0, Math.min(999, plantState.xp + n));
     plantRender(); plantSave();
     var p=document.getElementById('plant'); p.classList.add('grow'); setTimeout(function(){p.classList.remove('grow');},600);
+    addBurstAround(p, plantState.boost ? '#ffe37c' : '#c5f2a4');
   }
   function plantInit(){ plantLoad(); plantRender(); }
 
-  /* Boost soleil (20s) */
+  /* Boost soleil — TOGGLE + durée courte (8s) */
   function sunOn(){
-    if(plantState.boost) return; // déjà actif
-    if(app.energy<50 || app.hyg<40){ say("Pas assez en forme pour bronzer !"); return; }
-    plantState.boost=true; plantState.boostEnd=Date.now()+20000;
-    sunOverlay.classList.add('on'); say("☀️ Soleil : boost 20s !");
-    setTimeout(function(){ sunOff(); }, 20000);
+    if(plantState.boost){ sunOff(); return; } // toggle off si déjà actif
+    if(app.energy<40 || app.hyg<40){ say("Pas assez en forme pour bronzer !"); return; }
+    plantState.boost=true; plantState.boostEnd=Date.now()+8000; // 8s
+    sunOverlay.classList.add('on'); document.getElementById('plant').classList.add('boost');
+    say("☀️ Soleil : boost 8s !");
+    setTimeout(function(){ if(plantState.boost) sunOff(); }, 8200);
   }
-  function sunOff(){ plantState.boost=false; sunOverlay.classList.remove('on'); }
+  function sunOff(){
+    plantState.boost=false; sunOverlay.classList.remove('on'); document.getElementById('plant').classList.remove('boost'); say("🌤 Fin du boost");
+  }
 
   /* Arroser : +XP, coût énergie, cooldown 10s */
   function canWater(){ return Date.now() > plantState.waterCd; }
@@ -373,7 +396,13 @@
   $("#wash").onclick = function(){ if(!app.alive) return; setMeter('hyg',app.hyg+30); setTrait('odor',-3); sprite.classList.add('wash'); setTimeout(function(){sprite.classList.remove('wash');},2100); plantGain(1); say("Tout propre !"); updateAll(); save(); };
   $("#toilet").onclick= function(){ if(!app.alive) return; setMeter('hyg',app.hyg+40); setTrait('odor',-6); plantGain(1); say("🧻 Fiuuut !"); updateAll(); save(); };
   $("#sleep").onclick = function(){ if(!app.alive) return; app.asleep=!app.asleep; say(app.asleep?"Bonne nuit...":"Réveil !"); updateAll(); save(); };
-  $("#play").onclick  = function(){ if(!app.alive) return; setMeter('fun',app.fun+16); setMeter('energy',app.energy-8); setTrait('discipline',+1); setTrait('odor',+1); say("On joue !"); updateAll(); save(); };
+  $("#play").onclick  = function(){ if(!app.alive) return;
+    // Animation de jeu + confettis
+    sprite.classList.add('playshake'); setTimeout(function(){ sprite.classList.remove('playshake'); }, 820);
+    addBurstAround(sprite, '#ffb5cf'); addBurstAround(sprite, '#ffd285');
+    setMeter('fun',app.fun+18); setMeter('energy',app.energy-9); setTrait('discipline',+1); setTrait('odor',+1);
+    say("On joue !"); updateAll(); save();
+  };
   $("#heal").onclick  = function(){ if(!app.alive) return; var low=['hunger','fun','hyg','energy'].some(function(k){ return app[k]<35; }); if(low){['hunger','fun','hyg','energy'].forEach(function(k){ setMeter(k,app[k]+8); }); say("💊 Ça va mieux.");} else say("Pas besoin."); updateAll(); save(); };
   $("#snack").onclick = function(){ if(!app.alive) return; var r=Math.random(); if(r<.33){ setMeter('hunger',app.hunger+16); plantGain(1); say("Snack salé 😋"); } else if(r<.66){ setMeter('fun',app.fun+14); say("Snack sucré 🤤"); } else { setMeter('hunger',app.hunger+8); setTrait('odor',+2); say("Snack douteux 😬"); } updateAll(); save(); };
   $("#spray").onclick = function(){ if(!app.alive) return; setTrait('odor',-6); setMeter('hyg',app.hyg+6); setMeter('energy',app.energy-4); plantGain(1); say("Pschiiit ! Ça sent bon ✨"); updateAll(); save(); };
@@ -402,6 +431,36 @@
   var plantEl = $("#plant"); var plantTimer=0;
   function plantNod(){ plantEl.classList.add('grow'); clearTimeout(plantTimer); plantTimer=setTimeout(function(){plantEl.classList.remove('grow');}, 600); }
   ["feed","wash","toilet","snack","spray","water"].forEach(function(id){ $("#"+id).addEventListener('click',plantNod); });
+
+  /* ---------- Ambient: mouche qui traverse ---------- */
+  (function(){
+    var room = $("#room");
+    function spawnStray(){
+      if(Math.random()<0.5) return; // pas à chaque tick
+      var img=document.createElement('img');
+      img.src="img/flies/fly_small.png"; img.className="stray"; room.appendChild(img);
+      // point de départ aléatoire (gauche->droite ou l’inverse)
+      var h=room.clientHeight||window.innerHeight;
+      var y = (h*0.25) + Math.random()*(h*0.4);
+      var leftToRight = Math.random()>0.5;
+      var startX = leftToRight ? -40 : (room.clientWidth+40);
+      var endX   = leftToRight ? (room.clientWidth+60) : -60;
+      var start = performance.now(); var dur = 4500 + Math.random()*2500;
+      function step(t){
+        var p=(t-start)/dur; if(p>=1){ img.remove(); return; }
+        var x = startX + (endX-startX)*p;
+        // petite sinusoïde pour le vol
+        var yy = y + Math.sin(p*Math.PI*4)*12;
+        img.style.transform="translate("+x+"px,"+yy+"px) scale(0.9)";
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      // retire au cas où
+      setTimeout(function(){ img.remove(); }, dur+200);
+    }
+    // cadence aléatoire : toutes 10–20 s
+    setInterval(function(){ spawnStray(); }, 10000);
+  })();
 
   /* ---------- Jeu MOUCHES v3.2 ---------- */
   (function(){
@@ -569,7 +628,7 @@
     setTimeout(function(){ applySprite(); },120);
     var fx=$("#evolveFX"), rect=sEl.getBoundingClientRect();
     var cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    for(var i=0;i<32;i++){ var a=Math.random()*Math.PI*2, d=60+Math.random()*120; var dx=Math.cos(a)*d, dy=Math.sin(a)*d; var p=document.createElement('div'); p.className='fx'; p.style.left=(cx-5)+"px"; p.style.top=(cy-5)+"px"; p.style.setProperty('--tr',"translate("+dx+"px,"+dy+"px)"); fx.appendChild(p); setTimeout((function(el){return function(){el.remove();};})(p),900); }
+    for(var i=0;i<32;i++){ var a=Math.random()*Math.PI*2, d=60+Math.random()*120; var dx=Math.cos(a)*d, dy=Math.sin(a)*d; var p=document.createElement('div'); p.className='p'; p.style.background='#ffd7e6'; p.style.left=(cx-5)+"px"; p.style.top=(cy-5)+"px"; p.style.setProperty('--tr',"translate("+dx+"px,"+dy+"px)"); document.body.appendChild(p); setTimeout((function(el){return function(){el.remove();};})(p),800); }
     setTimeout(function(){ sEl.style.transform=""; sEl.style.filter=""; },400);
     say("✨ Évolution : "+evoName(next)+" !");
   }
