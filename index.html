@@ -486,11 +486,17 @@
     };
 
     var difficulty = [
-      { time:0,  speed:1,    cap:10, cadence:[600,800] },
-      { time:5,  speed:1.2,  cap:12, cadence:[520,720] },
-      { time:10, speed:1.35, cap:14, cadence:[440,640] },
-      { time:15, speed:1.55, cap:16, cadence:[360,520] }
+      { time:0,  speed:1,    cap:10, cadence:[600,800], weights:{ small:0.88, big:0.10, gold:0.02 } },
+      { time:5,  speed:1.2,  cap:12, cadence:[520,720], weights:{ small:0.82, big:0.14, gold:0.04 } },
+      { time:10, speed:1.35, cap:14, cadence:[440,640], weights:{ small:0.76, big:0.17, gold:0.07 } },
+      { time:15, speed:1.55, cap:16, cadence:[360,520], weights:{ small:0.70, big:0.20, gold:0.10 } }
     ];
+    var defaultWeights = { small:0.7, big:0.2, gold:0.1 };
+    var flyStats = {
+      small:{ speed:55, hp:1, pts:1, src:A.small },
+      big  :{ speed:42, hp:2, pts:2, src:A.big },
+      gold :{ speed:75, hp:1, pts:5, src:A.gold }
+    };
     var currentDifficulty = difficulty[0];
 
     var medalKey = "cacamochi:fliesMedal";
@@ -538,14 +544,39 @@
     function spawnOne(){
       var w=arena.clientWidth, h=arena.clientHeight;
       var img=document.createElement('img');
-      var r=Math.random();
-      var type='small', speed=55, hp=1, pts=1, src=A.small;
-      if(r>0.8){ type='big'; speed=42; hp=2; pts=2; src=A.big; }
-      if(r<0.10){ type='gold'; speed=75; hp=1; pts=5; src=A.gold; }
+      var types=['small','big','gold'];
+      var weights=currentDifficulty.weights||defaultWeights;
+      var total=0;
+      var dist=[];
+      for(var i=0;i<types.length;i++){
+        var t=types[i];
+        var w=Number(weights[t]);
+        if(!w||w<=0) continue;
+        total+=w;
+        dist.push({ type:t, cumulative:total });
+      }
+      if(total<=0){
+        weights=defaultWeights;
+        total=0; dist=[];
+        for(var j=0;j<types.length;j++){
+          var tt=types[j];
+          var ww=Number(weights[tt]);
+          if(!ww||ww<=0) continue;
+          total+=ww;
+          dist.push({ type:tt, cumulative:total });
+        }
+      }
+      var draw=Math.random()*total;
+      var type=(dist.length?dist[dist.length-1].type:'small');
+      for(var k=0;k<dist.length;k++){
+        if(draw<dist[k].cumulative){ type=dist[k].type; break; }
+      }
+      var stats=flyStats[type]||flyStats.small;
+      var speed=stats.speed, hp=stats.hp, pts=stats.pts, src=stats.src;
       img.src=src; img.className='fly '+type; img.draggable=false; arena.appendChild(img);
       var mult=currentDifficulty.speed;
       speed*=mult;
-      var f={ el:img, x:Math.random()*w, y:Math.random()*h, vx:(Math.random()*2-1)*speed, vy:(Math.random()*2-1)*speed, t:0, hp:hp, pts:pts, dead:false };
+      var f={ el:img, x:Math.random()*w, y:Math.random()*h, vx:(Math.random()*2-1)*speed, vy:(Math.random()*2-1)*speed, t:0, hp:hp, pts:pts, dead:false, type:type };
       var hit=function(ev){
         ev.stopPropagation();
         f.hp--;
