@@ -29,6 +29,9 @@
   const plantSvg=$("#plantSvg"), plantAura=$("#plantAura");
   const plantLevelTitle=$("#plantLevelTitle"), plantLevelSubtitle=$("#plantLevelSubtitle");
   const plantMeters={ hydration:$("#plantHydration"), sunlight:$("#plantSunlight"), mood:$("#plantMood") };
+  const plantToggle=$("#plantToggle");
+
+  var plantHudCollapsed=false, plantHudUserOverride=false, plantHudMq=null, plantHudToggleInit=false;
 
   const evoName=function(id){ var m={bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}; return m[id]||"???"; };
   const say=function(txt){
@@ -149,6 +152,38 @@
     if(plantLevelTitle) plantLevelTitle.textContent="Niveau "+(stage+1)+" — "+info.title;
     if(plantLevelSubtitle) plantLevelSubtitle.textContent=info.tagline;
   }
+  function updatePlantIdleMotion(){
+    if(!plantSvg) return;
+    var stage = typeof plantState.stage==='number' ? plantState.stage : 0;
+    var bobStages=[4.6,5.4,6.3,7.2,8.1];
+    var swayStages=[1.5,1.9,2.4,2.9,3.3];
+    var cycleStages=[9.2,8.5,7.8,7.1,6.5];
+    var driftStages=[0.0,0.35,0.6,0.85,1.1];
+    var idx=Math.max(0, Math.min(stage, bobStages.length-1));
+    var bob=bobStages[idx];
+    var sway=swayStages[idx];
+    var duration=cycleStages[idx];
+    var driftBase=driftStages[Math.min(idx, driftStages.length-1)];
+    var sign=Number(plantSvg.dataset.idleSign);
+    if(!sign || !isFinite(sign)){
+      sign=(Math.random()>0.5?1:-1);
+      plantSvg.dataset.idleSign=String(sign);
+    }
+    var thriving = plantEl && plantEl.getAttribute('data-thriving')==='true';
+    if(thriving){
+      bob+=0.7;
+      sway+=0.35;
+      duration=Math.max(5.6, duration-1.1);
+      driftBase+=0.25;
+      plantSvg.classList.add('thriving');
+    } else {
+      plantSvg.classList.remove('thriving');
+    }
+    plantSvg.style.setProperty('--plant-bob', bob.toFixed(2)+'px');
+    plantSvg.style.setProperty('--plant-sway', sway.toFixed(2)+'deg');
+    plantSvg.style.setProperty('--plant-cycle', duration.toFixed(2)+'s');
+    plantSvg.style.setProperty('--plant-drift', (driftBase*sign).toFixed(2)+'px');
+  }
   function updatePlantClassFlags(){
     if(!plantEl) return;
     plantEl.classList.toggle('is-thirsty', plantState.hydration<35);
@@ -156,6 +191,7 @@
     plantEl.classList.toggle('is-sad', plantState.mood<35);
     var thriving = plantState.hydration>70 && plantState.sunlight>68 && plantState.mood>68;
     plantEl.setAttribute('data-thriving', thriving?'true':'false');
+    updatePlantIdleMotion();
   }
   function updatePlantMeter(name, prev, val, options){
     var el=plantMeters[name]; if(!el) return;
@@ -211,6 +247,7 @@
       }
     }
     updatePlantHud(stage);
+    updatePlantIdleMotion();
     if(changed){ plantStageCelebrate(stage); }
   }
   function plantStageCelebrate(stage){
@@ -224,6 +261,51 @@
     spawnPlantSparkles(8);
     var info=PLANT_STAGES[stage]||{};
     say((info.emoji||'🌿')+' La plante évolue : '+(info.title||'Nouvelle forme')+' !');
+  }
+  function applyPlantHudCollapsed(){
+    if(!plantEl) return;
+    plantEl.classList.toggle('is-compact', !!plantHudCollapsed);
+    if(plantToggle){
+      plantToggle.setAttribute('aria-expanded', plantHudCollapsed?'false':'true');
+    }
+  }
+  function setupPlantHudToggle(){
+    if(plantHudToggleInit) return;
+    if(!plantEl || !plantToggle) return;
+    plantHudToggleInit=true;
+    plantToggle.addEventListener('click', function(){
+      plantHudCollapsed=!plantHudCollapsed;
+      plantHudUserOverride=true;
+      applyPlantHudCollapsed();
+    });
+    if(window.matchMedia){
+      try{
+        plantHudMq=window.matchMedia('(max-width: 720px)');
+        plantHudCollapsed=plantHudMq.matches;
+        plantHudUserOverride=false;
+        applyPlantHudCollapsed();
+        var mqHandler=function(ev){
+          if(ev.matches){
+            if(!plantHudUserOverride){
+              plantHudCollapsed=true;
+              applyPlantHudCollapsed();
+            }
+          } else {
+            plantHudCollapsed=false;
+            plantHudUserOverride=false;
+            applyPlantHudCollapsed();
+          }
+        };
+        if(typeof plantHudMq.addEventListener==='function'){ plantHudMq.addEventListener('change', mqHandler); }
+        else if(typeof plantHudMq.addListener==='function'){ plantHudMq.addListener(mqHandler); }
+      }catch(_){
+        plantHudCollapsed=false;
+        applyPlantHudCollapsed();
+      }
+    } else {
+      plantHudCollapsed=false;
+      applyPlantHudCollapsed();
+    }
   }
   function addBurstAround(el, color){
     if(!el || !el.getBoundingClientRect) return;
@@ -343,8 +425,13 @@
     plantState.sunlight=clampPercent(plantState.sunlight);
     plantState.mood=clampPercent(plantState.mood);
     if(plantAura) plantAura.style.animationDelay=(Math.random()*3).toFixed(2)+'s';
+    if(plantSvg){
+      if(!plantSvg.dataset.idleSign){ plantSvg.dataset.idleSign=(Math.random()>0.5?1:-1); }
+      plantSvg.style.animationDelay=(-Math.random()*4).toFixed(2)+'s';
+    }
     renderPlantVitals({silent:true});
     plantRender();
+    setupPlantHudToggle();
     queuePlantSave();
     if(plantState.tickInterval) clearInterval(plantState.tickInterval);
     plantState.tickInterval=setInterval(plantTick, 6500);
