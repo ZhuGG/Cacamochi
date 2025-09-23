@@ -321,7 +321,13 @@
   }
   function setMeter(name,val){ val=Math.max(0,Math.min(100,val)); bar[name].style.width=val+"%";
     bars[name].classList.toggle('bad',val<35); bars[name].classList.toggle('mid',val>=35&&val<65); bars[name].classList.toggle('good',val>=65); app[name]=val; }
-  function setTrait(name,delta,min,max){ min=(typeof min==='number')?min:-999; max=(typeof max==='number')?max:999; app[name]=Math.max(min,Math.min(max,app[name]+delta)); }
+  const TRAIT_LIMITS={ affection:{min:0,max:30}, discipline:{min:0,max:30}, odor:{min:0,max:20} };
+  function setTrait(name,delta,min,max){
+    var limits=TRAIT_LIMITS[name]||{};
+    var minVal=(typeof min==='number')?min:(typeof limits.min==='number'?limits.min:-999);
+    var maxVal=(typeof max==='number')?max:(typeof limits.max==='number'?limits.max:999);
+    app[name]=Math.max(minVal,Math.min(maxVal,app[name]+delta));
+  }
   function avg(){ var s=0; for(var i=0;i<arguments.length;i++) s+=arguments[i]; return s/arguments.length; }
   function updateAll(){
     setMeter('hunger',app.hunger); setMeter('fun',app.fun); setMeter('hyg',app.hyg); setMeter('energy',app.energy);
