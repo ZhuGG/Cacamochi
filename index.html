@@ -542,7 +542,7 @@
     }
 
     function spawnOne(){
-      var w=arena.clientWidth, h=arena.clientHeight;
+      var arenaW=arena.clientWidth, arenaH=arena.clientHeight;
       var img=document.createElement('img');
       var types=['small','big','gold'];
       var weights=currentDifficulty.weights||defaultWeights;
@@ -550,9 +550,9 @@
       var dist=[];
       for(var i=0;i<types.length;i++){
         var t=types[i];
-        var w=Number(weights[t]);
-        if(!w||w<=0) continue;
-        total+=w;
+        var weight=Number(weights[t]);
+        if(!weight||weight<=0) continue;
+        total+=weight;
         dist.push({ type:t, cumulative:total });
       }
       if(total<=0){
@@ -576,7 +576,7 @@
       img.src=src; img.className='fly '+type; img.draggable=false; arena.appendChild(img);
       var mult=currentDifficulty.speed;
       speed*=mult;
-      var f={ el:img, x:Math.random()*w, y:Math.random()*h, vx:(Math.random()*2-1)*speed, vy:(Math.random()*2-1)*speed, t:0, hp:hp, pts:pts, dead:false, type:type };
+      var f={ el:img, x:Math.random()*arenaW, y:Math.random()*arenaH, vx:(Math.random()*2-1)*speed, vy:(Math.random()*2-1)*speed, t:0, hp:hp, pts:pts, dead:false, type:type };
       var hit=function(ev){
         ev.stopPropagation();
         f.hp--;
