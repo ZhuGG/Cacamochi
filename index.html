@@ -372,6 +372,12 @@
   }
   function plantInit(){ plantLoad(); plantRender(); }
 
+  function clearSunBoostVisuals(){
+    sunOverlay.classList.remove('on');
+    var plantEl=document.getElementById('plant');
+    if(plantEl) plantEl.classList.remove('boost');
+  }
+
   /* Boost soleil — TOGGLE + durée courte (8s) */
   function sunOn(){
     if(plantState.boost){ sunOff(); return; } // toggle off si déjà actif
@@ -382,7 +388,7 @@
     setTimeout(function(){ if(plantState.boost) sunOff(); }, 8200);
   }
   function sunOff(){
-    plantState.boost=false; sunOverlay.classList.remove('on'); document.getElementById('plant').classList.remove('boost'); say("🌤 Fin du boost");
+    plantState.boost=false; clearSunBoostVisuals(); say("🌤 Fin du boost");
   }
 
   /* Arroser : +XP, coût énergie, cooldown 10s */
@@ -797,6 +803,9 @@
   $("#restart").onclick = function(){
     var fresh={hunger:70,fun:70,hyg:70,energy:70,day:1,alive:true,asleep:false,evo:"bouseau",affection:0,discipline:0,odor:0};
     for(var k in fresh) app[k]=fresh[k];
+    plantState.xp=0; plantState.stage=0; plantState.boost=false; plantState.boostEnd=0; plantState.waterCd=0;
+    clearSunBoostVisuals();
+    plantRender(); plantSave();
     gameover.classList.remove('on'); applySprite(); updateAll(); save();
   };
 
