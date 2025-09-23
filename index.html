@@ -131,13 +131,65 @@
   .gameBtn .ico{width:22px;height:22px} .gameBtn .lbl{font-size:.7rem;margin-top:2px;color:var(--marron)}
   .gameBtn.flies{left:.8rem;top:48%} .gameBtn.bath{right:.8rem;top:48%}
 
-  /* Plant (SVG) */
-  .plant{position:absolute;right:14px;bottom:calc(120px + env(safe-area-inset-bottom, 0px));z-index:12;opacity:.98;transform-origin:50% 100%}
-  .plant svg{width:76px;height:auto;display:block;filter:drop-shadow(0 6px 8px #0002)}
-  .plant .sway{transform-origin:38px 64px;animation:plantSway 4.5s ease-in-out infinite}
-  @keyframes plantSway{0%,100%{transform:rotate(0)}50%{transform:rotate(2.8deg)}}
-  .plant.grow{animation:grow 0.6s ease-out}@keyframes grow{from{transform:scale(.9)}to{transform:scale(1)}}
-  .leafWiggle{animation:leafW 1.2s ease-in-out}@keyframes leafW{0%{transform:rotate(0)}30%{transform:rotate(-8deg)}60%{transform:rotate(6deg)}100%{transform:rotate(0)}}
+  /* Plant (new visual) */
+  .plant{position:absolute;right:clamp(8px,4vw,32px);bottom:calc(110px + env(safe-area-inset-bottom, 0px));z-index:12;display:flex;flex-direction:column;align-items:center;gap:.45rem;transform-origin:50% 100%;width:min(210px,38vw)}
+  .plantSvg{width:100%;max-width:200px;display:block;filter:drop-shadow(0 12px 18px #0001);transition:transform .45s ease,filter .45s ease,opacity .45s ease;pointer-events:none;position:relative;z-index:1}
+  .plantAura{position:absolute;width:180%;height:180%;top:50%;left:50%;transform:translate(-50%,-40%);pointer-events:none;border-radius:50%;background:radial-gradient(circle at 50% 50%,#ffeec180 0%,#ffeec108 32%,transparent 70%);mix-blend-mode:screen;filter:blur(18px);opacity:0;transition:opacity .6s ease;z-index:0}
+  .plant[data-thriving="true"] .plantAura{opacity:.7;animation:auraPulse 5.6s ease-in-out infinite}
+  @keyframes auraPulse{0%,100%{transform:translate(-50%,-40%) scale(.92);opacity:.55}50%{transform:translate(-50%,-42%) scale(1.05);opacity:.85}}
+  .plantHud{width:100%;background:var(--glass);backdrop-filter:blur(10px);padding:.55rem .65rem;border-radius:14px;box-shadow:0 4px 14px var(--shadow);position:relative;overflow:hidden;z-index:2}
+  .plantHud::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,rgba(255,255,255,.4) 0,rgba(255,255,255,0) 60%);opacity:.45;pointer-events:none}
+  .plantLevel{display:flex;flex-direction:column;gap:.15rem}
+  .plantLevel strong{font-size:.9rem;color:var(--marron);font-weight:800}
+  .plantLevel span{font-size:.72rem;color:var(--marron-2);font-weight:600;line-height:1.3}
+  .plantMeters{display:grid;gap:.45rem;margin-top:.35rem}
+  .plantMeter{display:flex;flex-direction:column;gap:.16rem}
+  .plantMeter label{font-size:.68rem;font-weight:700;color:var(--marron)}
+  .plantMeterBar{height:8px;border-radius:999px;background:rgba(255,255,255,.7);overflow:hidden;position:relative}
+  .plantMeterBar i{display:block;height:100%;width:var(--value,50%);background:linear-gradient(90deg,#7ad9ae,#4cb583);transition:width .35s cubic-bezier(.43,.02,.23,1),filter .35s ease;position:relative}
+  .plantMeterBar i::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(255,255,255,.65) 0,transparent 65%);mix-blend-mode:screen;opacity:.6;transition:opacity .3s ease}
+  .plantMeter.bad .plantMeterBar i{background:linear-gradient(90deg,#ff8c8c,#f05454)}
+  .plantMeter.mid .plantMeterBar i{background:linear-gradient(90deg,#ffd27f,#ff9f68)}
+  .plantMeter.good .plantMeterBar i{background:linear-gradient(90deg,#9be6ba,#5ec48b)}
+  .plantMeterBar i.gain::after{animation:meterShine .75s ease}
+  .plantMeterBar i.loss{filter:brightness(.82)}
+  .plant.boost .plantSvg{filter:drop-shadow(0 0 18px #ffd86aa8) drop-shadow(0 0 28px #ffd86a66)}
+  .plant.sun-bathing .plantSvg{transform:translateY(-4px) scale(1.02);filter:drop-shadow(0 10px 20px #ffd86a40)}
+  .plant.is-thirsty .plantSvg{filter:grayscale(.12) saturate(.85) brightness(.95);transform:translateY(6px) scale(.96)}
+  .plant.needs-light .plantSvg{filter:hue-rotate(-12deg) saturate(.85)}
+  .plant.is-sad .plantSvg{transform:translateY(8px) scale(.94);opacity:.9}
+  .plant[data-stage="0"] .plantSvg{opacity:.92}
+  .plantStage{opacity:0;transition:opacity .5s ease}
+  .plant[data-stage="0"] .plantStage[data-stage="0"],
+  .plant[data-stage="1"] .plantStage[data-stage="1"],
+  .plant[data-stage="2"] .plantStage[data-stage="2"],
+  .plant[data-stage="3"] .plantStage[data-stage="3"],
+  .plant[data-stage="4"] .plantStage[data-stage="4"]{opacity:1}
+  .plantStage path,.plantStage circle,.plantStage ellipse{transition:transform .6s ease,opacity .6s ease;transform-box:fill-box;transform-origin:50% 100%}
+  .plantStage .leaf{animation:leafDance 6s ease-in-out infinite;transform-origin:50% 100%}
+  .plantStage .leaf[data-delay="1"]{animation-delay:1.2s}
+  .plantStage .leaf[data-delay="2"]{animation-delay:2.1s}
+  .plantStage .leaf[data-delay="3"]{animation-delay:3s}
+  .plantStage .leaf[data-delay="4"]{animation-delay:3.6s}
+  .plantStage .leaf[data-delay="5"]{animation-delay:4.4s}
+  .plantStage .petal{animation:petalPulse 5s ease-in-out infinite;transform-origin:50% 50%}
+  .plantStage .sparkle{animation:sparkBlink 4s ease-in-out infinite}
+  .plantStage .stem{animation:stemBreath 7s ease-in-out infinite;transform-origin:50% 100%}
+  .flowerCore{animation:none}
+  @keyframes leafDance{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-4.5deg)}50%{transform:rotate(2.8deg)}75%{transform:rotate(-2deg)}}
+  @keyframes petalPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  @keyframes sparkBlink{0%,100%{opacity:.7}45%{opacity:1}60%{opacity:.4}}
+  @keyframes stemBreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.02)}}
+  .plant.grow{animation:plantFallbackGrow .6s ease-out}
+  @keyframes plantFallbackGrow{from{transform:scale(.95)}to{transform:scale(1)}}
+  .plant.stageBloom{animation:plantBloom .9s ease-out}
+  @keyframes plantBloom{0%{transform:translateY(12px) scale(.9)}50%{transform:translateY(-8px) scale(1.04)}100%{transform:translateY(0) scale(1)}}
+  .plantSpark{position:fixed;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff6 0,#fff0 70%);box-shadow:0 0 12px #fff4;pointer-events:none;transform:translate(-50%,-50%) scale(.6);animation:plantSpark 1.2s ease-out forwards}
+  @keyframes plantSpark{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-150%) scale(1.4)}}
+  .plantDrop{position:fixed;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 40% 30%,#ffffff 0,#8fd0ff 65%,#4aa6e6 100%);pointer-events:none;transform:translate(-50%,-50%) scale(.6);animation:plantDrop 1s ease-out forwards;filter:drop-shadow(0 4px 10px #4aa6e622)}
+  @keyframes plantDrop{0%{opacity:.9;transform:translate(-50%,-40%) scale(.6)}100%{opacity:0;transform:translate(-50%,60px) scale(1.1)}}
+  .plantRay{position:fixed;width:120px;height:120px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,#ffeebb55 0,rgba(255,240,173,0) 70%);mix-blend-mode:screen;transform:translate(-50%,-50%) scale(.4);animation:plantRay 1.4s ease-out forwards}
+  @keyframes plantRay{0%{opacity:.9;transform:translate(-50%,-50%) scale(.4) rotate(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2) rotate(90deg)}}
 
   /* Particules */
   .p{position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;opacity:.9;animation:pop .8s ease-out forwards}
@@ -229,41 +281,136 @@
     <button type="button" class="gameBtn bath"  id="btnBath"><img class="ico" src="img/icons/bain.png" alt=""><span class="lbl">Bain</span></button>
 
     <!-- Plant (SVG, évolutive, + animations) -->
-    <div class="plant" id="plant">
-      <svg viewBox="0 0 80 90" aria-label="Plante">
-        <!-- Pot -->
-        <g fill="#c48f6d">
-          <rect x="20" y="62" width="40" height="16" rx="4"></rect>
-          <rect x="16" y="54" width="48" height="10" rx="5" fill="#b57f5e"></rect>
+    <div class="plant" id="plant" data-stage="0" data-thriving="false">
+      <div class="plantAura" id="plantAura" aria-hidden="true"></div>
+      <svg class="plantSvg" id="plantSvg" viewBox="0 0 120 160" aria-label="Plante évolutive">
+        <defs>
+          <linearGradient id="potGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#e8b799"/>
+            <stop offset="100%" stop-color="#b17954"/>
+          </linearGradient>
+          <linearGradient id="potLip" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#d39f78"/>
+            <stop offset="100%" stop-color="#a86b46"/>
+          </linearGradient>
+          <radialGradient id="soilGrad" cx="50%" cy="35%" r="70%">
+            <stop offset="0%" stop-color="#5b3f2a"/>
+            <stop offset="100%" stop-color="#3a2618"/>
+          </radialGradient>
+          <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#9ee2a9"/>
+            <stop offset="100%" stop-color="#3c7b45"/>
+          </linearGradient>
+          <linearGradient id="stemGradStrong" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#b1f0b9"/>
+            <stop offset="100%" stop-color="#3a6d3f"/>
+          </linearGradient>
+          <radialGradient id="leafGrad" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#f1ffe5"/>
+            <stop offset="100%" stop-color="#5ba868"/>
+          </radialGradient>
+          <radialGradient id="leafGrad2" cx="60%" cy="40%" r="75%">
+            <stop offset="0%" stop-color="#d9ffd1"/>
+            <stop offset="100%" stop-color="#4b915a"/>
+          </radialGradient>
+          <radialGradient id="leafGrad3" cx="45%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#b6f5d4"/>
+            <stop offset="100%" stop-color="#3f8f55"/>
+          </radialGradient>
+          <radialGradient id="flowerGrad" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#ffe5f6"/>
+            <stop offset="100%" stop-color="#ff90d2"/>
+          </radialGradient>
+          <radialGradient id="flowerCenter" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff6c7"/>
+            <stop offset="100%" stop-color="#f7a54e"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="60" cy="148" rx="34" ry="10" fill="#00000018" opacity=".32"></ellipse>
+        <g class="pot" aria-hidden="true">
+          <path d="M28 118h64l-7 26c-1.2 4.4-5 7.4-9.6 7.4H44.6c-4.6 0-8.4-3-9.6-7.4z" fill="url(#potGrad)"></path>
+          <ellipse cx="60" cy="118" rx="34" ry="10" fill="#b9865e"></ellipse>
+          <ellipse cx="60" cy="116" rx="26" ry="6" fill="url(#soilGrad)" opacity=".92"></ellipse>
+          <ellipse cx="60" cy="118" rx="30" ry="7" fill="url(#potLip)"></ellipse>
         </g>
-        <!-- STADE 0 : germe -->
-        <g id="p0" class="sway" style="display:none">
-          <path d="M40 62 C40 55, 40 50, 40 46" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path class="leafW" d="M40 50 C32 46, 30 44, 28 41 C33 41, 35 42, 40 45" fill="#79a45f"/>
-          <path class="leafW" d="M40 50 C48 46, 50 44, 52 41 C47 41, 45 42, 40 45" fill="#79a45f"/>
+        <g class="plantStage" data-stage="0">
+          <path class="stem" d="M60 116 C58 106 58 94 60 86" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+          <path class="leaf" d="M60 92 C53 90 50 84 51 78 C55 81 57 83 60 85" fill="url(#leafGrad)"></path>
+          <path class="leaf" d="M60 92 C67 90 70 84 69 78 C65 81 63 83 60 85" fill="url(#leafGrad)"></path>
+          <circle class="sparkle" cx="60" cy="74" r="2.2" fill="#d9fff2" opacity=".6"></circle>
         </g>
-        <!-- STADE 1 : jeune plant -->
-        <g id="p1" class="sway" style="display:none">
-          <path d="M40 62 C40 54, 40 47, 40 42" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <ellipse cx="32" cy="46" rx="8" ry="5" fill="#79a45f" class="leafW"/>
-          <ellipse cx="48" cy="46" rx="8" ry="5" fill="#79a45f" class="leafW"/>
+        <g class="plantStage" data-stage="1">
+          <path class="stem" d="M60 116 C58 98 54 80 60 66" stroke="url(#stemGrad)" stroke-width="5" fill="none" stroke-linecap="round"></path>
+          <path class="leaf" d="M60 88 C46 84 36 74 36 60 C48 64 54 70 60 76" fill="url(#leafGrad)"></path>
+          <path class="leaf" data-delay="1" d="M60 88 C74 84 84 74 84 60 C72 64 66 70 60 76" fill="url(#leafGrad)"></path>
+          <path class="leaf" data-delay="2" d="M60 74 C52 66 50 56 54 46 C58 54 60 60 62 68" fill="url(#leafGrad2)"></path>
+          <path class="leaf" data-delay="3" d="M60 74 C68 66 70 56 66 46 C62 54 60 60 58 68" fill="url(#leafGrad2)"></path>
         </g>
-        <!-- STADE 2 : buisson -->
-        <g id="p2" class="sway" style="display:none">
-          <path d="M40 62 C40 52, 40 40, 40 36" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <circle cx="32" cy="44" r="10" fill="#6e9e57" class="leafW"/>
-          <circle cx="48" cy="44" r="10" fill="#6e9e57" class="leafW"/>
-          <circle cx="40" cy="36" r="9" fill="#79a45f" class="leafW"/>
+        <g class="plantStage" data-stage="2">
+          <path class="stem" d="M60 116 C56 90 48 60 60 42" stroke="url(#stemGradStrong)" stroke-width="6" fill="none" stroke-linecap="round"></path>
+          <ellipse class="leaf" cx="42" cy="82" rx="20" ry="22" fill="url(#leafGrad3)"></ellipse>
+          <ellipse class="leaf" data-delay="1" cx="78" cy="82" rx="20" ry="22" fill="url(#leafGrad3)"></ellipse>
+          <ellipse class="leaf" data-delay="2" cx="60" cy="60" rx="18" ry="20" fill="url(#leafGrad2)"></ellipse>
+          <ellipse class="leaf" data-delay="3" cx="46" cy="58" rx="14" ry="18" fill="url(#leafGrad)"></ellipse>
+          <ellipse class="leaf" data-delay="4" cx="74" cy="58" rx="14" ry="18" fill="url(#leafGrad)"></ellipse>
+          <circle class="sparkle" cx="60" cy="36" r="3" fill="#e6fff5" opacity=".7"></circle>
         </g>
-        <!-- STADE 3 : fleur -->
-        <g id="p3" class="sway" style="display:none">
-          <path d="M40 62 C40 50, 40 34, 40 30" stroke="#5a7f4a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <circle cx="32" cy="44" r="10" fill="#6e9e57" class="leafW"/>
-          <circle cx="48" cy="44" r="10" fill="#6e9e57" class="leafW"/>
-          <circle cx="40" cy="34" r="12" fill="#79a45f"/>
-          <circle cx="40" cy="28" r="6" fill="#ffd7e6" stroke="#eaa0be" stroke-width="2"/>
+        <g class="plantStage" data-stage="3">
+          <path class="stem" d="M60 116 C56 86 44 48 60 32" stroke="url(#stemGradStrong)" stroke-width="6" fill="none" stroke-linecap="round"></path>
+          <path class="stem" d="M60 76 C48 60 40 46 38 34" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+          <path class="stem" d="M60 76 C72 60 80 46 82 34" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+          <ellipse class="leaf" cx="42" cy="86" rx="22" ry="24" fill="url(#leafGrad3)"></ellipse>
+          <ellipse class="leaf" data-delay="1" cx="78" cy="86" rx="22" ry="24" fill="url(#leafGrad3)"></ellipse>
+          <ellipse class="leaf" data-delay="2" cx="60" cy="62" rx="20" ry="22" fill="url(#leafGrad2)"></ellipse>
+          <ellipse class="leaf" data-delay="3" cx="46" cy="48" rx="14" ry="16" fill="url(#leafGrad)"></ellipse>
+          <ellipse class="leaf" data-delay="4" cx="74" cy="48" rx="14" ry="16" fill="url(#leafGrad)"></ellipse>
+          <circle class="petal" cx="60" cy="28" r="10" fill="url(#flowerGrad)"></circle>
+          <circle class="petal" cx="44" cy="34" r="8" fill="url(#flowerGrad)" opacity=".85"></circle>
+          <circle class="petal" cx="76" cy="34" r="8" fill="url(#flowerGrad)" opacity=".85"></circle>
+          <circle class="flowerCore" cx="60" cy="28" r="4.5" fill="url(#flowerCenter)"></circle>
+          <circle class="sparkle" cx="60" cy="18" r="3" fill="#fff5d1" opacity=".9"></circle>
+          <circle class="sparkle" cx="76" cy="26" r="2.4" fill="#fff5d1" opacity=".7"></circle>
+          <circle class="sparkle" cx="44" cy="26" r="2.4" fill="#fff5d1" opacity=".7"></circle>
+        </g>
+        <g class="plantStage" data-stage="4">
+          <path class="stem" d="M60 116 C54 78 40 32 60 20" stroke="url(#stemGradStrong)" stroke-width="7" fill="none" stroke-linecap="round"></path>
+          <path class="stem" d="M60 66 C44 50 30 34 28 20" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+          <path class="stem" d="M60 66 C76 50 90 34 92 20" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+          <ellipse class="leaf" cx="38" cy="86" rx="24" ry="26" fill="url(#leafGrad3)"></ellipse>
+          <ellipse class="leaf" data-delay="1" cx="82" cy="86" rx="24" ry="26" fill="url(#leafGrad3)"></ellipse>
+          <ellipse class="leaf" data-delay="2" cx="60" cy="58" rx="22" ry="24" fill="url(#leafGrad2)"></ellipse>
+          <ellipse class="leaf" data-delay="3" cx="46" cy="42" rx="16" ry="18" fill="url(#leafGrad)"></ellipse>
+          <ellipse class="leaf" data-delay="4" cx="74" cy="42" rx="16" ry="18" fill="url(#leafGrad)"></ellipse>
+          <ellipse class="leaf" data-delay="5" cx="60" cy="36" rx="18" ry="16" fill="url(#leafGrad2)"></ellipse>
+          <circle class="petal" cx="60" cy="18" r="12" fill="url(#flowerGrad)" opacity=".95"></circle>
+          <circle class="petal" cx="38" cy="32" r="9" fill="url(#flowerGrad)" opacity=".82"></circle>
+          <circle class="petal" cx="82" cy="32" r="9" fill="url(#flowerGrad)" opacity=".82"></circle>
+          <circle class="flowerCore" cx="60" cy="18" r="5.2" fill="url(#flowerCenter)"></circle>
+          <circle class="sparkle" cx="32" cy="48" r="3" fill="#fff7d6" opacity=".9"></circle>
+          <circle class="sparkle" cx="88" cy="48" r="3" fill="#fff7d6" opacity=".9"></circle>
+          <circle class="sparkle" cx="60" cy="6" r="2.6" fill="#ffffff" opacity=".85"></circle>
         </g>
       </svg>
+      <div class="plantHud" id="plantHud" aria-live="polite">
+        <div class="plantLevel">
+          <strong id="plantLevelTitle">Niveau 1 — Graine curieuse</strong>
+          <span id="plantLevelSubtitle">Réveille-la avec un peu d'eau.</span>
+        </div>
+        <div class="plantMeters">
+          <div class="plantMeter" id="meterHydration">
+            <label for="plantHydration">Hydratation</label>
+            <div class="plantMeterBar"><i id="plantHydration" data-value="0"></i></div>
+          </div>
+          <div class="plantMeter" id="meterSunlight">
+            <label for="plantSunlight">Lumière</label>
+            <div class="plantMeterBar"><i id="plantSunlight" data-value="0"></i></div>
+          </div>
+          <div class="plantMeter" id="meterMood">
+            <label for="plantMood">Humeur</label>
+            <div class="plantMeterBar"><i id="plantMood" data-value="0"></i></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Dock -->
@@ -355,6 +502,9 @@
   const traitMap={ affection:traitsEls.aff, discipline:traitsEls.dis, odor:traitsEls.odo };
   const stars=$("#stars"), gameover=$("#gameover"), sunOverlay=$("#sunBoost");
   const plantEl=$("#plant");
+  const plantSvg=$("#plantSvg"), plantAura=$("#plantAura");
+  const plantLevelTitle=$("#plantLevelTitle"), plantLevelSubtitle=$("#plantLevelSubtitle");
+  const plantMeters={ hydration:$("#plantHydration"), sunlight:$("#plantSunlight"), mood:$("#plantMood") };
 
   const evoName=function(id){ var m={bouseau:"Bouseau",cacabra:"Cacabra",seigneur:"Seignœur",skatour:"Skatour",skalibur:"Skalibur",crottombe:"Crottombe",thanabouse:"Thanabouse"}; return m[id]||"???"; };
   const say=function(txt){
@@ -416,11 +566,47 @@
     st.style.left=(Math.random()*100)+'%'; st.style.top=(Math.random()*100)+'%'; st.style.animationDelay=(Math.random()*2)+'s'; stars.appendChild(st); }
 
   /* ---------- Plante évolutive + anim ---------- */
-  var plantState = { xp:0, stage:0, boost:false, boostEnd:0, waterCd:0 };
+  const PLANT_STAGES=[
+    { minXp:0,  title:"Graine curieuse",     tagline:"Réveille-la avec un peu d'eau.", emoji:"🌱" },
+    { minXp:12, title:"Pousse mélodieuse",   tagline:"Elle se balance au rythme de la pièce.", emoji:"🌿" },
+    { minXp:28, title:"Buisson rayonnant",   tagline:"Ses feuilles vibrent quand Cacamochi est heureux.", emoji:"🍃" },
+    { minXp:52, title:"Fleur astrale",       tagline:"Un parfum sucré envahit la pièce.", emoji:"🌸" },
+    { minXp:85, title:"Arbre lunaire",       tagline:"Elle diffuse une énergie protectrice.", emoji:"🌟" }
+  ];
+  var plantState = { xp:0, stage:0, boost:false, boostEnd:0, waterCd:0, hydration:78, sunlight:68, mood:72, thrive:0, alerts:{}, saveTimer:0 };
   var PLANT_KEY="cacamochi-plant";
-  function plantLoad(){ try{var s=JSON.parse(localStorage.getItem(PLANT_KEY)); if(s){ plantState.xp=s.xp||0; }}catch(e){} }
-  function plantSave(){ localStorage.setItem(PLANT_KEY, JSON.stringify({xp:plantState.xp})); }
-  function plantStageFromXp(xp){ if(xp>=24) return 3; if(xp>=14) return 2; if(xp>=6) return 1; return 0; }
+  function clampPercent(v){ return Math.max(0, Math.min(100, v)); }
+  function plantLoad(){
+    try{
+      var s=JSON.parse(localStorage.getItem(PLANT_KEY));
+      if(s){
+        if(typeof s.xp==='number') plantState.xp=s.xp;
+        if(typeof s.hydration==='number') plantState.hydration=clampPercent(s.hydration);
+        if(typeof s.sunlight==='number') plantState.sunlight=clampPercent(s.sunlight);
+        if(typeof s.mood==='number') plantState.mood=clampPercent(s.mood);
+      }
+    }catch(_){ }
+    plantState.stage = plantStageFromXp(plantState.xp);
+    plantState.thrive=0;
+    plantState.alerts=plantState.alerts||{};
+  }
+  function plantSave(){
+    localStorage.setItem(PLANT_KEY, JSON.stringify({
+      xp:plantState.xp,
+      hydration:plantState.hydration,
+      sunlight:plantState.sunlight,
+      mood:plantState.mood
+    }));
+  }
+  function queuePlantSave(){
+    if(plantState.saveTimer) return;
+    plantState.saveTimer=setTimeout(function(){ plantState.saveTimer=0; plantSave(); },700);
+  }
+  function plantStageFromXp(xp){
+    var stage=0;
+    for(var i=0;i<PLANT_STAGES.length;i++){ if(xp>=PLANT_STAGES[i].minXp) stage=i; }
+    return stage;
+  }
   function runPlantAnimation(frames, options, fallbackClass){
     if(!plantEl) return;
     var opts=options?Object.assign({}, options):{};
@@ -434,12 +620,86 @@
       animateOnce(plantEl, fallbackClass, opts.duration);
     }
   }
-  function plantRender(){
-    var st=plantStageFromXp(plantState.xp); plantState.stage=st;
-    for(var j=0;j<=3;j++){ var g=document.getElementById("p"+j); if(g) g.style.display=(j===st)?"block":"none"; }
-    // wiggle des feuilles (légère secousse périodique)
-    var leaves=document.querySelectorAll('#p'+st+' .leafW, #p'+st+' .leafWiggle');
-    for(var k=0;k<leaves.length;k++){ leaves[k].classList.add('leafWiggle'); (function(el){ setTimeout(function(){ el.classList.remove('leafWiggle'); }, 1200); })(leaves[k]); }
+  function updatePlantHud(stage){
+    var info=PLANT_STAGES[stage]||PLANT_STAGES[0];
+    if(plantLevelTitle) plantLevelTitle.textContent="Niveau "+(stage+1)+" — "+info.title;
+    if(plantLevelSubtitle) plantLevelSubtitle.textContent=info.tagline;
+  }
+  function updatePlantClassFlags(){
+    if(!plantEl) return;
+    plantEl.classList.toggle('is-thirsty', plantState.hydration<35);
+    plantEl.classList.toggle('needs-light', plantState.sunlight<35);
+    plantEl.classList.toggle('is-sad', plantState.mood<35);
+    var thriving = plantState.hydration>70 && plantState.sunlight>68 && plantState.mood>68;
+    plantEl.setAttribute('data-thriving', thriving?'true':'false');
+  }
+  function updatePlantMeter(name, prev, val, options){
+    var el=plantMeters[name]; if(!el) return;
+    var diff=val - (typeof prev==='number'?prev:val);
+    el.style.width=val+'%';
+    el.style.setProperty('--value', val+'%');
+    el.dataset.value=val;
+    if(!(options&&options.silent) && Math.abs(diff)>=5){ animateOnce(el, diff>0?'gain':'loss', 650); }
+    var wrap = el.parentElement ? el.parentElement.parentElement : null;
+    if(wrap){
+      wrap.classList.toggle('bad', val<35);
+      wrap.classList.toggle('mid', val>=35 && val<70);
+      wrap.classList.toggle('good', val>=70);
+    }
+  }
+  function renderPlantVitals(options){
+    ['hydration','sunlight','mood'].forEach(function(name){
+      var el=plantMeters[name];
+      if(!el) return;
+      var prev=parseFloat(el.dataset.value);
+      if(isNaN(prev)) prev=plantState[name];
+      updatePlantMeter(name, prev, plantState[name], options);
+    });
+    updatePlantClassFlags();
+  }
+  function setPlantVital(name, value, options){
+    if(typeof plantState[name]!=='number') plantState[name]=0;
+    var prev=plantState[name];
+    var val=clampPercent(value);
+    plantState[name]=val;
+    if(!(options&&options.deferRender)){
+      updatePlantMeter(name, prev, val, options);
+      updatePlantClassFlags();
+    }
+    queuePlantSave();
+    return val-prev;
+  }
+  function adjustPlantVital(name, delta, options){
+    return setPlantVital(name, plantState[name]+delta, options);
+  }
+  function plantRender(prevStage){
+    var stage=plantStageFromXp(plantState.xp);
+    var changed = typeof prevStage==='number' ? stage!==prevStage : stage!==plantState.stage;
+    plantState.stage=stage;
+    if(plantEl) plantEl.setAttribute('data-stage', stage);
+    if(plantSvg){
+      var groups=plantSvg.querySelectorAll('.plantStage');
+      for(var i=0;i<groups.length;i++){
+        var node=groups[i];
+        var visible=node.getAttribute('data-stage')===String(stage);
+        node.style.opacity=visible?'1':'0';
+        node.style.pointerEvents=visible?'auto':'none';
+      }
+    }
+    updatePlantHud(stage);
+    if(changed){ plantStageCelebrate(stage); }
+  }
+  function plantStageCelebrate(stage){
+    if(!plantEl) return;
+    animateOnce(plantEl,'stageBloom',900);
+    runPlantAnimation([
+      { transform:'translateY(0) scale(1)' },
+      { transform:'translateY(-6px) scale(1.05)', offset:0.5 },
+      { transform:'translateY(0) scale(1)' }
+    ], { duration:760, easing:'ease-out' }, 'grow');
+    spawnPlantSparkles(8);
+    var info=PLANT_STAGES[stage]||{};
+    say((info.emoji||'🌿')+' La plante évolue : '+(info.title||'Nouvelle forme')+' !');
   }
   function addBurstAround(el, color){
     if(!el || !el.getBoundingClientRect) return;
@@ -496,22 +756,117 @@
     document.body.appendChild(burst);
     setTimeout(function(){ burst.remove(); }, 1400);
   }
-  function plantGain(n){
-    if(plantState.boost) n = Math.ceil(n*1.8);
-    plantState.xp=Math.max(0, Math.min(999, plantState.xp + n));
-    plantRender(); plantSave();
-    runPlantAnimation([
-      { transform:'translateY(0) scale(1)' },
-      { transform:'translateY(-2px) scale(1.04)', offset:0.5 },
-      { transform:'translateY(0) scale(1)' }
-    ], { duration:620, easing:'ease-out' }, 'grow');
-    addBurstAround(plantEl, plantState.boost ? '#ffe37c' : '#c5f2a4');
+  function spawnPlantSparkles(count){
+    if(!plantEl || !plantEl.getBoundingClientRect) return;
+    var rect=plantEl.getBoundingClientRect();
+    var total = count || 5;
+    for(var i=0;i<total;i++){
+      var spark=document.createElement('span');
+      spark.className='plantSpark';
+      var angle=Math.random()*Math.PI*2;
+      var dist=30+Math.random()*40;
+      spark.style.left=(rect.left + rect.width/2 + Math.cos(angle)*dist)+'px';
+      spark.style.top=(rect.top + rect.height*0.3 + Math.sin(angle)*dist)+'px';
+      document.body.appendChild(spark);
+      setTimeout((function(el){return function(){ el.remove(); };})(spark),1200);
+    }
   }
-  function plantInit(){ plantLoad(); plantRender(); }
+  function spawnPlantDrops(){
+    if(!plantEl || !plantEl.getBoundingClientRect) return;
+    var rect=plantEl.getBoundingClientRect();
+    for(var i=0;i<4;i++){
+      var drop=document.createElement('span');
+      drop.className='plantDrop';
+      var angle=Math.random()*Math.PI*2;
+      var dist=24+Math.random()*26;
+      drop.style.left=(rect.left + rect.width/2 + Math.cos(angle)*dist)+'px';
+      drop.style.top=(rect.top + rect.height*0.35 + Math.sin(angle)*dist)+'px';
+      document.body.appendChild(drop);
+      setTimeout((function(el){return function(){ el.remove(); };})(drop),1000);
+    }
+  }
+  function spawnPlantRays(){
+    if(!plantEl || !plantEl.getBoundingClientRect) return;
+    var rect=plantEl.getBoundingClientRect();
+    var ray=document.createElement('span');
+    ray.className='plantRay';
+    ray.style.left=(rect.left + rect.width/2)+'px';
+    ray.style.top=(rect.top + rect.height*0.1)+'px';
+    document.body.appendChild(ray);
+    setTimeout(function(){ ray.remove(); },1400);
+  }
+  function plantGain(n, options){
+    if(typeof n!=='number' || !isFinite(n) || n===0){ plantRender(); return; }
+    var prevXp=plantState.xp;
+    var gain = plantState.boost ? Math.ceil(n*1.6) : n;
+    plantState.xp=Math.max(0, Math.min(999, prevXp + gain));
+    var prevStage=plantStageFromXp(prevXp);
+    plantRender(prevStage);
+    if(gain>0 && !(options && options.silent)){
+      runPlantAnimation([
+        { transform:'translateY(0) scale(1)' },
+        { transform:'translateY(-3px) scale(1.04)', offset:0.45 },
+        { transform:'translateY(0) scale(1)' }
+      ], { duration:620, easing:'ease-out' }, 'grow');
+      addBurstAround(plantEl, plantState.boost ? '#ffe8b3' : '#c9f3d0');
+      spawnPlantSparkles(4);
+    }
+    queuePlantSave();
+  }
+  function plantInit(){
+    plantLoad();
+    plantState.hydration=clampPercent(plantState.hydration);
+    plantState.sunlight=clampPercent(plantState.sunlight);
+    plantState.mood=clampPercent(plantState.mood);
+    if(plantAura) plantAura.style.animationDelay=(Math.random()*3).toFixed(2)+'s';
+    renderPlantVitals({silent:true});
+    plantRender();
+    queuePlantSave();
+    if(plantState.tickInterval) clearInterval(plantState.tickInterval);
+    plantState.tickInterval=setInterval(plantTick, 6500);
+  }
+  function plantTick(){
+    if(!plantEl) return;
+    adjustPlantVital('hydration', plantState.boost ? -0.5 : -0.8, {deferRender:true});
+    adjustPlantVital('sunlight', app.asleep ? -0.3 : -0.6, {deferRender:true});
+    var care=avg(app.hunger, app.fun, app.hyg, app.energy);
+    if(care>75){ adjustPlantVital('mood', +0.8, {deferRender:true}); }
+    else if(care<40){ adjustPlantVital('mood', -1.1, {deferRender:true}); }
+    else { adjustPlantVital('mood', -0.5, {deferRender:true}); }
+    renderPlantVitals({silent:true});
+    if(plantState.boost && Date.now()>plantState.boostEnd){ sunOff(); }
+    var thriving = plantState.hydration>70 && plantState.sunlight>68 && plantState.mood>68;
+    if(thriving){
+      plantState.thrive=(plantState.thrive||0)+1;
+      if(plantState.thrive>=3){ plantGain(1,{silent:true}); spawnPlantSparkles(3); plantState.thrive=0; }
+    } else {
+      plantState.thrive=0;
+    }
+    queuePlantSave();
+    handlePlantWarnings();
+  }
+  function plantWarn(kind,message){
+    if(!plantState.alerts) plantState.alerts={};
+    var now=Date.now();
+    var last=plantState.alerts[kind]||0;
+    if(now-last>90000){
+      plantState.alerts[kind]=now;
+      say(message);
+    }
+  }
+  function handlePlantWarnings(){
+    if(!app.alive) return;
+    if(plantState.hydration<26) plantWarn('hydration','💧 Ta plante a très soif !');
+    if(plantState.sunlight<26) plantWarn('sunlight','☀️ Un petit bain de soleil lui ferait du bien.');
+    if(plantState.mood<24) plantWarn('mood','🎶 Parle-lui, elle se sent seule…');
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden){ renderPlantVitals({silent:true}); }
+  });
 
   function clearSunBoostVisuals(){
     sunOverlay.classList.remove('on');
-    if(plantEl) plantEl.classList.remove('boost');
+    if(plantEl){ plantEl.classList.remove('boost'); plantEl.classList.remove('sun-bathing'); }
   }
 
   /* Boost soleil — TOGGLE + durée courte (8s) */
@@ -519,20 +874,27 @@
     if(plantState.boost){ sunOff(); return; } // toggle off si déjà actif
     if(app.energy<40 || app.hyg<40){ say("Pas assez en forme pour bronzer !"); return; }
     plantState.boost=true; plantState.boostEnd=Date.now()+8000; // 8s
-    sunOverlay.classList.add('on'); if(plantEl) plantEl.classList.add('boost');
+    sunOverlay.classList.add('on'); if(plantEl){ plantEl.classList.add('boost'); plantEl.classList.add('sun-bathing'); }
+    adjustPlantVital('sunlight', +28);
+    adjustPlantVital('mood', +2);
     createSunBurst(sprite);
-    emitEmojiBurst(sprite, ['☀️','✨']);
+    spawnPlantRays();
+    emitEmojiBurst(plantEl||sprite, ['☀️','✨']);
     runPlantAnimation([
       { transform:'scale(1)' },
       { transform:'scale(1.08)', offset:0.5 },
       { transform:'scale(1)' }
     ], { duration:1200, easing:'ease-in-out' }, 'grow');
     if(sprite && sprite.animate){ sprite.animate([{ transform:'scale(1)' },{ transform:'scale(1.05)', offset:0.4 },{ transform:'scale(1)' }], { duration:900, easing:'ease-out' }); }
-    say("☀️ Soleil : boost 8s !");
+    setTimeout(function(){ if(plantEl) plantEl.classList.remove('sun-bathing'); }, 1400);
+    say("☀️ Bain de soleil ! Boost 8s");
     setTimeout(function(){ if(plantState.boost) sunOff(); }, 8200);
   }
   function sunOff(){
-    plantState.boost=false; clearSunBoostVisuals(); say("🌤 Fin du boost");
+    plantState.boost=false; plantState.boostEnd=0; clearSunBoostVisuals();
+    renderPlantVitals({silent:true});
+    queuePlantSave();
+    say("🌤 Fin du boost");
   }
 
   /* Arroser : +XP, coût énergie, cooldown 10s */
@@ -541,9 +903,12 @@
     if(!canWater()){ say("Patiente un peu… 💧"); return; }
     if(app.energy<8){ say("Trop fatigué pour arroser."); return; }
     setMeter('energy', app.energy-8);
+    adjustPlantVital('hydration', +26);
+    adjustPlantVital('mood', +2);
     plantGain(2);
     createRipple(plantEl||sprite);
-    emitEmojiBurst(plantEl||sprite, ['💧','🌱']);
+    spawnPlantDrops();
+    emitEmojiBurst(plantEl||sprite, ['💧','🌿']);
     runPlantAnimation([
       { transform:'rotate(0deg)' },
       { transform:'rotate(-3deg)', offset:0.4 },
@@ -598,6 +963,8 @@
       { transform:'translateY(-3px)', offset:0.45 },
       { transform:'translateY(0)' }
     ], { duration:520, easing:'ease-out' }, 'grow');
+    adjustPlantVital('mood', +0.4, {deferRender:true});
+    renderPlantVitals({silent:true});
   }
   ["feed","wash","toilet","snack","spray","water"].forEach(function(id){ $("#"+id).addEventListener('click',plantNod); });
 
