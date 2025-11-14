@@ -15,14 +15,14 @@
   .orientation-lock__icon{font-size:2.6rem;line-height:1}
   .orientation-lock__text{margin:0;font-size:1.05rem;font-weight:800;line-height:1.45}
   .orientation-lock__hint{margin:0;font-size:.9rem;font-weight:600;color:var(--marron-2);line-height:1.4}
-  @media screen and (max-width:900px) and (orientation:portrait){
+  @media screen and (max-width:900px) and (orientation:landscape){
     .orientation-lock{display:flex}
     .app{display:none}
     body{overflow:hidden}
   }
-  html.is-portrait .orientation-lock{display:flex}
-  html.is-portrait .app{display:none}
-  html.is-portrait body{overflow:hidden}
+  html.is-landscape .orientation-lock{display:flex}
+  html.is-landscape .app{display:none}
+  html.is-landscape body{overflow:hidden}
 
   /* Header */
   header{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;
@@ -277,6 +277,110 @@
     .plantToggle{right:auto;left:50%;bottom:calc(100% - 36px);transform:translateX(-50%)}
     .plant--climbing{width:min(220px,68vw);padding-top:clamp(24px,14vh,96px);justify-content:flex-end}
     .plant--climbing .plantSvg{max-height:none;width:min(200px,62vw)}
+  }
+
+  @media screen and (max-width:900px) and (orientation:portrait){
+    .stage{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding:1.2rem 1rem calc(9rem + env(safe-area-inset-bottom, 0px));
+      gap:.9rem;
+      min-height:100dvh;
+    }
+    .hud{
+      position:relative;
+      top:auto;
+      left:auto;
+      transform:none;
+      width:100%;
+      max-width:420px;
+    }
+    .chips{
+      position:relative;
+      top:auto;
+      left:auto;
+      transform:none;
+      width:100%;
+      max-width:420px;
+      justify-content:center;
+      margin:0;
+      gap:.45rem;
+    }
+    .chips .chip{flex:1 1 120px;text-align:center;}
+    .center{
+      position:relative;
+      inset:auto;
+      width:100%;
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+    }
+    .center .sprite{
+      width:min(72vw,280px);
+      pointer-events:auto;
+    }
+    .gameBtn{
+      position:relative;
+      width:100%;
+      max-width:420px;
+      height:64px;
+      border-radius:16px;
+      flex-direction:row;
+      gap:.75rem;
+      justify-content:flex-start;
+      padding:0 1rem;
+    }
+    .gameBtn .ico{width:30px;height:30px;}
+    .gameBtn .lbl{margin-top:0;font-size:.85rem;}
+    .gameBtn + .gameBtn{margin-top:.5rem;}
+    .plant{
+      position:relative;
+      right:auto;
+      bottom:auto;
+      width:100%;
+      max-width:420px;
+      margin-top:.2rem;
+      align-items:center;
+    }
+    .plantToggle{
+      left:50%;
+      right:auto;
+      bottom:calc(100% - 42px);
+      transform:translateX(-50%);
+    }
+    .plantHud{
+      position:relative;
+      right:auto;
+      bottom:auto;
+      width:100%;
+      margin-top:.4rem;
+    }
+    .dockWrap{
+      position:relative;
+      left:auto;
+      right:auto;
+      bottom:auto;
+      width:100%;
+      max-width:480px;
+      margin:0 auto;
+      padding:0;
+      mask-image:none;
+      overflow:visible;
+    }
+    .dock{
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:.6rem;
+      scroll-snap-type:none;
+    }
+    .btn{
+      width:82px;
+      height:82px;
+    }
+    .btn .ico{width:28px;height:28px;}
+    .btn .lbl{font-size:.78rem;}
   }
 
   /* Particules */

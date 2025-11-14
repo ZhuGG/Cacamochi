@@ -1,14 +1,14 @@
 (()=> {
   'use strict';
-  var orientationMq=(typeof window!=='undefined' && window.matchMedia)?window.matchMedia('(orientation: portrait)'):null;
+  var orientationMq=(typeof window!=='undefined' && window.matchMedia)?window.matchMedia('(orientation: landscape)'):null;
   function updateOrientationMode(){
     if(!document || !document.documentElement) return;
     var root=document.documentElement;
-    var isPortrait=false;
-    if(orientationMq){ isPortrait=orientationMq.matches; }
-    else if(typeof window!=='undefined'){ isPortrait=window.innerHeight>window.innerWidth; }
+    var isLandscape=false;
+    if(orientationMq){ isLandscape=orientationMq.matches; }
+    else if(typeof window!=='undefined'){ isLandscape=window.innerWidth>window.innerHeight; }
     var isMobile=typeof window!=='undefined'?window.innerWidth<=900:false;
-    root.classList.toggle('is-portrait', Boolean(isMobile && isPortrait));
+    root.classList.toggle('is-landscape', Boolean(isMobile && isLandscape));
   }
   updateOrientationMode();
   if(typeof window!=='undefined'){ window.addEventListener('resize', updateOrientationMode); }
@@ -16,21 +16,21 @@
     if(typeof orientationMq.addEventListener==='function'){ orientationMq.addEventListener('change', updateOrientationMode); }
     else if(typeof orientationMq.addListener==='function'){ orientationMq.addListener(updateOrientationMode); }
   }
-  function tryLockLandscape(){
+  function tryLockPortrait(){
     var screenObj=(typeof window!=='undefined')?window.screen:null;
     if(!screenObj) return;
     var orientation=screenObj.orientation;
     if(orientation && typeof orientation.lock==='function'){
-      orientation.lock('landscape').catch(function(){});
+      orientation.lock('portrait').catch(function(){});
       return;
     }
     var legacyLock=screenObj.lockOrientation||screenObj.mozLockOrientation||screenObj.msLockOrientation;
     if(typeof legacyLock==='function'){
-      try{ legacyLock.call(screenObj,'landscape'); }
+      try{ legacyLock.call(screenObj,'portrait'); }
       catch(_){ }
     }
   }
-  if(typeof window!=='undefined'){ window.addEventListener('load', tryLockLandscape); }
+  if(typeof window!=='undefined'){ window.addEventListener('load', tryLockPortrait); }
   function bindOnce(eventName, handler){
     var onceHandler=function(ev){
       document.removeEventListener(eventName, onceHandler, false);
@@ -38,8 +38,8 @@
     };
     document.addEventListener(eventName, onceHandler, false);
   }
-  bindOnce('click', tryLockLandscape);
-  bindOnce('touchend', tryLockLandscape);
+  bindOnce('click', tryLockPortrait);
+  bindOnce('touchend', tryLockPortrait);
   /* ---------- Base & état ---------- */
   const CONFIG = {
     background: "img_background.jpg",
