@@ -9,37 +9,22 @@
     else if(typeof window!=='undefined'){ isPortrait=window.innerHeight>window.innerWidth; }
     var isMobile=typeof window!=='undefined'?window.innerWidth<=900:false;
     root.classList.toggle('is-portrait', Boolean(isMobile && isPortrait));
+    setViewportUnit();
+  }
+  function setViewportUnit(){
+    if(typeof window==='undefined' || !document || !document.documentElement) return;
+    var vh=window.innerHeight*0.01;
+    document.documentElement.style.setProperty('--vh', vh+'px');
   }
   updateOrientationMode();
-  if(typeof window!=='undefined'){ window.addEventListener('resize', updateOrientationMode); }
+  if(typeof window!=='undefined'){
+    window.addEventListener('resize', updateOrientationMode);
+    window.addEventListener('orientationchange', updateOrientationMode);
+  }
   if(orientationMq){
     if(typeof orientationMq.addEventListener==='function'){ orientationMq.addEventListener('change', updateOrientationMode); }
     else if(typeof orientationMq.addListener==='function'){ orientationMq.addListener(updateOrientationMode); }
   }
-  function tryLockLandscape(){
-    var screenObj=(typeof window!=='undefined')?window.screen:null;
-    if(!screenObj) return;
-    var orientation=screenObj.orientation;
-    if(orientation && typeof orientation.lock==='function'){
-      orientation.lock('landscape').catch(function(){});
-      return;
-    }
-    var legacyLock=screenObj.lockOrientation||screenObj.mozLockOrientation||screenObj.msLockOrientation;
-    if(typeof legacyLock==='function'){
-      try{ legacyLock.call(screenObj,'landscape'); }
-      catch(_){ }
-    }
-  }
-  if(typeof window!=='undefined'){ window.addEventListener('load', tryLockLandscape); }
-  function bindOnce(eventName, handler){
-    var onceHandler=function(ev){
-      document.removeEventListener(eventName, onceHandler, false);
-      handler(ev);
-    };
-    document.addEventListener(eventName, onceHandler, false);
-  }
-  bindOnce('click', tryLockLandscape);
-  bindOnce('touchend', tryLockLandscape);
   /* ---------- Base & état ---------- */
   const CONFIG = {
     background: "img_background.jpg",
