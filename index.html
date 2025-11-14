@@ -4,8 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
 <title>Cacamochi — Deluxe+ Anim</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 <div class="orientation-lock" id="orientationLock" role="alert" aria-live="polite">
@@ -16,245 +15,252 @@
   </div>
 </div>
 <div class="app" id="app">
-  <header>
-    <div class="brand"><img src="img/header/logo_cacamochi.png" alt="Cacamochi"></div>
-    <div class="age" id="age">Jour 1 — Bouseau</div>
-  </header>
-
-  <main class="stage" id="room">
-    <img id="bg" class="bg" alt="Pièce" src=""/>
-
-    <div class="hud">
-      <div class="bar" id="bHunger"><h3>Faim</h3><div class="meter"><i></i></div></div>
-      <div class="bar" id="bFun"><h3>Fun</h3><div class="meter"><i></i></div></div>
-      <div class="bar" id="bHyg"><h3>Hygiène</h3><div class="meter"><i></i></div></div>
-      <div class="bar" id="bEnergy"><h3>Énergie</h3><div class="meter"><i></i></div></div>
-    </div>
-    <div class="chips">
-      <span class="chip" id="tAff">Affection: 0</span>
-      <span class="chip" id="tDis">Discipline: 0</span>
-      <span class="chip" id="tOdo">Odeur: 0</span>
-    </div>
-
-    <div class="speech" id="speech" style="display:none"><div class="b" id="speechText">Hi!</div><div class="t"></div></div>
-    <div id="disco" aria-hidden="true"></div>
-    <div id="evolveFX" aria-hidden="true"></div>
-    <div class="sunBoost" id="sunBoost" aria-hidden="true"></div>
-    <div class="sleepOverlay" id="sleepOverlay"><div class="tint"></div><div class="stars" id="stars"></div><div class="zzz">Z z z ...</div></div>
-
-    <!-- Sprite -->
-    <div class="center">
-      <svg class="sprite wobble" viewBox="0 0 200 200" id="sprite" aria-label="Cacamochi">
-        <ellipse cx="100" cy="170" rx="60" ry="12" fill="#00000022"/>
-        <image id="evo-img" href="" x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
-      </svg>
-    </div>
-
-    <!-- Scene buttons -->
-    <div class="sceneButtons" aria-label="Actions de scène">
-      <button type="button" class="gameBtn flies" id="btnFlies"><img class="ico" src="img/icons/mouches.png" alt=""><span class="lbl">Mouches</span></button>
-      <button type="button" class="gameBtn bath"  id="btnBath"><img class="ico" src="img/icons/bain.png" alt=""><span class="lbl">Bain</span></button>
-    </div>
-
-    <!-- Plant (SVG, évolutive, + animations) -->
-    <div class="plant plant--climbing" id="plant" data-stage="0" data-thriving="false">
-      <div class="plantAura" id="plantAura" aria-hidden="true"></div>
-      <svg class="plantSvg" id="plantSvg" viewBox="0 0 120 160" aria-label="Plante évolutive">
-        <defs>
-          <linearGradient id="potGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#e8b799"/>
-            <stop offset="100%" stop-color="#b17954"/>
-          </linearGradient>
-          <linearGradient id="potLip" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#d39f78"/>
-            <stop offset="100%" stop-color="#a86b46"/>
-          </linearGradient>
-          <radialGradient id="soilGrad" cx="50%" cy="35%" r="70%">
-            <stop offset="0%" stop-color="#5b3f2a"/>
-            <stop offset="100%" stop-color="#3a2618"/>
-          </radialGradient>
-          <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#9ee2a9"/>
-            <stop offset="100%" stop-color="#3c7b45"/>
-          </linearGradient>
-          <linearGradient id="stemGradStrong" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#b1f0b9"/>
-            <stop offset="100%" stop-color="#3a6d3f"/>
-          </linearGradient>
-          <radialGradient id="leafGrad" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="#f1ffe5"/>
-            <stop offset="100%" stop-color="#5ba868"/>
-          </radialGradient>
-          <radialGradient id="leafGrad2" cx="60%" cy="40%" r="75%">
-            <stop offset="0%" stop-color="#d9ffd1"/>
-            <stop offset="100%" stop-color="#4b915a"/>
-          </radialGradient>
-          <radialGradient id="leafGrad3" cx="45%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="#b6f5d4"/>
-            <stop offset="100%" stop-color="#3f8f55"/>
-          </radialGradient>
-          <radialGradient id="flowerGrad" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="#ffe5f6"/>
-            <stop offset="100%" stop-color="#ff90d2"/>
-          </radialGradient>
-          <radialGradient id="flowerCenter" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#fff6c7"/>
-            <stop offset="100%" stop-color="#f7a54e"/>
-          </radialGradient>
-        </defs>
-        <ellipse cx="60" cy="148" rx="34" ry="10" fill="#00000018" opacity=".32"></ellipse>
-        <g class="pot" aria-hidden="true">
-          <path d="M28 118h64l-7 26c-1.2 4.4-5 7.4-9.6 7.4H44.6c-4.6 0-8.4-3-9.6-7.4z" fill="url(#potGrad)"></path>
-          <ellipse cx="60" cy="118" rx="34" ry="10" fill="#b9865e"></ellipse>
-          <ellipse cx="60" cy="116" rx="26" ry="6" fill="url(#soilGrad)" opacity=".92"></ellipse>
-          <ellipse cx="60" cy="118" rx="30" ry="7" fill="url(#potLip)"></ellipse>
-        </g>
-        <g class="plantStage" data-stage="0">
-          <path class="stem" d="M60 116 C58 106 58 94 60 86" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
-          <path class="leaf" d="M60 92 C53 90 50 84 51 78 C55 81 57 83 60 85" fill="url(#leafGrad)"></path>
-          <path class="leaf" d="M60 92 C67 90 70 84 69 78 C65 81 63 83 60 85" fill="url(#leafGrad)"></path>
-          <circle class="sparkle" cx="60" cy="74" r="2.2" fill="#d9fff2" opacity=".6"></circle>
-        </g>
-        <g class="plantStage" data-stage="1">
-          <path class="stem" d="M60 116 C58 98 54 80 60 66" stroke="url(#stemGrad)" stroke-width="5" fill="none" stroke-linecap="round"></path>
-          <path class="leaf" d="M60 88 C46 84 36 74 36 60 C48 64 54 70 60 76" fill="url(#leafGrad)"></path>
-          <path class="leaf" data-delay="1" d="M60 88 C74 84 84 74 84 60 C72 64 66 70 60 76" fill="url(#leafGrad)"></path>
-          <path class="leaf" data-delay="2" d="M60 74 C52 66 50 56 54 46 C58 54 60 60 62 68" fill="url(#leafGrad2)"></path>
-          <path class="leaf" data-delay="3" d="M60 74 C68 66 70 56 66 46 C62 54 60 60 58 68" fill="url(#leafGrad2)"></path>
-        </g>
-        <g class="plantStage" data-stage="2">
-          <path class="stem" d="M60 116 C56 90 48 60 60 42" stroke="url(#stemGradStrong)" stroke-width="6" fill="none" stroke-linecap="round"></path>
-          <ellipse class="leaf" cx="42" cy="82" rx="20" ry="22" fill="url(#leafGrad3)"></ellipse>
-          <ellipse class="leaf" data-delay="1" cx="78" cy="82" rx="20" ry="22" fill="url(#leafGrad3)"></ellipse>
-          <ellipse class="leaf" data-delay="2" cx="60" cy="60" rx="18" ry="20" fill="url(#leafGrad2)"></ellipse>
-          <ellipse class="leaf" data-delay="3" cx="46" cy="58" rx="14" ry="18" fill="url(#leafGrad)"></ellipse>
-          <ellipse class="leaf" data-delay="4" cx="74" cy="58" rx="14" ry="18" fill="url(#leafGrad)"></ellipse>
-          <circle class="sparkle" cx="60" cy="36" r="3" fill="#e6fff5" opacity=".7"></circle>
-        </g>
-        <g class="plantStage" data-stage="3">
-          <path class="stem" d="M60 116 C56 86 44 48 60 32" stroke="url(#stemGradStrong)" stroke-width="6" fill="none" stroke-linecap="round"></path>
-          <path class="stem" d="M60 76 C48 60 40 46 38 34" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
-          <path class="stem" d="M60 76 C72 60 80 46 82 34" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
-          <ellipse class="leaf" cx="42" cy="86" rx="22" ry="24" fill="url(#leafGrad3)"></ellipse>
-          <ellipse class="leaf" data-delay="1" cx="78" cy="86" rx="22" ry="24" fill="url(#leafGrad3)"></ellipse>
-          <ellipse class="leaf" data-delay="2" cx="60" cy="62" rx="20" ry="22" fill="url(#leafGrad2)"></ellipse>
-          <ellipse class="leaf" data-delay="3" cx="46" cy="48" rx="14" ry="16" fill="url(#leafGrad)"></ellipse>
-          <ellipse class="leaf" data-delay="4" cx="74" cy="48" rx="14" ry="16" fill="url(#leafGrad)"></ellipse>
-          <circle class="petal" cx="60" cy="28" r="10" fill="url(#flowerGrad)"></circle>
-          <circle class="petal" cx="44" cy="34" r="8" fill="url(#flowerGrad)" opacity=".85"></circle>
-          <circle class="petal" cx="76" cy="34" r="8" fill="url(#flowerGrad)" opacity=".85"></circle>
-          <circle class="flowerCore" cx="60" cy="28" r="4.5" fill="url(#flowerCenter)"></circle>
-          <circle class="sparkle" cx="60" cy="18" r="3" fill="#fff5d1" opacity=".9"></circle>
-          <circle class="sparkle" cx="76" cy="26" r="2.4" fill="#fff5d1" opacity=".7"></circle>
-          <circle class="sparkle" cx="44" cy="26" r="2.4" fill="#fff5d1" opacity=".7"></circle>
-        </g>
-        <g class="plantStage" data-stage="4">
-          <path class="stem" d="M60 116 C54 78 40 32 60 20" stroke="url(#stemGradStrong)" stroke-width="7" fill="none" stroke-linecap="round"></path>
-          <path class="stem" d="M60 66 C44 50 30 34 28 20" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
-          <path class="stem" d="M60 66 C76 50 90 34 92 20" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
-          <ellipse class="leaf" cx="38" cy="86" rx="24" ry="26" fill="url(#leafGrad3)"></ellipse>
-          <ellipse class="leaf" data-delay="1" cx="82" cy="86" rx="24" ry="26" fill="url(#leafGrad3)"></ellipse>
-          <ellipse class="leaf" data-delay="2" cx="60" cy="58" rx="22" ry="24" fill="url(#leafGrad2)"></ellipse>
-          <ellipse class="leaf" data-delay="3" cx="46" cy="42" rx="16" ry="18" fill="url(#leafGrad)"></ellipse>
-          <ellipse class="leaf" data-delay="4" cx="74" cy="42" rx="16" ry="18" fill="url(#leafGrad)"></ellipse>
-          <ellipse class="leaf" data-delay="5" cx="60" cy="36" rx="18" ry="16" fill="url(#leafGrad2)"></ellipse>
-          <circle class="petal" cx="60" cy="18" r="12" fill="url(#flowerGrad)" opacity=".95"></circle>
-          <circle class="petal" cx="38" cy="32" r="9" fill="url(#flowerGrad)" opacity=".82"></circle>
-          <circle class="petal" cx="82" cy="32" r="9" fill="url(#flowerGrad)" opacity=".82"></circle>
-          <circle class="flowerCore" cx="60" cy="18" r="5.2" fill="url(#flowerCenter)"></circle>
-          <circle class="sparkle" cx="32" cy="48" r="3" fill="#fff7d6" opacity=".9"></circle>
-          <circle class="sparkle" cx="88" cy="48" r="3" fill="#fff7d6" opacity=".9"></circle>
-          <circle class="sparkle" cx="60" cy="6" r="2.6" fill="#ffffff" opacity=".85"></circle>
-        </g>
-      </svg>
-      <button type="button" class="plantToggle" id="plantToggle" aria-controls="plantHud" aria-expanded="true" title="Afficher ou masquer les infos de la plante">
-        <span aria-hidden="true">🌿</span>
-        <span class="sr-only">Afficher ou masquer les statistiques de la plante</span>
-      </button>
-      <div class="plantHud" id="plantHud" aria-live="polite">
-        <div class="plantLevel">
-          <strong id="plantLevelTitle">Niveau 1 — Graine curieuse</strong>
-          <span id="plantLevelSubtitle">Réveille-la avec un peu d'eau.</span>
+  <div class="app__inner">
+    <header class="appHeader">
+      <div class="appHeader__brand brand">
+        <img src="img/header/logo_cacamochi.png" alt="Cacamochi">
+        <div class="appHeader__meta">
+          <span class="appHeader__subtitle">Deluxe+ Anim</span>
         </div>
-        <div class="plantMeters">
-          <div class="plantMeter" id="meterHydration">
-            <label for="plantHydration">Hydratation</label>
-            <div class="plantMeterBar"><i id="plantHydration" data-value="0"></i></div>
+      </div>
+      <div class="appHeader__age" id="age">Jour 1 — Bouseau</div>
+    </header>
+
+    <main class="appMain">
+      <section class="viewport" aria-label="Scène principale">
+        <div class="viewport__frame">
+          <div class="stage" id="room">
+            <img id="bg" class="bg" alt="Pièce" src=""/>
+
+            <div class="hud" role="status">
+              <div class="bar" id="bHunger"><h3>Faim</h3><div class="meter"><i></i></div></div>
+              <div class="bar" id="bFun"><h3>Fun</h3><div class="meter"><i></i></div></div>
+              <div class="bar" id="bHyg"><h3>Hygiène</h3><div class="meter"><i></i></div></div>
+              <div class="bar" id="bEnergy"><h3>Énergie</h3><div class="meter"><i></i></div></div>
+            </div>
+            <div class="chips">
+              <span class="chip" id="tAff">Affection: 0</span>
+              <span class="chip" id="tDis">Discipline: 0</span>
+              <span class="chip" id="tOdo">Odeur: 0</span>
+            </div>
+
+            <div class="speech" id="speech" style="display:none"><div class="b" id="speechText">Hi!</div><div class="t"></div></div>
+            <div id="disco" aria-hidden="true"></div>
+            <div id="evolveFX" aria-hidden="true"></div>
+            <div class="sunBoost" id="sunBoost" aria-hidden="true"></div>
+            <div class="sleepOverlay" id="sleepOverlay"><div class="tint"></div><div class="stars" id="stars"></div><div class="zzz">Z z z ...</div></div>
+
+            <div class="center">
+              <svg class="sprite wobble" viewBox="0 0 200 200" id="sprite" aria-label="Cacamochi">
+                <ellipse cx="100" cy="170" rx="60" ry="12" fill="#00000022"/>
+                <image id="evo-img" href="" x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
+              </svg>
+            </div>
+
+            <div class="sceneButtons" aria-label="Actions de scène">
+              <button type="button" class="gameBtn flies" id="btnFlies"><img class="ico" src="img/icons/mouches.png" alt=""><span class="lbl">Mouches</span></button>
+              <button type="button" class="gameBtn bath"  id="btnBath"><img class="ico" src="img/icons/bain.png" alt=""><span class="lbl">Bain</span></button>
+            </div>
+
+            <div class="plant plant--climbing" id="plant" data-stage="0" data-thriving="false">
+              <div class="plantAura" id="plantAura" aria-hidden="true"></div>
+              <svg class="plantSvg" id="plantSvg" viewBox="0 0 120 160" aria-label="Plante évolutive">
+                <defs>
+                  <linearGradient id="potGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#e8b799"/>
+                    <stop offset="100%" stop-color="#b17954"/>
+                  </linearGradient>
+                  <linearGradient id="potLip" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#d39f78"/>
+                    <stop offset="100%" stop-color="#a86b46"/>
+                  </linearGradient>
+                  <radialGradient id="soilGrad" cx="50%" cy="35%" r="70%">
+                    <stop offset="0%" stop-color="#5b3f2a"/>
+                    <stop offset="100%" stop-color="#3a2618"/>
+                  </radialGradient>
+                  <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#9ee2a9"/>
+                    <stop offset="100%" stop-color="#3c7b45"/>
+                  </linearGradient>
+                  <linearGradient id="stemGradStrong" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#b1f0b9"/>
+                    <stop offset="100%" stop-color="#3a6d3f"/>
+                  </linearGradient>
+                  <radialGradient id="leafGrad" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#f1ffe5"/>
+                    <stop offset="100%" stop-color="#5ba868"/>
+                  </radialGradient>
+                  <radialGradient id="leafGrad2" cx="60%" cy="40%" r="75%">
+                    <stop offset="0%" stop-color="#d9ffd1"/>
+                    <stop offset="100%" stop-color="#4b915a"/>
+                  </radialGradient>
+                  <radialGradient id="leafGrad3" cx="45%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#b6f5d4"/>
+                    <stop offset="100%" stop-color="#3f8f55"/>
+                  </radialGradient>
+                  <radialGradient id="flowerGrad" cx="50%" cy="50%" r="70%">
+                    <stop offset="0%" stop-color="#ffe5f6"/>
+                    <stop offset="100%" stop-color="#ff90d2"/>
+                  </radialGradient>
+                  <radialGradient id="flowerCenter" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#fff6c7"/>
+                    <stop offset="100%" stop-color="#f7a54e"/>
+                  </radialGradient>
+                </defs>
+                <ellipse cx="60" cy="148" rx="34" ry="10" fill="#00000018" opacity=".32"></ellipse>
+                <g class="pot" aria-hidden="true">
+                  <path d="M28 118h64l-7 26c-1.2 4.4-5 7.4-9.6 7.4H44.6c-4.6 0-8.4-3-9.6-7.4z" fill="url(#potGrad)"></path>
+                  <ellipse cx="60" cy="118" rx="34" ry="10" fill="#b9865e"></ellipse>
+                  <ellipse cx="60" cy="116" rx="26" ry="6" fill="url(#soilGrad)" opacity=".92"></ellipse>
+                  <ellipse cx="60" cy="118" rx="30" ry="7" fill="url(#potLip)"></ellipse>
+                </g>
+                <g class="plantStage" data-stage="0">
+                  <path class="stem" d="M60 116 C58 106 58 94 60 86" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+                  <path class="leaf" d="M60 92 C53 90 50 84 51 78 C55 81 57 83 60 85" fill="url(#leafGrad)"></path>
+                  <path class="leaf" d="M60 92 C67 90 70 84 69 78 C65 81 63 83 60 85" fill="url(#leafGrad)"></path>
+                  <circle class="sparkle" cx="60" cy="74" r="2.2" fill="#d9fff2" opacity=".6"></circle>
+                </g>
+                <g class="plantStage" data-stage="1">
+                  <path class="stem" d="M60 116 C58 98 54 80 60 66" stroke="url(#stemGrad)" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                  <path class="leaf" d="M60 88 C46 84 36 74 36 60 C48 64 54 70 60 76" fill="url(#leafGrad)"></path>
+                  <path class="leaf" data-delay="1" d="M60 88 C74 84 84 74 84 60 C72 64 66 70 60 76" fill="url(#leafGrad)"></path>
+                  <path class="leaf" data-delay="2" d="M60 74 C52 66 50 56 54 46 C58 54 60 60 62 68" fill="url(#leafGrad2)"></path>
+                  <path class="leaf" data-delay="3" d="M60 74 C68 66 70 56 66 46 C62 54 60 60 58 68" fill="url(#leafGrad2)"></path>
+                </g>
+                <g class="plantStage" data-stage="2">
+                  <path class="stem" d="M60 116 C56 90 48 60 60 42" stroke="url(#stemGradStrong)" stroke-width="6" fill="none" stroke-linecap="round"></path>
+                  <ellipse class="leaf" cx="42" cy="82" rx="20" ry="22" fill="url(#leafGrad3)"></ellipse>
+                  <ellipse class="leaf" data-delay="1" cx="78" cy="82" rx="20" ry="22" fill="url(#leafGrad3)"></ellipse>
+                  <ellipse class="leaf" data-delay="2" cx="60" cy="60" rx="18" ry="20" fill="url(#leafGrad2)"></ellipse>
+                  <ellipse class="leaf" data-delay="3" cx="46" cy="58" rx="14" ry="18" fill="url(#leafGrad)"></ellipse>
+                  <ellipse class="leaf" data-delay="4" cx="74" cy="58" rx="14" ry="18" fill="url(#leafGrad)"></ellipse>
+                  <circle class="sparkle" cx="60" cy="36" r="3" fill="#e6fff5" opacity=".7"></circle>
+                </g>
+                <g class="plantStage" data-stage="3">
+                  <path class="stem" d="M60 116 C56 86 44 48 60 32" stroke="url(#stemGradStrong)" stroke-width="6" fill="none" stroke-linecap="round"></path>
+                  <path class="stem" d="M60 76 C48 60 40 46 38 34" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+                  <path class="stem" d="M60 76 C72 60 80 46 82 34" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+                  <ellipse class="leaf" cx="42" cy="86" rx="22" ry="24" fill="url(#leafGrad3)"></ellipse>
+                  <ellipse class="leaf" data-delay="1" cx="78" cy="86" rx="22" ry="24" fill="url(#leafGrad3)"></ellipse>
+                  <ellipse class="leaf" data-delay="2" cx="60" cy="62" rx="20" ry="22" fill="url(#leafGrad2)"></ellipse>
+                  <ellipse class="leaf" data-delay="3" cx="46" cy="48" rx="14" ry="16" fill="url(#leafGrad)"></ellipse>
+                  <ellipse class="leaf" data-delay="4" cx="74" cy="48" rx="14" ry="16" fill="url(#leafGrad)"></ellipse>
+                  <circle class="petal" cx="60" cy="28" r="10" fill="url(#flowerGrad)"></circle>
+                  <circle class="petal" cx="44" cy="34" r="8" fill="url(#flowerGrad)" opacity=".85"></circle>
+                  <circle class="petal" cx="76" cy="34" r="8" fill="url(#flowerGrad)" opacity=".85"></circle>
+                  <circle class="flowerCore" cx="60" cy="28" r="4.5" fill="url(#flowerCenter)"></circle>
+                  <circle class="sparkle" cx="60" cy="18" r="3" fill="#fff5d1" opacity=".9"></circle>
+                  <circle class="sparkle" cx="76" cy="26" r="2.4" fill="#fff5d1" opacity=".7"></circle>
+                  <circle class="sparkle" cx="44" cy="26" r="2.4" fill="#fff5d1" opacity=".7"></circle>
+                </g>
+                <g class="plantStage" data-stage="4">
+                  <path class="stem" d="M60 116 C54 78 40 32 60 20" stroke="url(#stemGradStrong)" stroke-width="7" fill="none" stroke-linecap="round"></path>
+                  <path class="stem" d="M60 66 C44 50 30 34 28 20" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+                  <path class="stem" d="M60 66 C76 50 90 34 92 20" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"></path>
+                  <ellipse class="leaf" cx="38" cy="86" rx="24" ry="26" fill="url(#leafGrad3)"></ellipse>
+                  <ellipse class="leaf" data-delay="1" cx="82" cy="86" rx="24" ry="26" fill="url(#leafGrad3)"></ellipse>
+                  <ellipse class="leaf" data-delay="2" cx="60" cy="58" rx="22" ry="24" fill="url(#leafGrad2)"></ellipse>
+                  <ellipse class="leaf" data-delay="3" cx="46" cy="42" rx="16" ry="18" fill="url(#leafGrad)"></ellipse>
+                  <ellipse class="leaf" data-delay="4" cx="74" cy="42" rx="16" ry="18" fill="url(#leafGrad)"></ellipse>
+                  <ellipse class="leaf" data-delay="5" cx="60" cy="36" rx="18" ry="16" fill="url(#leafGrad2)"></ellipse>
+                  <circle class="petal" cx="60" cy="18" r="12" fill="url(#flowerGrad)" opacity=".95"></circle>
+                  <circle class="petal" cx="38" cy="32" r="9" fill="url(#flowerGrad)" opacity=".82"></circle>
+                  <circle class="petal" cx="82" cy="32" r="9" fill="url(#flowerGrad)" opacity=".82"></circle>
+                  <circle class="flowerCore" cx="60" cy="18" r="5.2" fill="url(#flowerCenter)"></circle>
+                  <circle class="sparkle" cx="32" cy="48" r="3" fill="#fff7d6" opacity=".9"></circle>
+                  <circle class="sparkle" cx="88" cy="48" r="3" fill="#fff7d6" opacity=".9"></circle>
+                  <circle class="sparkle" cx="60" cy="6" r="2.6" fill="#ffffff" opacity=".85"></circle>
+                </g>
+              </svg>
+              <button type="button" class="plantToggle" id="plantToggle" aria-controls="plantHud" aria-expanded="true" title="Afficher ou masquer les infos de la plante">
+                <span aria-hidden="true">🌿</span>
+                <span class="sr-only">Afficher ou masquer les statistiques de la plante</span>
+              </button>
+              <div class="plantHud" id="plantHud" aria-live="polite">
+                <div class="plantLevel">
+                  <strong id="plantLevelTitle">Niveau 1 — Graine curieuse</strong>
+                  <span id="plantLevelSubtitle">Réveille-la avec un peu d'eau.</span>
+                </div>
+                <div class="plantMeters">
+                  <div class="plantMeter" id="meterHydration">
+                    <label for="plantHydration">Hydratation</label>
+                    <div class="plantMeterBar"><i id="plantHydration" data-value="0"></i></div>
+                  </div>
+                  <div class="plantMeter" id="meterSunlight">
+                    <label for="plantSunlight">Lumière</label>
+                    <div class="plantMeterBar"><i id="plantSunlight" data-value="0"></i></div>
+                  </div>
+                  <div class="plantMeter" id="meterMood">
+                    <label for="plantMood">Humeur</label>
+                    <div class="plantMeterBar"><i id="plantMood" data-value="0"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="plantMeter" id="meterSunlight">
-            <label for="plantSunlight">Lumière</label>
-            <div class="plantMeterBar"><i id="plantSunlight" data-value="0"></i></div>
+        </div>
+      </section>
+
+      <section class="dockPanel" aria-label="Actions principales">
+        <h2 class="dockPanel__title">Actions</h2>
+        <div class="dockWrap">
+          <div class="dock" id="dock">
+            <button class="btn" id="feed"><img class="ico" src="img/icons/nourrir.png" alt=""><span class="lbl">Nourrir</span></button>
+            <button class="btn" id="wash"><img class="ico" src="img/icons/laver.png" alt=""><span class="lbl">Laver</span></button>
+            <button class="btn" id="toilet"><img class="ico" src="img/icons/WC.png" alt=""><span class="lbl">WC</span></button>
+            <button class="btn" id="sleep"><img class="ico" src="img/icons/dodo.png" alt=""><span class="lbl">Dodo</span></button>
+            <button class="btn" id="play"><img class="ico" src="img/icons/jouer.png" alt=""><span class="lbl">Jouer</span></button>
+            <button class="btn" id="heal"><img class="ico" src="img/icons/soigner.png" alt=""><span class="lbl">Soigner</span></button>
+            <button class="btn" id="snack"><img class="ico" src="img/icons/snack.png" alt=""><span class="lbl">Snack</span></button>
+            <button class="btn" id="spray"><img class="ico" src="img/icons/desodoriser.png" alt=""><span class="lbl">Déso</span></button>
+            <button class="btn" id="kiss"><img class="ico" src="img/icons/bisou.png" alt=""><span class="lbl">Bisou</span></button>
+            <button class="btn" id="nap"><img class="ico" src="img/icons/dodo.png" alt=""><span class="lbl">Sieste</span></button>
+            <button class="btn" id="water">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C9 6 6 9 6 13a6 6 0 1 0 12 0c0-4-3-7-6-11z" fill="none" stroke="#2c1742" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="lbl">Arroser</span>
+            </button>
+            <button class="btn" id="sun">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="#2c1742" stroke-width="2"/><g stroke="#2c1742" stroke-width="2"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M4.6 19.4l2.1-2.1"/></g></svg>
+              <span class="lbl">Soleil</span>
+            </button>
           </div>
-          <div class="plantMeter" id="meterMood">
-            <label for="plantMood">Humeur</label>
-            <div class="plantMeterBar"><i id="plantMood" data-value="0"></i></div>
-          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Dock -->
-    <div class="dockWrap">
-      <div class="dock" id="dock">
-        <button class="btn" id="feed"><img class="ico" src="img/icons/nourrir.png"><span class="lbl">Nourrir</span></button>
-        <button class="btn" id="wash"><img class="ico" src="img/icons/laver.png"><span class="lbl">Laver</span></button>
-        <button class="btn" id="toilet"><img class="ico" src="img/icons/WC.png"><span class="lbl">WC</span></button>
-        <button class="btn" id="sleep"><img class="ico" src="img/icons/dodo.png"><span class="lbl">Dodo</span></button>
-        <button class="btn" id="play"><img class="ico" src="img/icons/jouer.png"><span class="lbl">Jouer</span></button>
-        <button class="btn" id="heal"><img class="ico" src="img/icons/soigner.png"><span class="lbl">Soigner</span></button>
-        <button class="btn" id="snack"><img class="ico" src="img/icons/snack.png"><span class="lbl">Snack</span></button>
-        <button class="btn" id="spray"><img class="ico" src="img/icons/desodoriser.png"><span class="lbl">Déso</span></button>
-        <button class="btn" id="kiss"><img class="ico" src="img/icons/bisou.png"><span class="lbl">Bisou</span></button>
-        <button class="btn" id="nap"><img class="ico" src="img/icons/dodo.png"><span class="lbl">Sieste</span></button>
-        <!-- Nouveaux -->
-        <button class="btn" id="water">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C9 6 6 9 6 13a6 6 0 1 0 12 0c0-4-3-7-6-11z" fill="none" stroke="#7b5644" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="lbl">Arroser</span>
-        </button>
-        <button class="btn" id="sun">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="#7b5644" stroke-width="2"/><g stroke="#7b5644" stroke-width="2"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M4.6 19.4l2.1-2.1"/></g></svg>
-          <span class="lbl">Soleil</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Modal: Bain -->
-    <div class="modal" id="modalBath">
-      <div class="panelMG">
-        <div class="panelHead">
-          <h2>Savon Party</h2>
-          <div class="info"><span class="timer" id="timeBath">20</span><span class="score" id="scoreBath">0</span></div>
-          <button type="button" class="close" id="closeBath">✖</button>
-        </div>
-        <div class="arena bath" id="arenaBath"></div>
-      </div>
-    </div>
-
-    <!-- Modal: Mouches -->
-    <div class="modal" id="modalFlies">
-      <div class="panelMG">
-        <div class="panelHead">
-          <h2>Chasse‑mouches</h2>
-          <div class="info"><span class="timer" id="timeFlies">20</span><span class="score" id="scoreFlies">0</span></div>
-          <button type="button" class="close" id="closeFlies">✖</button>
-        </div>
-        <div class="arena flygame" id="arenaFlies"></div>
-      </div>
-    </div>
-
-    <!-- Game Over -->
-    <div class="modal" id="gameover">
-      <div class="panelMG" style="text-align:center">
-        <div class="panelHead"><h2>💀 Cacamochi est parti…</h2></div>
-        <div class="arena" style="background:#fff2f0;display:flex;align-items:center;justify-content:center">
-          <button type="button" id="restart" style="background:var(--btn);border:none;border-radius:12px;padding:.7rem 1rem;font-weight:800;color:var(--marron-2);box-shadow:0 6px 14px var(--shadow)">Recommencer</button>
-        </div>
-      </div>
-    </div>
-  </main>
+      </section>
+    </main>
+  </div>
 </div>
 
-  <script src="assets/js/app.js" defer></script>
+<div class="modal" id="modalBath">
+  <div class="panelMG">
+    <div class="panelHead">
+      <h2>Savon Party</h2>
+      <div class="info"><span class="timer" id="timeBath">20</span><span class="score" id="scoreBath">0</span></div>
+      <button type="button" class="close" id="closeBath">✖</button>
+    </div>
+    <div class="arena bath" id="arenaBath"></div>
+  </div>
+</div>
 
+<div class="modal" id="modalFlies">
+  <div class="panelMG">
+    <div class="panelHead">
+      <h2>Chasse‑mouches</h2>
+      <div class="info"><span class="timer" id="timeFlies">20</span><span class="score" id="scoreFlies">0</span></div>
+      <button type="button" class="close" id="closeFlies">✖</button>
+    </div>
+    <div class="arena flygame" id="arenaFlies"></div>
+  </div>
+</div>
+
+<div class="modal" id="gameover">
+  <div class="panelMG" style="text-align:center">
+    <div class="panelHead"><h2>💀 Cacamochi est parti…</h2></div>
+    <div class="arena" style="background:#fff2f0;display:flex;align-items:center;justify-content:center">
+      <button type="button" id="restart" style="background:var(--btn);border:none;border-radius:12px;padding:.7rem 1rem;font-weight:800;color:var(--marron-2);box-shadow:0 6px 14px var(--shadow)">Recommencer</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js" defer></script>
 </body>
 </html>
