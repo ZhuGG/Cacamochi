@@ -1,8 +1,16 @@
+const STORAGE_KEY = "cacamochi.v2.save";
+const SAVE_VERSION = 2;
+const TICK_MS = 1000;
+const DAY_TICKS = 24;
+const OFFLINE_TICK_CAP = 360;
+
 const CREATURES = [
   { level: 1, name: "Bouseau Rookie", img: "img_bouseau.png", title: "Rookie de la cuvette" },
   { level: 4, name: "Skatour Volt", img: "img_skatour.png", title: "Sprinteur des urinoirs" },
   { level: 7, name: "Cacabra Nova", img: "img_cacabra.png", title: "Chevalier du siphon" },
-  { level: 10, name: "Skalibur Prime", img: "img_skalibur.png", title: "Seigneur des fosses" }
+  { level: 10, name: "Skalibur Prime", img: "img_skalibur.png", title: "Seigneur des fosses" },
+  { level: 14, name: "Thanabouse Ultime", img: "img_thanabouse.png", title: "Oracle des latrines" },
+  { level: 18, name: "Seigneur Crottal", img: "img_seigneur.png", title: "Empereur des égouts" }
 ];
 
 const ACTIONS = [
@@ -38,32 +46,57 @@ const MINI_GAMES = [
   }
 ];
 
-const MISSIONS = [
-  { text: "Remonte la propreté au-dessus de 70", check: s => s.hygiene >= 70, gain: { coins: 65, xp: 35 } },
-  { text: "Atteins 75 en délire", check: s => s.fun >= 75, gain: { coins: 55, xp: 30 } },
-  { text: "Monte le jus à 80+ pour éviter la panne", check: s => s.energy >= 80, gain: { coins: 70, xp: 34, stars: 1 } },
-  { text: "Gagne 2 niveaux", check: s => s.level >= s.startLevel + 2, gain: { coins: 110, xp: 45, stars: 2 } }
+const TRAITS = [
+  {
+    id: "gourmand",
+    name: "Gourmand des égouts",
+    hint: "Les repas donnent +25% gloubi, mais la faim descend plus vite.",
+    unlock: s => s.hunger >= 85 && s.discipline < 45,
+    mods: { feedBonus: 1.25, hungerDecay: 1.2 }
+  },
+  {
+    id: "showman",
+    name: "Showman de la chasse d'eau",
+    hint: "Les actions fun donnent +20% XP et plus de pièces en mini-jeu.",
+    unlock: s => s.fun >= 80 && s.affection >= 65,
+    mods: { funXpBoost: 1.2, minigameCoins: 1.2 }
+  },
+  {
+    id: "stoic",
+    name: "Sage du siphon",
+    hint: "Décroissance d'énergie réduite, mais moins de gain de fun.",
+    unlock: s => s.discipline >= 80,
+    mods: { energyDecay: 0.7, funGain: 0.85 }
+  }
 ];
 
-const state = {
-  day: 1,
-  level: 1,
-  xp: 0,
-  coins: 80,
-  stars: 0,
-  hunger: 68,
-  fun: 60,
-  hygiene: 64,
-  energy: 70,
-  affection: 40,
-  discipline: 25,
-  log: [],
-  missions: [],
-  missionBaseLevel: 1,
-  activeGame: null,
-  gameTimer: null,
-  gameTimeLeft: 0
-};
+const EVENTS = [
+  {
+    id: "toxic_fog",
+    text: "Nuage toxique des égouts: propreté en chute libre.",
+    weight: 1,
+    apply: s => { s.hygiene -= 16; s.energy -= 8; }
+  },
+  {
+    id: "royal_flush",
+    text: "Chasse royale ! Les coffres débordent.",
+    weight: 1,
+    apply: s => { s.coins += 80; s.stars += 1; }
+  },
+  {
+    id: "fan_club",
+    text: "Fan-club collant: +papouille, +délire.",
+    weight: 1,
+    apply: s => { s.affection += 14; s.fun += 16; }
+  }
+];
+
+const MISSIONS = [
+  { id: "hygiene", text: "Remonte la propreté au-dessus de 70", check: s => s.hygiene >= 70, gain: { coins: 65, xp: 35 } },
+  { id: "fun", text: "Atteins 75 en délire", check: s => s.fun >= 75, gain: { coins: 55, xp: 30 } },
+  { id: "energy", text: "Monte le jus à 80+ pour éviter la panne", check: s => s.energy >= 80, gain: { coins: 70, xp: 34, stars: 1 } },
+  { id: "level", text: "Gagne 2 niveaux", check: s => s.level >= s.startLevel + 2, gain: { coins: 110, xp: 45, stars: 2 } }
+];
 
 const statOrder = ["hunger", "fun", "hygiene", "energy", "affection", "discipline"];
 const statLabels = {
@@ -75,27 +108,96 @@ const statLabels = {
   discipline: "Rigueur"
 };
 
-const statsGrid = document.querySelector("#statsGrid");
-const actionsWrap = document.querySelector("#actions");
-const minigamesWrap = document.querySelector("#minigames");
-const shopWrap = document.querySelector("#shop");
-const missionList = document.querySelector("#missionList");
-const logList = document.querySelector("#log");
-const petMood = document.querySelector("#petMood");
-const petImage = document.querySelector("#petImage");
-const petName = document.querySelector("#petName");
-const petRank = document.querySelector("#petRank");
-const xpBar = document.querySelector("#xpBar");
-const xpText = document.querySelector("#xpText");
-const fxLayer = document.querySelector("#fxLayer");
+const evolutionPaths = [
+  {
+    id: "chaos",
+    name: "Voie Chaos",
+    desc: "Tout pour le délire, rien pour l'ordre.",
+    check: s => s.fun + s.hunger > s.discipline + s.hygiene + 35
+  },
+  {
+    id: "saint",
+    name: "Voie Saint-Siphon",
+    desc: "Propre, discipliné, presque respectable.",
+    check: s => s.hygiene + s.discipline > s.fun + s.hunger + 35
+  },
+  {
+    id: "balanced",
+    name: "Voie Équilibrée",
+    desc: "Maître du juste plouf.",
+    check: () => true
+  }
+];
+
+const ui = {
+  statsGrid: document.querySelector("#statsGrid"),
+  actionsWrap: document.querySelector("#actions"),
+  minigamesWrap: document.querySelector("#minigames"),
+  shopWrap: document.querySelector("#shop"),
+  missionList: document.querySelector("#missionList"),
+  logList: document.querySelector("#log"),
+  petMood: document.querySelector("#petMood"),
+  petImage: document.querySelector("#petImage"),
+  petName: document.querySelector("#petName"),
+  petRank: document.querySelector("#petRank"),
+  xpBar: document.querySelector("#xpBar"),
+  xpText: document.querySelector("#xpText"),
+  fxLayer: document.querySelector("#fxLayer"),
+  coins: document.querySelector("#coins"),
+  stars: document.querySelector("#stars"),
+  day: document.querySelector("#day"),
+  arena: document.querySelector("#arena"),
+  arenaPlay: document.querySelector("#arenaPlay"),
+  arenaGoal: document.querySelector("#arenaGoal"),
+  arenaTitle: document.querySelector("#arenaTitle"),
+  arenaTimer: document.querySelector("#arenaTimer"),
+  rerollMission: document.querySelector("#rerollMission"),
+  quitArena: document.querySelector("#quitArena")
+};
 
 function clamp(v, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
 }
 
-function addLog(msg) {
-  state.log.unshift(`[Jour ${state.day}] ${msg}`);
-  state.log = state.log.slice(0, 8);
+function createInitialState() {
+  return {
+    version: SAVE_VERSION,
+    level: 1,
+    xp: 0,
+    coins: 80,
+    stars: 0,
+    hunger: 68,
+    fun: 60,
+    hygiene: 64,
+    energy: 70,
+    affection: 40,
+    discipline: 25,
+    tick: 0,
+    day: 1,
+    moodText: "Prêt à éclabousser la cuvette 💦",
+    log: [],
+    missions: [],
+    missionBaseLevel: 1,
+    traits: [],
+    evolutionPath: null,
+    activeGame: null,
+    gameTimer: null,
+    gameSpawnTimer: null,
+    gameTimeLeft: 0,
+    lastEventTick: 0,
+    lastSavedAt: Date.now(),
+    offlineReport: null
+  };
+}
+
+const state = createInitialState();
+
+function getCreature() {
+  return [...CREATURES].reverse().find(c => state.level >= c.level) || CREATURES[0];
+}
+
+function xpNeeded(level = state.level) {
+  return 85 + level * 28;
 }
 
 function spawnFx(char) {
@@ -104,16 +206,17 @@ function spawnFx(char) {
   fx.textContent = char;
   fx.style.left = `${8 + Math.random() * 84}%`;
   fx.style.top = `${20 + Math.random() * 60}%`;
-  fxLayer.appendChild(fx);
+  ui.fxLayer.appendChild(fx);
   setTimeout(() => fx.remove(), 900);
 }
 
-function getCreature() {
-  return [...CREATURES].reverse().find(c => state.level >= c.level) || CREATURES[0];
+function addLog(msg) {
+  state.log.unshift(`[Jour ${state.day}] ${msg}`);
+  state.log = state.log.slice(0, 12);
 }
 
-function xpNeeded() {
-  return 80 + state.level * 25;
+function applyBoundaries() {
+  statOrder.forEach(key => { state[key] = clamp(state[key]); });
 }
 
 function addXp(amount) {
@@ -124,21 +227,47 @@ function addXp(amount) {
     state.stars += 1;
     addLog(`Niveau ${state.level} atteint ! Le trône applaudit.`);
     spawnFx("🌟");
+    if (!state.evolutionPath && state.level >= 6) {
+      state.evolutionPath = evolutionPaths.find(path => path.check(state)).id;
+      const chosen = evolutionPaths.find(path => path.id === state.evolutionPath);
+      addLog(`Évolution non linéaire débloquée: ${chosen.name}.`);
+    }
   }
 }
 
-function applyDecay() {
-  state.hunger -= 3;
-  state.fun -= 2;
-  state.hygiene -= 3;
-  state.energy -= 2;
-  state.affection -= 1;
-  state.discipline -= 1;
-  statOrder.forEach(key => {
-    state[key] = clamp(state[key]);
+function getTraitMods() {
+  return state.traits.reduce((mods, traitId) => {
+    const trait = TRAITS.find(t => t.id === traitId);
+    if (!trait) return mods;
+    Object.entries(trait.mods).forEach(([key, value]) => {
+      mods[key] = (mods[key] ?? 1) * value;
+    });
+    return mods;
+  }, {});
+}
+
+function unlockTraitsIfNeeded() {
+  TRAITS.forEach(trait => {
+    if (!state.traits.includes(trait.id) && trait.unlock(state)) {
+      state.traits.push(trait.id);
+      addLog(`Trait débloqué: ${trait.name}. ${trait.hint}`);
+      spawnFx("🧬");
+    }
   });
+}
+
+function applyDecay(ticks = 1) {
+  const mods = getTraitMods();
+  state.hunger -= 0.58 * (mods.hungerDecay || 1) * ticks;
+  state.fun -= 0.43 * ticks;
+  state.hygiene -= 0.52 * ticks;
+  state.energy -= 0.48 * (mods.energyDecay || 1) * ticks;
+  state.affection -= 0.28 * ticks;
+  state.discipline -= 0.16 * ticks;
+  applyBoundaries();
+
   if (state.hunger < 25 || state.hygiene < 25 || state.energy < 18) {
-    petMood.textContent = "Alerte: ton pote déborde de fatigue !";
+    state.moodText = "Alerte: ton pote déborde de fatigue !";
   }
   if (state.hunger <= 0 || state.energy <= 0) {
     emergencyRecovery();
@@ -146,66 +275,59 @@ function applyDecay() {
 }
 
 function emergencyRecovery() {
-  const fine = Math.min(40, state.coins);
+  const fine = Math.min(50, state.coins);
   state.coins -= fine;
   state.hunger = 45;
   state.energy = 45;
-  state.hygiene = clamp(state.hygiene + 12);
+  state.hygiene = clamp(state.hygiene + 14);
   addLog(`Urgence plomberie: -${fine} pièces.`);
   spawnFx("🚑");
 }
 
-function performAction(action) {
-  for (const [key, value] of Object.entries(action.effects)) {
-    if (key === "xp") {
-      addXp(value);
-      continue;
-    }
-    state[key] = clamp((state[key] || 0) + value);
-  }
-  state.day += 1;
-  addLog(`${action.icon} ${action.name} effectué.`);
-  spawnFx(action.icon);
-  evaluateMissions();
-  render();
-}
-
-function renderStats() {
-  statsGrid.innerHTML = "";
-  statOrder.forEach(key => {
-    const value = Math.round(state[key]);
-    const color = value > 66 ? "var(--good)" : value > 33 ? "var(--warn)" : "var(--bad)";
-    const card = document.createElement("div");
-    card.className = "stat";
-    card.innerHTML = `
-      <div class="stat-top"><strong>${statLabels[key]}</strong><span>${value}</span></div>
-      <div class="meter"><i style="width:${value}%;background:${color}"></i></div>
-    `;
-    statsGrid.appendChild(card);
-  });
-}
-
-function renderActions() {
-  actionsWrap.innerHTML = "";
-  ACTIONS.forEach(action => {
-    const btn = document.createElement("button");
-    btn.className = "action-btn";
-    btn.type = "button";
-    btn.innerHTML = `<strong>${action.icon} ${action.name}</strong><span>${action.desc}</span>`;
-    btn.addEventListener("click", () => performAction(action));
-    actionsWrap.appendChild(btn);
-  });
+function maybeTriggerEvent() {
+  if (state.tick - state.lastEventTick < 30) return;
+  if (Math.random() > 0.1) return;
+  state.lastEventTick = state.tick;
+  const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+  event.apply(state);
+  applyBoundaries();
+  addLog(`Événement: ${event.text}`);
+  spawnFx("🎲");
 }
 
 function gainRewards(gains) {
-  if (gains.coins) state.coins += gains.coins;
+  if (gains.coins) state.coins += Math.round(gains.coins * (getTraitMods().minigameCoins || 1));
   if (gains.stars) state.stars += gains.stars;
   if (gains.xp) addXp(gains.xp);
-  for (const key of ["fun", "hunger", "hygiene", "energy", "affection", "discipline"]) {
-    if (gains[key]) {
-      state[key] = clamp(state[key] + gains[key]);
+  statOrder.forEach(key => {
+    if (gains[key]) state[key] = clamp(state[key] + gains[key]);
+  });
+}
+
+function applyAction(action) {
+  const mods = getTraitMods();
+  for (const [key, value] of Object.entries(action.effects)) {
+    if (key === "xp") {
+      const xpBoost = action.id === "play" ? (mods.funXpBoost || 1) : 1;
+      addXp(Math.round(value * xpBoost));
+      continue;
     }
+
+    let adjusted = value;
+    if (action.id === "feed" && key === "hunger") adjusted *= (mods.feedBonus || 1);
+    if (key === "fun" && adjusted > 0) adjusted *= (mods.funGain || 1);
+    state[key] = clamp((state[key] || 0) + adjusted);
   }
+
+  state.tick += 1;
+  state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  state.moodText = `${action.icon} ${action.name} validé. Ça sent la victoire.`;
+  addLog(`${action.icon} ${action.name} effectué.`);
+  spawnFx(action.icon);
+  unlockTraitsIfNeeded();
+  evaluateMissions();
+  saveState();
+  render();
 }
 
 function generateMissions() {
@@ -228,91 +350,12 @@ function evaluateMissions() {
   });
 }
 
-function renderMissions() {
-  missionList.innerHTML = "";
-  state.missions.forEach(m => {
-    const li = document.createElement("li");
-    li.className = `mission ${m.done ? "done" : ""}`;
-    li.textContent = `${m.done ? "✅" : "🎯"} ${m.text}`;
-    missionList.appendChild(li);
-  });
-}
-
-function renderMinigames() {
-  minigamesWrap.innerHTML = "";
-  MINI_GAMES.forEach(game => {
-    const btn = document.createElement("button");
-    btn.className = "action-btn";
-    btn.type = "button";
-    btn.innerHTML = `<strong>${game.emoji} ${game.name}</strong><span>${game.desc}</span>`;
-    btn.addEventListener("click", () => startGame(game));
-    minigamesWrap.appendChild(btn);
-  });
-}
-
-function renderShop() {
-  shopWrap.innerHTML = "";
-  SHOPS.forEach(item => {
-    const btn = document.createElement("button");
-    btn.className = "shop-item";
-    btn.type = "button";
-    btn.disabled = state.coins < item.price;
-    btn.innerHTML = `<strong>${item.name}</strong><br><em>${item.price} pièces</em><br><span>${item.desc}</span>`;
-    btn.addEventListener("click", () => {
-      if (state.coins < item.price) return;
-      state.coins -= item.price;
-      item.apply(state);
-      statOrder.forEach(k => { state[k] = clamp(state[k]); });
-      addLog(`Achat gluant: ${item.name}`);
-      spawnFx("🛍️");
-      render();
-    });
-    shopWrap.appendChild(btn);
-  });
-}
-
-function renderLog() {
-  logList.innerHTML = "";
-  state.log.forEach(entry => {
-    const li = document.createElement("li");
-    li.textContent = entry;
-    logList.appendChild(li);
-  });
-}
-
-function renderHeader() {
-  document.querySelector("#coins").textContent = state.coins;
-  document.querySelector("#stars").textContent = state.stars;
-  document.querySelector("#day").textContent = state.day;
-  const creature = getCreature();
-  petImage.src = creature.img;
-  petName.textContent = creature.name;
-  petRank.textContent = `Trône: ${creature.title} • Niveau ${state.level}`;
-
-  const need = xpNeeded();
-  const pct = Math.floor((state.xp / need) * 100);
-  xpBar.style.width = `${pct}%`;
-  xpText.textContent = `${state.xp} / ${need} XP`;
-}
-
-function render() {
-  renderHeader();
-  renderStats();
-  renderMissions();
-  renderMinigames();
-  renderShop();
-  renderLog();
-}
-
 function startGame(game) {
-  const arena = document.querySelector("#arena");
-  const arenaPlay = document.querySelector("#arenaPlay");
-  const arenaGoal = document.querySelector("#arenaGoal");
-  const timerEl = document.querySelector("#arenaTimer");
-  document.querySelector("#arenaTitle").textContent = `${game.emoji} ${game.name}`;
-  arenaGoal.textContent = game.desc;
-  arena.classList.remove("hidden");
-  arenaPlay.innerHTML = "";
+  if (state.activeGame) return;
+  ui.arenaTitle.textContent = `${game.emoji} ${game.name}`;
+  ui.arenaGoal.textContent = game.desc;
+  ui.arena.classList.remove("hidden");
+  ui.arenaPlay.innerHTML = "";
 
   state.activeGame = { ...game, score: 0 };
   state.gameTimeLeft = 20;
@@ -330,29 +373,24 @@ function startGame(game) {
       spawnFx(game.id === "flies" ? "🪰" : "⭐");
       btn.remove();
     });
-    arenaPlay.appendChild(btn);
+    ui.arenaPlay.appendChild(btn);
     setTimeout(() => btn.remove(), 1200);
   };
 
-  const spawner = setInterval(spawnTarget, 420);
+  state.gameSpawnTimer = setInterval(spawnTarget, 420);
   state.gameTimer = setInterval(() => {
     state.gameTimeLeft -= 1;
-    timerEl.textContent = `${state.gameTimeLeft}s • Score ${state.activeGame?.score || 0}`;
+    ui.arenaTimer.textContent = `${state.gameTimeLeft}s • Score ${state.activeGame?.score || 0}`;
     if (state.gameTimeLeft <= 0) {
-      clearInterval(spawner);
+      clearInterval(state.gameSpawnTimer);
       endGame();
     }
   }, 1000);
-
-  document.querySelector("#quitArena").onclick = () => {
-    clearInterval(spawner);
-    endGame(true);
-  };
 }
 
 function endGame(early = false) {
   clearInterval(state.gameTimer);
-  const arena = document.querySelector("#arena");
+  clearInterval(state.gameSpawnTimer);
   const active = state.activeGame;
   if (!active) return;
 
@@ -360,35 +398,200 @@ function endGame(early = false) {
     const gains = active.reward(active.score);
     gainRewards(gains);
     addLog(`${active.name}: score ${active.score} (récompenses obtenues)`);
-    petMood.textContent = `Session ${active.name} réussie, ça éclabousse !`;
+    state.moodText = `Session ${active.name} réussie, ça éclabousse !`;
   } else {
     addLog(`${active.name} interrompu.`);
   }
 
   state.activeGame = null;
-  arena.classList.add("hidden");
+  ui.arena.classList.add("hidden");
   evaluateMissions();
+  saveState();
   render();
 }
 
-document.querySelector("#rerollMission").addEventListener("click", () => {
+function tick() {
+  if (state.activeGame) return;
+  state.tick += 1;
+  state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  applyDecay(1);
+  maybeTriggerEvent();
+  unlockTraitsIfNeeded();
+  evaluateMissions();
+  saveState(false);
+  render();
+}
+
+function computeOfflineProgress() {
+  const elapsedMs = Date.now() - state.lastSavedAt;
+  const offlineTicks = Math.min(Math.floor(elapsedMs / TICK_MS), OFFLINE_TICK_CAP);
+  if (offlineTicks <= 0) return;
+
+  applyDecay(offlineTicks);
+  state.tick += offlineTicks;
+  state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  const passiveCoins = Math.floor(offlineTicks / 12);
+  const passiveXp = Math.floor(offlineTicks / 10);
+  state.coins += passiveCoins;
+  addXp(passiveXp);
+  state.offlineReport = { offlineTicks, passiveCoins, passiveXp };
+  addLog(`Retour du hors-ligne: +${passiveCoins} pièces, +${passiveXp} XP après ${offlineTicks}s.`);
+}
+
+function saveState(withTimestamp = true) {
+  if (withTimestamp) state.lastSavedAt = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.version !== SAVE_VERSION) return;
+    Object.assign(state, createInitialState(), parsed);
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function renderStats() {
+  ui.statsGrid.innerHTML = "";
+  statOrder.forEach(key => {
+    const value = Math.round(state[key]);
+    const color = value > 66 ? "var(--good)" : value > 33 ? "var(--warn)" : "var(--bad)";
+    const card = document.createElement("div");
+    card.className = "stat";
+    card.innerHTML = `
+      <div class="stat-top"><strong>${statLabels[key]}</strong><span>${value}</span></div>
+      <div class="meter"><i style="width:${value}%;background:${color}"></i></div>
+    `;
+    ui.statsGrid.appendChild(card);
+  });
+}
+
+function renderActions() {
+  ui.actionsWrap.innerHTML = "";
+  ACTIONS.forEach(action => {
+    const btn = document.createElement("button");
+    btn.className = "action-btn";
+    btn.type = "button";
+    btn.innerHTML = `<strong>${action.icon} ${action.name}</strong><span>${action.desc}</span>`;
+    btn.addEventListener("click", () => applyAction(action));
+    ui.actionsWrap.appendChild(btn);
+  });
+}
+
+function renderMissions() {
+  ui.missionList.innerHTML = "";
+  state.missions.forEach(m => {
+    const li = document.createElement("li");
+    li.className = `mission ${m.done ? "done" : ""}`;
+    li.textContent = `${m.done ? "✅" : "🎯"} ${m.text}`;
+    ui.missionList.appendChild(li);
+  });
+}
+
+function renderMinigames() {
+  ui.minigamesWrap.innerHTML = "";
+  MINI_GAMES.forEach(game => {
+    const btn = document.createElement("button");
+    btn.className = "action-btn";
+    btn.type = "button";
+    btn.innerHTML = `<strong>${game.emoji} ${game.name}</strong><span>${game.desc}</span>`;
+    btn.addEventListener("click", () => startGame(game));
+    ui.minigamesWrap.appendChild(btn);
+  });
+}
+
+function renderShop() {
+  ui.shopWrap.innerHTML = "";
+  SHOPS.forEach(item => {
+    const btn = document.createElement("button");
+    btn.className = "shop-item";
+    btn.type = "button";
+    btn.disabled = state.coins < item.price;
+    btn.innerHTML = `<strong>${item.name}</strong><br><em>${item.price} pièces</em><br><span>${item.desc}</span>`;
+    btn.addEventListener("click", () => {
+      if (state.coins < item.price) return;
+      state.coins -= item.price;
+      item.apply(state);
+      applyBoundaries();
+      addLog(`Achat gluant: ${item.name}`);
+      spawnFx("🛍️");
+      saveState();
+      render();
+    });
+    ui.shopWrap.appendChild(btn);
+  });
+}
+
+function renderHeader() {
+  ui.coins.textContent = state.coins;
+  ui.stars.textContent = state.stars;
+  ui.day.textContent = state.day;
+
+  const creature = getCreature();
+  ui.petImage.src = creature.img;
+  ui.petName.textContent = creature.name;
+
+  const path = state.evolutionPath ? ` • ${evolutionPaths.find(p => p.id === state.evolutionPath)?.name}` : "";
+  const traitLabel = state.traits.length ? ` • Traits: ${state.traits.map(id => TRAITS.find(t => t.id === id)?.name).filter(Boolean).join(", ")}` : "";
+  ui.petRank.textContent = `Trône: ${creature.title} • Niveau ${state.level}${path}`;
+  ui.petMood.textContent = `${state.moodText}${traitLabel ? ` | ${traitLabel}` : ""}`;
+
+  const need = xpNeeded();
+  const pct = Math.floor((state.xp / need) * 100);
+  ui.xpBar.style.width = `${pct}%`;
+  ui.xpText.textContent = `${state.xp} / ${need} XP`;
+}
+
+function renderLog() {
+  ui.logList.innerHTML = "";
+  state.log.forEach(entry => {
+    const li = document.createElement("li");
+    li.textContent = entry;
+    ui.logList.appendChild(li);
+  });
+}
+
+function renderOfflineReport() {
+  if (!state.offlineReport) return;
+  const { offlineTicks, passiveCoins, passiveXp } = state.offlineReport;
+  state.moodText = `Retour hors-ligne: ${offlineTicks}s simulées, +${passiveCoins} pièces, +${passiveXp} XP.`;
+  state.offlineReport = null;
+}
+
+function render() {
+  renderOfflineReport();
+  renderHeader();
+  renderStats();
+  renderMissions();
+  renderMinigames();
+  renderShop();
+  renderLog();
+}
+
+ui.rerollMission.addEventListener("click", () => {
   if (state.stars < 1) {
-    petMood.textContent = "Il faut 1 étoile pour relancer la tournée.";
+    state.moodText = "Il faut 1 étoile pour relancer la tournée.";
+    render();
     return;
   }
   state.stars -= 1;
   generateMissions();
   addLog("Missions des latrines renouvelées.");
+  saveState();
   render();
 });
 
-setInterval(() => {
-  applyDecay();
-  evaluateMissions();
-  render();
-}, 11000);
+ui.quitArena.addEventListener("click", () => endGame(true));
+window.addEventListener("beforeunload", () => saveState());
 
+loadState();
+if (!state.missions.length) generateMissions();
+computeOfflineProgress();
+addLog("Bienvenue dans Cacamochi v2. Le royaume gluant évolue avec toi.");
 renderActions();
-generateMissions();
-addLog("Bienvenue dans le royaume gluant. Fais régner ton Cacamochi !");
 render();
+setInterval(tick, TICK_MS);
