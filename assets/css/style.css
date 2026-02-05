@@ -1,22 +1,25 @@
 :root {
-  --bg: #120a23;
-  --panel: #24153f;
-  --panel-2: #311f56;
-  --text: #f8f2ff;
-  --muted: #beaddd;
-  --accent: #ff70b8;
-  --accent-2: #72e1ff;
-  --good: #7effa2;
-  --warn: #ffd166;
-  --bad: #ff7a9f;
+  --bg: #2a1305;
+  --panel: #4f2c12;
+  --panel-2: #6d3b13;
+  --text: #fff4cf;
+  --muted: #e4c48c;
+  --accent: #7fe04b;
+  --accent-2: #f6d24f;
+  --good: #8ef06a;
+  --warn: #ffd36b;
+  --bad: #ff8f62;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: Inter, "Segoe UI", system-ui, sans-serif;
-  background: radial-gradient(circle at top, #2a1750 0%, #10081d 60%);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 15% 12%, #8c5a1d 0%, transparent 28%),
+    radial-gradient(circle at 88% 0%, #6f8f23 0%, transparent 22%),
+    linear-gradient(180deg, #583117 0%, #2a1305 60%, #1f0f04 100%);
   color: var(--text);
   min-height: 100vh;
 }
@@ -46,19 +49,20 @@ body {
   width: 72px;
   height: 72px;
   object-fit: contain;
-  filter: drop-shadow(0 10px 16px #0009);
+  filter: drop-shadow(0 8px 18px #261103cc);
 }
 
 .brand h1 {
   margin: .1rem 0 0;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
+  text-shadow: 0 2px 0 #2f1908;
 }
 
 .kicker {
   margin: 0;
-  color: var(--accent-2);
+  color: var(--accent);
   font-size: .8rem;
-  letter-spacing: .08em;
+  letter-spacing: .09em;
   text-transform: uppercase;
 }
 
@@ -69,11 +73,11 @@ body {
 }
 
 .chip {
-  background: #ffffff14;
-  border: 1px solid #ffffff22;
+  background: #2e190aa1;
+  border: 1px solid #f3c96a3a;
   border-radius: 999px;
   padding: .35rem .75rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .layout {
@@ -83,11 +87,11 @@ body {
 }
 
 .card {
-  background: linear-gradient(170deg, var(--panel), var(--panel-2));
-  border: 1px solid #ffffff1c;
+  background: linear-gradient(168deg, var(--panel), var(--panel-2));
+  border: 1px solid #f0cf754d;
   border-radius: 18px;
   padding: 1rem;
-  box-shadow: 0 14px 30px #0005;
+  box-shadow: 0 15px 24px #1f0f03a8;
 }
 
 .pet-scene {
@@ -95,14 +99,14 @@ body {
   border-radius: 16px;
   overflow: hidden;
   min-height: 300px;
-  border: 1px solid #ffffff33;
+  border: 2px solid #f5d07266;
 }
 
 .scene-bg {
   width: 100%;
   height: 300px;
   object-fit: cover;
-  filter: saturate(.8) brightness(.55);
+  filter: saturate(.82) brightness(.56) sepia(.22) hue-rotate(-10deg);
 }
 
 .pet-sprite {
@@ -112,18 +116,18 @@ body {
   bottom: 10px;
   transform: translateX(-50%);
   animation: bob 2.8s ease-in-out infinite;
-  filter: drop-shadow(0 12px 12px #0007);
+  filter: drop-shadow(0 12px 12px #251202d4);
 }
 
 .pet-status {
   position: absolute;
   left: 12px;
   top: 12px;
-  background: #1b1138d1;
+  background: #3c240fcc;
   border-radius: 999px;
   padding: .45rem .8rem;
   font-size: .88rem;
-  border: 1px solid #ffffff2a;
+  border: 1px solid #f3cd6f52;
 }
 
 .fx-layer {
@@ -158,8 +162,8 @@ body {
 .meter {
   height: 9px;
   border-radius: 999px;
-  background: #0f0a20;
-  border: 1px solid #ffffff24;
+  background: #301908;
+  border: 1px solid #f5d38063;
   overflow: hidden;
 }
 
@@ -178,8 +182,8 @@ body {
 }
 
 .stat {
-  background: #ffffff10;
-  border: 1px solid #ffffff1f;
+  background: #2613078c;
+  border: 1px solid #f5cd7654;
   border-radius: 12px;
   padding: .6rem;
 }
@@ -205,16 +209,16 @@ body {
 }
 
 button {
-  border: 1px solid #ffffff2d;
-  background: #ffffff18;
+  border: 1px solid #f0c76b5c;
+  background: #2b1609d4;
   color: var(--text);
   border-radius: 12px;
   padding: .65rem;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-button:hover { background: #ffffff2c; }
+button:hover { background: #3a1f0caf; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 
 .action-btn {
@@ -246,22 +250,22 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
 .mission,
 .log li {
-  background: #ffffff10;
-  border: 1px solid #ffffff1f;
+  background: #291507b3;
+  border: 1px solid #f5cc7052;
   border-radius: 10px;
   padding: .55rem .65rem;
   font-size: .88rem;
 }
 
 .mission.done {
-  border-color: #9affc066;
-  background: #78ffaf26;
+  border-color: #9dff6c8f;
+  background: #70d54a36;
 }
 
 .arena {
   margin-top: .8rem;
-  background: #0f0b1e;
-  border: 1px solid #ffffff2b;
+  background: #2b1708;
+  border: 1px solid #f5cf7a54;
   border-radius: 14px;
   padding: .7rem;
 }
@@ -278,7 +282,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   position: relative;
   min-height: 170px;
   border-radius: 12px;
-  border: 1px dashed #ffffff33;
+  border: 1px dashed #f7d67e73;
   overflow: hidden;
 }
 

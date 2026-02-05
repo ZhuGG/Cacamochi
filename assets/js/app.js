@@ -1,47 +1,47 @@
 const CREATURES = [
-  { level: 1, name: "Bouseau Rookie", img: "img_bouseau.png", title: "Rookie des égouts" },
-  { level: 4, name: "Skatour Volt", img: "img_skatour.png", title: "Sprinteur puant" },
-  { level: 7, name: "Cacabra Nova", img: "img_cacabra.png", title: "Chevalier des canalisations" },
-  { level: 10, name: "Skalibur Prime", img: "img_skalibur.png", title: "Champion légendaire" }
+  { level: 1, name: "Bouseau Rookie", img: "img_bouseau.png", title: "Rookie de la cuvette" },
+  { level: 4, name: "Skatour Volt", img: "img_skatour.png", title: "Sprinteur des urinoirs" },
+  { level: 7, name: "Cacabra Nova", img: "img_cacabra.png", title: "Chevalier du siphon" },
+  { level: 10, name: "Skalibur Prime", img: "img_skalibur.png", title: "Seigneur des fosses" }
 ];
 
 const ACTIONS = [
-  { id: "feed", name: "Nourrir", desc: "+faim +énergie", icon: "🍜", effects: { hunger: 16, energy: 6, hygiene: -6, xp: 8 } },
-  { id: "play", name: "Jouer", desc: "+joie +xp", icon: "🎮", effects: { fun: 18, energy: -10, hunger: -8, xp: 14 } },
-  { id: "wash", name: "Laver", desc: "+hygiène", icon: "🫧", effects: { hygiene: 24, energy: -4, xp: 6 } },
-  { id: "nap", name: "Sieste", desc: "+énergie +humeur", icon: "😴", effects: { energy: 22, fun: 8, hunger: -9, xp: 8 } },
-  { id: "train", name: "Entraîner", desc: "+discipline +xp", icon: "🥊", effects: { discipline: 14, energy: -14, fun: -6, xp: 18 } },
-  { id: "cuddle", name: "Câlin", desc: "+affection +joie", icon: "🤗", effects: { affection: 18, fun: 10, xp: 9 } }
+  { id: "feed", name: "Gaver", desc: "+gloubi +jus", icon: "🍜", effects: { hunger: 16, energy: 6, hygiene: -6, xp: 8 } },
+  { id: "play", name: "Barboter", desc: "+délire +xp", icon: "🎮", effects: { fun: 18, energy: -10, hunger: -8, xp: 14 } },
+  { id: "wash", name: "Rincer", desc: "+propreté", icon: "🫧", effects: { hygiene: 24, energy: -4, xp: 6 } },
+  { id: "nap", name: "Pause WC", desc: "+jus +bonne odeur", icon: "😴", effects: { energy: 22, fun: 8, hunger: -9, xp: 8 } },
+  { id: "train", name: "Forcer", desc: "+rigueur +xp", icon: "🥊", effects: { discipline: 14, energy: -14, fun: -6, xp: 18 } },
+  { id: "cuddle", name: "Papouille", desc: "+tendresse +rigolade", icon: "🤗", effects: { affection: 18, fun: 10, xp: 9 } }
 ];
 
 const SHOPS = [
-  { id: "booster", name: "Snack Épique", price: 70, desc: "+30 faim, +12 joie", apply: s => { s.hunger += 30; s.fun += 12; } },
-  { id: "soap", name: "Savon Arc-en-ciel", price: 55, desc: "+34 hygiène, +8 affection", apply: s => { s.hygiene += 34; s.affection += 8; } },
-  { id: "battery", name: "Batterie Fun", price: 85, desc: "+35 énergie", apply: s => { s.energy += 35; } },
-  { id: "badge", name: "Badge Mentor", price: 110, desc: "+18 discipline, +40 XP", apply: s => { s.discipline += 18; s.xp += 40; } }
+  { id: "booster", name: "Sauciflard brun", price: 70, desc: "+30 gloubi, +12 délire", apply: s => { s.hunger += 30; s.fun += 12; } },
+  { id: "soap", name: "Gel douche marécage", price: 55, desc: "+34 propreté, +8 papouille", apply: s => { s.hygiene += 34; s.affection += 8; } },
+  { id: "battery", name: "Shot de pipi tonic", price: 85, desc: "+35 jus", apply: s => { s.energy += 35; } },
+  { id: "badge", name: "Tampon royal", price: 110, desc: "+18 rigueur, +40 XP", apply: s => { s.discipline += 18; s.xp += 40; } }
 ];
 
 const MINI_GAMES = [
   {
     id: "flies",
-    name: "Chasse-Mouches",
-    desc: "Tape les mouches pour gagner des pièces",
+    name: "Chasse-Crotte",
+    desc: "Écrase tout ce qui bourdonne pour gagner des pièces",
     emoji: "🪰",
     reward: score => ({ coins: score * 5, xp: score * 6, fun: score * 2 })
   },
   {
     id: "spark",
-    name: "Course aux étoiles",
-    desc: "Clique les étoiles avant la fin",
+    name: "Pluie de pipi",
+    desc: "Attrape les gouttes brillantes avant le plouf final",
     emoji: "⭐",
     reward: score => ({ stars: score, xp: score * 5, affection: score * 2 })
   }
 ];
 
 const MISSIONS = [
-  { text: "Remonte l'hygiène au-dessus de 70", check: s => s.hygiene >= 70, gain: { coins: 65, xp: 35 } },
-  { text: "Atteins 75 en joie", check: s => s.fun >= 75, gain: { coins: 55, xp: 30 } },
-  { text: "Passe sous 20 de fatigue (énergie 80+)", check: s => s.energy >= 80, gain: { coins: 70, xp: 34, stars: 1 } },
+  { text: "Remonte la propreté au-dessus de 70", check: s => s.hygiene >= 70, gain: { coins: 65, xp: 35 } },
+  { text: "Atteins 75 en délire", check: s => s.fun >= 75, gain: { coins: 55, xp: 30 } },
+  { text: "Monte le jus à 80+ pour éviter la panne", check: s => s.energy >= 80, gain: { coins: 70, xp: 34, stars: 1 } },
   { text: "Gagne 2 niveaux", check: s => s.level >= s.startLevel + 2, gain: { coins: 110, xp: 45, stars: 2 } }
 ];
 
@@ -67,12 +67,12 @@ const state = {
 
 const statOrder = ["hunger", "fun", "hygiene", "energy", "affection", "discipline"];
 const statLabels = {
-  hunger: "Faim",
-  fun: "Joie",
-  hygiene: "Hygiène",
-  energy: "Énergie",
-  affection: "Affection",
-  discipline: "Discipline"
+  hunger: "Gloubi",
+  fun: "Délire",
+  hygiene: "Propreté",
+  energy: "Jus",
+  affection: "Papouille",
+  discipline: "Rigueur"
 };
 
 const statsGrid = document.querySelector("#statsGrid");
@@ -122,7 +122,7 @@ function addXp(amount) {
     state.xp -= xpNeeded();
     state.level += 1;
     state.stars += 1;
-    addLog(`Niveau ${state.level} atteint ! +1 étoile.`);
+    addLog(`Niveau ${state.level} atteint ! Le trône applaudit.`);
     spawnFx("🌟");
   }
 }
@@ -138,7 +138,7 @@ function applyDecay() {
     state[key] = clamp(state[key]);
   });
   if (state.hunger < 25 || state.hygiene < 25 || state.energy < 18) {
-    petMood.textContent = "Attention, ton compagnon fatigue !";
+    petMood.textContent = "Alerte: ton pote déborde de fatigue !";
   }
   if (state.hunger <= 0 || state.energy <= 0) {
     emergencyRecovery();
@@ -151,7 +151,7 @@ function emergencyRecovery() {
   state.hunger = 45;
   state.energy = 45;
   state.hygiene = clamp(state.hygiene + 12);
-  addLog(`Urgence vétérinaire: -${fine} pièces.`);
+  addLog(`Urgence plomberie: -${fine} pièces.`);
   spawnFx("🚑");
 }
 
@@ -222,7 +222,7 @@ function evaluateMissions() {
     if (!m.done && m.check(pseudoState)) {
       m.done = true;
       gainRewards(m.gain);
-      addLog(`Mission accomplie: ${m.text}`);
+      addLog(`Mission validée: ${m.text}`);
       spawnFx("✅");
     }
   });
@@ -263,7 +263,7 @@ function renderShop() {
       state.coins -= item.price;
       item.apply(state);
       statOrder.forEach(k => { state[k] = clamp(state[k]); });
-      addLog(`Achat: ${item.name}`);
+      addLog(`Achat gluant: ${item.name}`);
       spawnFx("🛍️");
       render();
     });
@@ -287,7 +287,7 @@ function renderHeader() {
   const creature = getCreature();
   petImage.src = creature.img;
   petName.textContent = creature.name;
-  petRank.textContent = `Rang: ${creature.title} • Niveau ${state.level}`;
+  petRank.textContent = `Trône: ${creature.title} • Niveau ${state.level}`;
 
   const need = xpNeeded();
   const pct = Math.floor((state.xp / need) * 100);
@@ -360,7 +360,7 @@ function endGame(early = false) {
     const gains = active.reward(active.score);
     gainRewards(gains);
     addLog(`${active.name}: score ${active.score} (récompenses obtenues)`);
-    petMood.textContent = `Session ${active.name} réussie !`;
+    petMood.textContent = `Session ${active.name} réussie, ça éclabousse !`;
   } else {
     addLog(`${active.name} interrompu.`);
   }
@@ -373,12 +373,12 @@ function endGame(early = false) {
 
 document.querySelector("#rerollMission").addEventListener("click", () => {
   if (state.stars < 1) {
-    petMood.textContent = "Il faut 1 étoile pour relancer les missions.";
+    petMood.textContent = "Il faut 1 étoile pour relancer la tournée.";
     return;
   }
   state.stars -= 1;
   generateMissions();
-  addLog("Missions du jour renouvelées.");
+  addLog("Missions des latrines renouvelées.");
   render();
 });
 
@@ -390,5 +390,5 @@ setInterval(() => {
 
 renderActions();
 generateMissions();
-addLog("Bienvenue dans la nursery. Fais évoluer ton Cacamochi !");
+addLog("Bienvenue dans le royaume gluant. Fais régner ton Cacamochi !");
 render();
