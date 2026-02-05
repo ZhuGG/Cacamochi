@@ -1,5 +1,5 @@
-const STORAGE_KEY = "cacamochi.v2.save";
-const SAVE_VERSION = 2;
+const STORAGE_KEY = "cacamochi.v3.save";
+const SAVE_VERSION = 3;
 const TICK_MS = 1000;
 const DAY_TICKS = 24;
 const OFFLINE_TICK_CAP = 360;
@@ -31,19 +31,30 @@ const SHOPS = [
 
 const MINI_GAMES = [
   {
-    id: "flies",
-    name: "Chasse-Crotte",
-    desc: "Écrase tout ce qui bourdonne pour gagner des pièces",
+    id: "swarm",
+    name: "Fly Smash Turbo",
+    desc: "Explose les mouches (petites, grosses, dorées) pour faire grimper ton jackpot.",
     emoji: "🪰",
-    reward: score => ({ coins: score * 5, xp: score * 6, fun: score * 2 })
+    image: "img/flies/fly_small.png",
+    duration: 20,
+    reward: score => ({ coins: score * 6, xp: score * 5, fun: score * 2 })
   },
   {
-    id: "spark",
-    name: "Pluie de pipi",
-    desc: "Attrape les gouttes brillantes avant le plouf final",
-    emoji: "⭐",
-    reward: score => ({ stars: score, xp: score * 5, affection: score * 2 })
+    id: "memory",
+    name: "Danse des icônes",
+    desc: "Retiens la choré d'icônes et rejoue-la sans te rater.",
+    emoji: "🎛️",
+    image: "img/icons/danser.png",
+    duration: 25,
+    reward: score => ({ stars: Math.floor(score / 2), xp: score * 7, affection: score * 4, discipline: score * 2 })
   }
+];
+
+const MEMORY_PADS = [
+  { id: "laver", label: "Laver", img: "img/icons/laver.png" },
+  { id: "danser", label: "Danser", img: "img/icons/danser.png" },
+  { id: "jouer", label: "Jouer", img: "img/icons/jouer.png" },
+  { id: "bisou", label: "Bisou", img: "img/icons/bisou.png" }
 ];
 
 const TRAITS = [
@@ -183,6 +194,7 @@ function createInitialState() {
     activeGame: null,
     gameTimer: null,
     gameSpawnTimer: null,
+    gameRoundTimer: null,
     gameTimeLeft: 0,
     lastEventTick: 0,
     lastSavedAt: Date.now(),
@@ -357,40 +369,152 @@ function startGame(game) {
   ui.arena.classList.remove("hidden");
   ui.arenaPlay.innerHTML = "";
 
-  state.activeGame = { ...game, score: 0 };
-  state.gameTimeLeft = 20;
+  state.activeGame = { ...game, score: 0, ...buildGameState(game) };
+  state.gameTimeLeft = game.duration || 20;
+  ui.arenaTimer.textContent = `${state.gameTimeLeft}s • Score 0`;
 
-  const spawnTarget = () => {
-    if (!state.activeGame) return;
-    const btn = document.createElement("button");
-    btn.className = "target";
-    btn.type = "button";
-    btn.textContent = game.id === "flies" ? "🪰" : "✨";
-    btn.style.left = `${Math.random() * 80}%`;
-    btn.style.top = `${Math.random() * 70}%`;
-    btn.addEventListener("click", () => {
-      state.activeGame.score += 1;
-      spawnFx(game.id === "flies" ? "🪰" : "⭐");
-      btn.remove();
-    });
-    ui.arenaPlay.appendChild(btn);
-    setTimeout(() => btn.remove(), 1200);
-  };
+  if (game.id === "swarm") launchSwarmGame();
+  if (game.id === "memory") launchMemoryGame();
 
-  state.gameSpawnTimer = setInterval(spawnTarget, 420);
   state.gameTimer = setInterval(() => {
     state.gameTimeLeft -= 1;
     ui.arenaTimer.textContent = `${state.gameTimeLeft}s • Score ${state.activeGame?.score || 0}`;
     if (state.gameTimeLeft <= 0) {
-      clearInterval(state.gameSpawnTimer);
+      clearGameIntervals();
       endGame();
     }
   }, 1000);
 }
 
-function endGame(early = false) {
+function buildGameState(game) {
+  if (game.id === "swarm") return { fliesHit: 0, fliesMissed: 0 };
+  if (game.id === "memory") return { sequence: [], playerStep: 0, locked: true, streak: 0 };
+  return {};
+}
+
+function clearGameIntervals() {
   clearInterval(state.gameTimer);
   clearInterval(state.gameSpawnTimer);
+  clearTimeout(state.gameRoundTimer);
+}
+
+function launchSwarmGame() {
+  const spawnFly = () => {
+    if (!state.activeGame || state.activeGame.id !== "swarm") return;
+
+    const roll = Math.random();
+    const flyType = roll > 0.9 ? "gold" : roll > 0.65 ? "big" : "small";
+    const flyConfig = {
+      small: { points: 1, img: "img/flies/fly_small.png", life: 1200 },
+      big: { points: 2, img: "img/flies/fly_big.png", life: 1500 },
+      gold: { points: 4, img: "img/flies/fly_gold.png", life: 1000 }
+    }[flyType];
+
+    const btn = document.createElement("button");
+    btn.className = `target target-fly ${flyType}`;
+    btn.type = "button";
+    btn.style.left = `${Math.random() * 84}%`;
+    btn.style.top = `${Math.random() * 72}%`;
+    btn.innerHTML = `<img src="${flyConfig.img}" alt="mouche ${flyType}" />`;
+
+    let alreadyHit = false;
+    btn.addEventListener("click", () => {
+      if (alreadyHit || !state.activeGame) return;
+      alreadyHit = true;
+      state.activeGame.score += flyConfig.points;
+      state.activeGame.fliesHit += 1;
+      btn.classList.add("splat");
+      btn.innerHTML = '<img src="img/flies/splat.png" alt="splat" />';
+      spawnFx(flyType === "gold" ? "💰" : "🪰");
+      setTimeout(() => btn.remove(), 180);
+    });
+
+    ui.arenaPlay.appendChild(btn);
+
+    setTimeout(() => {
+      if (!alreadyHit && state.activeGame?.id === "swarm") {
+        state.activeGame.fliesMissed += 1;
+      }
+      btn.remove();
+    }, flyConfig.life);
+  };
+
+  state.gameSpawnTimer = setInterval(spawnFly, 380);
+}
+
+function launchMemoryGame() {
+  ui.arenaPlay.innerHTML = '<div class="memory-grid" id="memoryGrid"></div>';
+  const grid = ui.arenaPlay.querySelector("#memoryGrid");
+
+  MEMORY_PADS.forEach((pad, index) => {
+    const btn = document.createElement("button");
+    btn.className = "memory-pad";
+    btn.type = "button";
+    btn.dataset.pad = String(index);
+    btn.innerHTML = `<img src="${pad.img}" alt="${pad.label}" /><span>${pad.label}</span>`;
+    btn.addEventListener("click", () => handleMemoryInput(index));
+    grid.appendChild(btn);
+  });
+
+  runMemoryRound();
+}
+
+function runMemoryRound() {
+  if (!state.activeGame || state.activeGame.id !== "memory") return;
+  const active = state.activeGame;
+  active.locked = true;
+  active.playerStep = 0;
+  active.sequence.push(Math.floor(Math.random() * MEMORY_PADS.length));
+  ui.arenaGoal.textContent = `Round ${active.sequence.length} • Observe la séquence !`;
+
+  const pads = [...ui.arenaPlay.querySelectorAll(".memory-pad")];
+  active.sequence.forEach((padIndex, idx) => {
+    setTimeout(() => {
+      pads[padIndex]?.classList.add("flash");
+      setTimeout(() => pads[padIndex]?.classList.remove("flash"), 280);
+    }, 450 * (idx + 1));
+  });
+
+  const unlockDelay = 450 * (active.sequence.length + 1);
+  state.gameRoundTimer = setTimeout(() => {
+    if (!state.activeGame || state.activeGame.id !== "memory") return;
+    active.locked = false;
+    ui.arenaGoal.textContent = `À toi ! Rejoue ${active.sequence.length} icônes.`;
+  }, unlockDelay);
+}
+
+function handleMemoryInput(index) {
+  if (!state.activeGame || state.activeGame.id !== "memory") return;
+  const active = state.activeGame;
+  if (active.locked) return;
+
+  const pads = [...ui.arenaPlay.querySelectorAll(".memory-pad")];
+  pads[index]?.classList.add("flash");
+  setTimeout(() => pads[index]?.classList.remove("flash"), 200);
+
+  if (active.sequence[active.playerStep] !== index) {
+    active.streak = 0;
+    active.score = Math.max(0, active.score - 1);
+    active.locked = true;
+    ui.arenaGoal.textContent = "Raté ! Respire... nouvelle séquence.";
+    spawnFx("💥");
+    state.gameRoundTimer = setTimeout(runMemoryRound, 650);
+    return;
+  }
+
+  active.playerStep += 1;
+  if (active.playerStep >= active.sequence.length) {
+    active.score += active.sequence.length;
+    active.streak += 1;
+    active.locked = true;
+    spawnFx("🎵");
+    ui.arenaGoal.textContent = `Parfait ! Combo x${active.streak}.`;
+    state.gameRoundTimer = setTimeout(runMemoryRound, 700);
+  }
+}
+
+function endGame(early = false) {
+  clearGameIntervals();
   const active = state.activeGame;
   if (!active) return;
 
@@ -498,7 +622,11 @@ function renderMinigames() {
     const btn = document.createElement("button");
     btn.className = "action-btn";
     btn.type = "button";
-    btn.innerHTML = `<strong>${game.emoji} ${game.name}</strong><span>${game.desc}</span>`;
+    btn.innerHTML = `
+      <strong>${game.emoji} ${game.name}</strong>
+      <span>${game.desc}</span>
+      <img class="minigame-thumb" src="${game.image}" alt="${game.name}" />
+    `;
     btn.addEventListener("click", () => startGame(game));
     ui.minigamesWrap.appendChild(btn);
   });
@@ -591,7 +719,7 @@ window.addEventListener("beforeunload", () => saveState());
 loadState();
 if (!state.missions.length) generateMissions();
 computeOfflineProgress();
-addLog("Bienvenue dans Cacamochi v2. Le royaume gluant évolue avec toi.");
+addLog("Bienvenue dans Cacamochi v3. Mini-jeux remixés, fun maximum.");
 renderActions();
 render();
 setInterval(tick, TICK_MS);

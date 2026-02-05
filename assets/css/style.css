@@ -293,6 +293,62 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   border-radius: 50%;
   border: none;
   font-size: 1.4rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.target img {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.target-fly.small { width: 54px; }
+.target-fly.big { width: 70px; }
+.target-fly.gold {
+  width: 62px;
+  box-shadow: 0 0 18px #f8f075ab;
+}
+
+.target-fly.splat {
+  background: transparent;
+  transform: scale(1.15);
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .6rem;
+  padding: .5rem;
+}
+
+.memory-pad {
+  min-height: 82px;
+  display: grid;
+  place-items: center;
+  gap: .2rem;
+  background: #201005;
+}
+
+.memory-pad img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.memory-pad.flash {
+  background: #6fca41;
+  color: #1d1205;
+  border-color: #dff8c7;
+}
+
+.minigame-thumb {
+  margin-top: .2rem;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
 }
 
 .shop-item {
