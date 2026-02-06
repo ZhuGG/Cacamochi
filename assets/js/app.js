@@ -662,6 +662,7 @@ function renderHeader() {
   const creature = getCreature();
   ui.petImage.src = creature.img;
   ui.petName.textContent = creature.name;
+  updatePetAnimation();
 
   const path = state.evolutionPath ? ` • ${evolutionPaths.find(p => p.id === state.evolutionPath)?.name}` : "";
   const traitLabel = state.traits.length ? ` • Traits: ${state.traits.map(id => TRAITS.find(t => t.id === id)?.name).filter(Boolean).join(", ")}` : "";
@@ -672,6 +673,25 @@ function renderHeader() {
   const pct = Math.floor((state.xp / need) * 100);
   ui.xpBar.style.width = `${pct}%`;
   ui.xpText.textContent = `${state.xp} / ${need} XP`;
+}
+
+function updatePetAnimation() {
+  const sprite = ui.petImage;
+  const specialClasses = ["pet-tired", "pet-hungry", "pet-grimy"];
+  sprite.classList.remove(...specialClasses);
+
+  let nextClass = null;
+  if (state.energy < 25) {
+    nextClass = "pet-tired";
+  } else if (state.hunger < 25) {
+    nextClass = "pet-hungry";
+  } else if (state.hygiene < 25) {
+    nextClass = "pet-grimy";
+  }
+
+  if (nextClass) {
+    sprite.classList.add(nextClass);
+  }
 }
 
 function renderLog() {

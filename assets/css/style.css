@@ -119,6 +119,18 @@ body {
   filter: drop-shadow(0 12px 12px #251202d4);
 }
 
+.pet-sprite.pet-tired {
+  animation: tiredBob 3.4s ease-in-out infinite;
+}
+
+.pet-sprite.pet-hungry {
+  animation: hungryWobble 2.4s ease-in-out infinite;
+}
+
+.pet-sprite.pet-grimy {
+  animation: grimeShake 2.6s ease-in-out infinite;
+}
+
 .pet-status {
   position: absolute;
   left: 12px;
@@ -360,6 +372,27 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 @keyframes bob {
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+@keyframes tiredBob {
+  0%, 100% { transform: translateX(-50%) translateY(2px) rotate(-1deg); }
+  50% { transform: translateX(-50%) translateY(-4px) rotate(1deg); }
+}
+
+@keyframes hungryWobble {
+  0% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+  25% { transform: translateX(-53%) translateY(-4px) rotate(-2deg); }
+  50% { transform: translateX(-50%) translateY(2px) rotate(1.5deg); }
+  75% { transform: translateX(-47%) translateY(-3px) rotate(-1deg); }
+  100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+}
+
+@keyframes grimeShake {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  20% { transform: translateX(calc(-50% - 4px)) translateY(-1px); }
+  40% { transform: translateX(calc(-50% + 3px)) translateY(1px); }
+  60% { transform: translateX(calc(-50% - 2px)) translateY(-2px); }
+  80% { transform: translateX(calc(-50% + 2px)) translateY(2px); }
 }
 
 @keyframes pop {
