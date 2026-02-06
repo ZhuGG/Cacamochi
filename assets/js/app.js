@@ -148,6 +148,7 @@ const ui = {
   missionList: document.querySelector("#missionList"),
   logList: document.querySelector("#log"),
   petMood: document.querySelector("#petMood"),
+  petScene: document.querySelector("#petScene"),
   petImage: document.querySelector("#petImage"),
   petName: document.querySelector("#petName"),
   petRank: document.querySelector("#petRank"),
@@ -165,6 +166,8 @@ const ui = {
   rerollMission: document.querySelector("#rerollMission"),
   quitArena: document.querySelector("#quitArena")
 };
+
+let petTapTimeout = null;
 
 function clamp(v, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
@@ -712,6 +715,19 @@ ui.rerollMission.addEventListener("click", () => {
   saveState();
   render();
 });
+
+if (ui.petScene) {
+  ui.petScene.addEventListener("click", () => {
+    if (!ui.petImage) return;
+    ui.petImage.classList.remove("pet-tap");
+    void ui.petImage.offsetWidth;
+    ui.petImage.classList.add("pet-tap");
+    if (petTapTimeout) window.clearTimeout(petTapTimeout);
+    petTapTimeout = window.setTimeout(() => {
+      ui.petImage.classList.remove("pet-tap");
+    }, 300);
+  });
+}
 
 ui.quitArena.addEventListener("click", () => endGame(true));
 window.addEventListener("beforeunload", () => saveState());

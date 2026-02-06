@@ -114,9 +114,13 @@ body {
   width: min(78%, 320px);
   left: 50%;
   bottom: 10px;
-  transform: translateX(-50%);
+  translate: -50% 0;
   animation: bob 2.8s ease-in-out infinite;
   filter: drop-shadow(0 12px 12px #251202d4);
+}
+
+.pet-sprite.pet-tap {
+  animation: bob 2.8s ease-in-out infinite, petTap 320ms ease-out;
 }
 
 .pet-status {
@@ -358,13 +362,31 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .shop-item em { color: var(--warn); font-style: normal; font-size: .83rem; }
 
 @keyframes bob {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-8px); }
+  0%, 100% { translate: -50% 0; }
+  50% { translate: -50% -8px; }
 }
 
 @keyframes pop {
   from { opacity: 1; transform: translateY(0) scale(1); }
   to { opacity: 0; transform: translateY(-30px) scale(1.2); }
+}
+
+@keyframes petTap {
+  0% {
+    scale: 1;
+    rotate: 0deg;
+    filter: drop-shadow(0 12px 12px #251202d4);
+  }
+  50% {
+    scale: 1.05;
+    rotate: -3deg;
+    filter: drop-shadow(0 14px 16px #251202d4) drop-shadow(0 0 18px #ffe6a6cc);
+  }
+  100% {
+    scale: 1;
+    rotate: 0deg;
+    filter: drop-shadow(0 12px 12px #251202d4);
+  }
 }
 
 @media (max-width: 980px) {
