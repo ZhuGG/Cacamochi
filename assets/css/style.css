@@ -176,6 +176,7 @@ body {
   width: 0;
   height: 100%;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 280ms ease, background 220ms ease;
 }
 
 .stats-grid {
@@ -190,6 +191,14 @@ body {
   border: 1px solid #f5cd7654;
   border-radius: 12px;
   padding: .6rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.stat.flash {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 0 0 1px #fff2c099, 0 8px 18px #1b0c03b3;
 }
 
 .stat-top {
@@ -198,6 +207,25 @@ body {
   font-size: .84rem;
   margin-bottom: .35rem;
 }
+
+.stat-delta {
+  position: absolute;
+  right: .65rem;
+  bottom: .45rem;
+  font-size: .75rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.stat-delta.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-delta.positive { color: var(--accent); }
+.stat-delta.negative { color: var(--bad); }
 
 .control-panel {
   display: grid;
@@ -229,10 +257,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   text-align: left;
   display: grid;
   gap: .15rem;
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .action-btn strong { font-size: .93rem; }
 .action-btn span { color: var(--muted); font-size: .78rem; }
+
+.action-btn.action-burst {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 18px #1a0d04b8;
+}
 
 .section-head {
   display: flex;
