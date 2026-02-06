@@ -163,7 +163,8 @@ const ui = {
   arenaTitle: document.querySelector("#arenaTitle"),
   arenaTimer: document.querySelector("#arenaTimer"),
   rerollMission: document.querySelector("#rerollMission"),
-  quitArena: document.querySelector("#quitArena")
+  quitArena: document.querySelector("#quitArena"),
+  petScene: document.querySelector("#petScene")
 };
 
 function clamp(v, min = 0, max = 100) {
@@ -186,6 +187,8 @@ function createInitialState() {
     tick: 0,
     day: 1,
     moodText: "Prêt à éclabousser la cuvette 💦",
+    tempMoodText: null,
+    tempMoodTimeout: null,
     log: [],
     missions: [],
     missionBaseLevel: 1,
@@ -220,6 +223,47 @@ function spawnFx(char) {
   fx.style.top = `${20 + Math.random() * 60}%`;
   ui.fxLayer.appendChild(fx);
   setTimeout(() => fx.remove(), 900);
+}
+
+function clearTempMood() {
+  if (state.tempMoodTimeout) {
+    clearTimeout(state.tempMoodTimeout);
+    state.tempMoodTimeout = null;
+  }
+  state.tempMoodText = null;
+}
+
+function setTempMood(text, durationMs = 0) {
+  if (state.tempMoodTimeout) clearTimeout(state.tempMoodTimeout);
+  state.tempMoodText = text;
+  state.tempMoodTimeout = null;
+  if (durationMs > 0) {
+    state.tempMoodTimeout = setTimeout(() => {
+      clearTempMood();
+      render();
+    }, durationMs);
+  }
+}
+
+function petInteract(type) {
+  const interactions = {
+    click: {
+      mood: "Il adore les papouilles !",
+      emoji: "💖",
+      log: "Papouille sur la mascotte."
+    }
+  };
+  const selection = interactions[type] || {
+    mood: "Ça lui fait plaisir !",
+    emoji: "✨",
+    log: "Interaction avec la mascotte."
+  };
+
+  state.moodText = selection.mood;
+  spawnFx(selection.emoji);
+  addLog(selection.log);
+  saveState();
+  render();
 }
 
 function addLog(msg) {
@@ -666,7 +710,8 @@ function renderHeader() {
   const path = state.evolutionPath ? ` • ${evolutionPaths.find(p => p.id === state.evolutionPath)?.name}` : "";
   const traitLabel = state.traits.length ? ` • Traits: ${state.traits.map(id => TRAITS.find(t => t.id === id)?.name).filter(Boolean).join(", ")}` : "";
   ui.petRank.textContent = `Trône: ${creature.title} • Niveau ${state.level}${path}`;
-  ui.petMood.textContent = `${state.moodText}${traitLabel ? ` | ${traitLabel}` : ""}`;
+  const moodText = state.tempMoodText || state.moodText;
+  ui.petMood.textContent = `${moodText}${traitLabel ? ` | ${traitLabel}` : ""}`;
 
   const need = xpNeeded();
   const pct = Math.floor((state.xp / need) * 100);
@@ -714,6 +759,15 @@ ui.rerollMission.addEventListener("click", () => {
 });
 
 ui.quitArena.addEventListener("click", () => endGame(true));
+ui.petScene.addEventListener("mouseenter", () => {
+  setTempMood("Il frétille dès que tu approches 🫶");
+  render();
+});
+ui.petScene.addEventListener("mouseleave", () => {
+  clearTempMood();
+  render();
+});
+ui.petScene.addEventListener("click", () => petInteract("click"));
 window.addEventListener("beforeunload", () => saveState());
 
 loadState();
