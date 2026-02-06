@@ -174,6 +174,24 @@ function clamp(v, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
 }
 
+function normalizeNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function normalizeStateNumbers() {
+  state.level = normalizeNumber(state.level, 1);
+  state.xp = normalizeNumber(state.xp);
+  state.coins = normalizeNumber(state.coins);
+  state.stars = normalizeNumber(state.stars);
+  state.tick = normalizeNumber(state.tick);
+  state.day = normalizeNumber(state.day, 1);
+  state.missionBaseLevel = normalizeNumber(state.missionBaseLevel, state.level);
+  statOrder.forEach(key => {
+    state[key] = normalizeNumber(state[key]);
+  });
+}
+
 function createInitialState() {
   return {
     version: SAVE_VERSION,
@@ -275,10 +293,13 @@ function addLog(msg) {
 }
 
 function applyBoundaries() {
-  statOrder.forEach(key => { state[key] = clamp(state[key]); });
+  statOrder.forEach(key => {
+    state[key] = clamp(normalizeNumber(state[key]));
+  });
 }
 
 function addXp(amount) {
+  state.xp = normalizeNumber(state.xp);
   state.xp += amount;
   while (state.xp >= xpNeeded()) {
     state.xp -= xpNeeded();
@@ -359,7 +380,10 @@ function gainRewards(gains) {
   if (gains.stars) state.stars += gains.stars;
   if (gains.xp) addXp(gains.xp);
   statOrder.forEach(key => {
-    if (gains[key]) state[key] = clamp(state[key] + gains[key]);
+    if (gains[key]) {
+      const current = normalizeNumber(state[key]);
+      state[key] = clamp(current + gains[key]);
+    }
   });
 }
 
@@ -375,7 +399,8 @@ function applyAction(action) {
     let adjusted = value;
     if (action.id === "feed" && key === "hunger") adjusted *= (mods.feedBonus || 1);
     if (key === "fun" && adjusted > 0) adjusted *= (mods.funGain || 1);
-    state[key] = clamp((state[key] || 0) + adjusted);
+    const current = normalizeNumber(state[key]);
+    state[key] = clamp(current + adjusted);
   }
 
   state.tick += 1;
@@ -621,6 +646,7 @@ function loadState() {
     const parsed = JSON.parse(raw);
     if (!parsed || parsed.version !== SAVE_VERSION) return;
     Object.assign(state, createInitialState(), parsed);
+    normalizeStateNumbers();
   } catch {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -787,6 +813,7 @@ ui.petScene.addEventListener("click", () => petInteract("click"));
 window.addEventListener("beforeunload", () => saveState());
 
 loadState();
+normalizeStateNumbers();
 if (!state.missions.length) generateMissions();
 computeOfflineProgress();
 addLog("Bienvenue dans Cacamochi v3. Mini-jeux remixés, fun maximum.");
