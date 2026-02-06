@@ -169,6 +169,8 @@ const ui = {
 };
 
 let petTapTimeout = null;
+const statCards = new Map();
+const lastStatValues = {};
 
 function clamp(v, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
@@ -222,7 +224,8 @@ function createInitialState() {
     gameTimeLeft: 0,
     lastEventTick: 0,
     lastSavedAt: Date.now(),
-    offlineReport: null
+    offlineReport: null,
+    lastUpdate: null
   };
 }
 
@@ -405,6 +408,7 @@ function applyAction(action) {
 
   state.tick += 1;
   state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  state.lastUpdate = "action";
   state.moodText = `${action.icon} ${action.name} validé. Ça sent la victoire.`;
   addLog(`${action.icon} ${action.name} effectué.`);
   spawnFx(action.icon);
@@ -595,6 +599,7 @@ function endGame(early = false) {
     gainRewards(gains);
     addLog(`${active.name}: score ${active.score} (récompenses obtenues)`);
     state.moodText = `Session ${active.name} réussie, ça éclabousse !`;
+    state.lastUpdate = "game";
   } else {
     addLog(`${active.name} interrompu.`);
   }
@@ -615,6 +620,7 @@ function tick() {
   unlockTraitsIfNeeded();
   evaluateMissions();
   saveState(false);
+  state.lastUpdate = "tick";
   render();
 }
 
@@ -652,18 +658,65 @@ function loadState() {
   }
 }
 
+function getStatCard(key) {
+  if (!ui.statsGrid) return null;
+  if (statCards.has(key)) return statCards.get(key);
+  const card = document.createElement("div");
+  card.className = "stat";
+  card.dataset.key = key;
+  card.innerHTML = `
+    <div class="stat-top">
+      <strong>${statLabels[key]}</strong>
+      <span class="stat-value">0</span>
+    </div>
+    <div class="meter"><i class="stat-meter"></i></div>
+    <div class="stat-delta" aria-hidden="true"></div>
+  `;
+  ui.statsGrid.appendChild(card);
+  statCards.set(key, card);
+  return card;
+}
+
+function updateStatCard(card, key, value, showDelta) {
+  const valueEl = card.querySelector(".stat-value");
+  const meterEl = card.querySelector(".stat-meter");
+  const deltaEl = card.querySelector(".stat-delta");
+  const color = value > 66 ? "var(--good)" : value > 33 ? "var(--warn)" : "var(--bad)";
+  if (valueEl) valueEl.textContent = value;
+  if (meterEl) {
+    meterEl.style.width = `${value}%`;
+    meterEl.style.background = color;
+  }
+
+  if (showDelta) {
+    const prevValue = lastStatValues[key] ?? value;
+    const delta = value - prevValue;
+    if (deltaEl && delta !== 0) {
+      deltaEl.textContent = `${delta > 0 ? "+" : ""}${Math.round(delta)}`;
+      deltaEl.classList.toggle("positive", delta > 0);
+      deltaEl.classList.toggle("negative", delta < 0);
+      deltaEl.classList.add("show");
+      card.classList.add("flash");
+      window.setTimeout(() => card.classList.remove("flash"), 380);
+      window.setTimeout(() => deltaEl.classList.remove("show"), 1200);
+    }
+  }
+
+  lastStatValues[key] = value;
+}
+
 function renderStats() {
-  ui.statsGrid.innerHTML = "";
+  if (!ui.statsGrid) return;
+  if (!ui.statsGrid.childElementCount) {
+    statOrder.forEach(key => getStatCard(key));
+  }
+
+  const showDelta = ["action", "shop", "game"].includes(state.lastUpdate);
   statOrder.forEach(key => {
     const value = Math.round(state[key]);
-    const color = value > 66 ? "var(--good)" : value > 33 ? "var(--warn)" : "var(--bad)";
-    const card = document.createElement("div");
-    card.className = "stat";
-    card.innerHTML = `
-      <div class="stat-top"><strong>${statLabels[key]}</strong><span>${value}</span></div>
-      <div class="meter"><i style="width:${value}%;background:${color}"></i></div>
-    `;
-    ui.statsGrid.appendChild(card);
+    const card = getStatCard(key);
+    if (!card) return;
+    updateStatCard(card, key, value, showDelta);
   });
 }
 
@@ -674,7 +727,13 @@ function renderActions() {
     btn.className = "action-btn";
     btn.type = "button";
     btn.innerHTML = `<strong>${action.icon} ${action.name}</strong><span>${action.desc}</span>`;
-    btn.addEventListener("click", () => applyAction(action));
+    btn.addEventListener("click", () => {
+      btn.classList.remove("action-burst");
+      void btn.offsetWidth;
+      btn.classList.add("action-burst");
+      window.setTimeout(() => btn.classList.remove("action-burst"), 280);
+      applyAction(action);
+    });
     ui.actionsWrap.appendChild(btn);
   });
 }
@@ -720,6 +779,7 @@ function renderShop() {
       applyBoundaries();
       addLog(`Achat gluant: ${item.name}`);
       spawnFx("🛍️");
+      state.lastUpdate = "shop";
       saveState();
       render();
     });
@@ -772,6 +832,7 @@ function render() {
   renderMinigames();
   renderShop();
   renderLog();
+  state.lastUpdate = null;
 }
 
 ui.rerollMission.addEventListener("click", () => {
@@ -784,6 +845,7 @@ ui.rerollMission.addEventListener("click", () => {
   generateMissions();
   addLog("Missions des latrines renouvelées.");
   saveState();
+  state.lastUpdate = "mission";
   render();
 });
 
