@@ -3,18 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cacamochi — Royaume Pipi Caca</title>
+  <title>Cacamochi — Royaume des effluves</title>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
   <div class="app" id="app">
     <header class="topbar">
       <div class="brand">
-        <img src="img/header/logo_cacamochi.png" alt="Cacamochi" />
-        <div>
-          <p class="kicker">Odeur Maximum</p>
-          <h1>Royaume Pipi Caca</h1>
-        </div>
+        <img class="brand-logo" src="img/header/logo_cacamochi.png" alt="Cacamochi" />
+        <img class="brand-title" src="img/header/logo_cacamochi.svg" alt="Cacamochi — Royaume des effluves" />
       </div>
       <div class="currencies">
         <span class="chip">🪙 <strong id="coins">0</strong></span>
@@ -28,13 +25,13 @@
         <div class="pet-scene" id="petScene">
           <img src="img_background.jpg" alt="Décor" class="scene-bg" />
           <img id="petImage" src="img_bouseau.png" alt="Cacamochi" class="pet-sprite" />
-          <div class="pet-status" id="petMood">Prêt à éclabousser la cuvette 💦</div>
+          <div class="pet-status" id="petMood">En pleine forme et prêt à explorer le royaume.</div>
           <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
         </div>
 
         <div class="pet-meta">
-          <h2 id="petName">Bouseau Rookie</h2>
-          <p id="petRank">Rang: Rookie des toilettes • Niveau 1</p>
+          <h2 id="petName">Bouseau Initié</h2>
+          <p id="petRank">Titre : Apprenti de la cuvette • Niveau 1</p>
           <div class="xp-row">
             <span>Progression</span>
             <div class="meter"><i id="xpBar"></i></div>
@@ -47,27 +44,27 @@
 
       <section class="control-panel">
         <article class="card">
-            <h3>Actions gloups</h3>
+            <h3>Actions quotidiennes</h3>
           <div class="actions" id="actions"></div>
         </article>
 
         <article class="card">
           <div class="section-head">
-            <h3>Missions des latrines</h3>
+            <h3>Missions des égouts</h3>
             <button id="rerollMission" class="small-btn" type="button">Nouvelle mission</button>
           </div>
           <ul class="mission-list" id="missionList"></ul>
         </article>
 
         <article class="card">
-            <h3>Défis des égouts</h3>
+            <h3>Épreuves des égouts</h3>
           <div class="minigames" id="minigames"></div>
           <div class="arena hidden" id="arena">
             <div class="arena-head">
-            <h4 id="arenaTitle">Duel odorant</h4>
+            <h4 id="arenaTitle">Duel olfactif</h4>
               <span id="arenaTimer">20s</span>
             </div>
-            <p id="arenaGoal">Attrape tout avant le gros plouf !</p>
+            <p id="arenaGoal">Attrape tout avant la grande vague.</p>
             <div class="arena-play" id="arenaPlay"></div>
             <button id="quitArena" class="small-btn" type="button">Quitter</button>
           </div>
@@ -79,7 +76,7 @@
         </article>
 
         <article class="card">
-          <h3>Journal des éclaboussures</h3>
+          <h3>Journal d'activité</h3>
           <ul class="log" id="log"></ul>
         </article>
       </section>

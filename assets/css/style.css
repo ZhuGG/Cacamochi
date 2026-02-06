@@ -45,25 +45,18 @@ body {
   align-items: center;
 }
 
-.brand img {
+.brand-logo {
   width: 72px;
   height: 72px;
   object-fit: contain;
   filter: drop-shadow(0 8px 18px #261103cc);
 }
 
-.brand h1 {
-  margin: .1rem 0 0;
-  font-size: 1.35rem;
-  text-shadow: 0 2px 0 #2f1908;
-}
-
-.kicker {
-  margin: 0;
-  color: var(--accent);
-  font-size: .8rem;
-  letter-spacing: .09em;
-  text-transform: uppercase;
+.brand-title {
+  width: min(360px, 65vw);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px #241004cc);
 }
 
 .currencies {

@@ -5,8 +5,8 @@ const DAY_TICKS = 24;
 const OFFLINE_TICK_CAP = 360;
 
 const CREATURES = [
-  { level: 1, name: "Bouseau Rookie", img: "img_bouseau.png", title: "Rookie de la cuvette" },
-  { level: 4, name: "Skatour Volt", img: "img_skatour.png", title: "Sprinteur des urinoirs" },
+  { level: 1, name: "Bouseau Initié", img: "img_bouseau.png", title: "Apprenti de la cuvette" },
+  { level: 4, name: "Skatour Volt", img: "img_skatour.png", title: "Éclaireur des urinoirs" },
   { level: 7, name: "Cacabra Nova", img: "img_cacabra.png", title: "Chevalier du siphon" },
   { level: 10, name: "Skalibur Prime", img: "img_skalibur.png", title: "Seigneur des fosses" },
   { level: 14, name: "Thanabouse Ultime", img: "img_thanabouse.png", title: "Oracle des latrines" },
@@ -14,26 +14,26 @@ const CREATURES = [
 ];
 
 const ACTIONS = [
-  { id: "feed", name: "Gaver", desc: "+gloubi +jus", icon: "🍜", effects: { hunger: 16, energy: 6, hygiene: -6, xp: 8 } },
-  { id: "play", name: "Barboter", desc: "+délire +xp", icon: "🎮", effects: { fun: 18, energy: -10, hunger: -8, xp: 14 } },
-  { id: "wash", name: "Rincer", desc: "+propreté", icon: "🫧", effects: { hygiene: 24, energy: -4, xp: 6 } },
-  { id: "nap", name: "Pause WC", desc: "+jus +bonne odeur", icon: "😴", effects: { energy: 22, fun: 8, hunger: -9, xp: 8 } },
-  { id: "train", name: "Forcer", desc: "+rigueur +xp", icon: "🥊", effects: { discipline: 14, energy: -14, fun: -6, xp: 18 } },
-  { id: "cuddle", name: "Papouille", desc: "+tendresse +rigolade", icon: "🤗", effects: { affection: 18, fun: 10, xp: 9 } }
+  { id: "feed", name: "Nourrir", desc: "+appétit +énergie", icon: "🍜", effects: { hunger: 16, energy: 6, hygiene: -6, xp: 8 } },
+  { id: "play", name: "Divertir", desc: "+humeur +xp", icon: "🎮", effects: { fun: 18, energy: -10, hunger: -8, xp: 14 } },
+  { id: "wash", name: "Toiletter", desc: "+propreté", icon: "🫧", effects: { hygiene: 24, energy: -4, xp: 6 } },
+  { id: "nap", name: "Repos", desc: "+énergie +humeur", icon: "😴", effects: { energy: 22, fun: 8, hunger: -9, xp: 8 } },
+  { id: "train", name: "Entraîner", desc: "+rigueur +xp", icon: "🥊", effects: { discipline: 14, energy: -14, fun: -6, xp: 18 } },
+  { id: "cuddle", name: "Apaiser", desc: "+affection +humeur", icon: "🤗", effects: { affection: 18, fun: 10, xp: 9 } }
 ];
 
 const SHOPS = [
-  { id: "booster", name: "Sauciflard brun", price: 70, desc: "+30 gloubi, +12 délire", apply: s => { s.hunger += 30; s.fun += 12; } },
-  { id: "soap", name: "Gel douche marécage", price: 55, desc: "+34 propreté, +8 papouille", apply: s => { s.hygiene += 34; s.affection += 8; } },
-  { id: "battery", name: "Shot de pipi tonic", price: 85, desc: "+35 jus", apply: s => { s.energy += 35; } },
-  { id: "badge", name: "Tampon royal", price: 110, desc: "+18 rigueur, +40 XP", apply: s => { s.discipline += 18; s.xp += 40; } }
+  { id: "booster", name: "Ration fumée", price: 70, desc: "+30 appétit, +12 humeur", apply: s => { s.hunger += 30; s.fun += 12; } },
+  { id: "soap", name: "Gel douche des marécages", price: 55, desc: "+34 propreté, +8 affection", apply: s => { s.hygiene += 34; s.affection += 8; } },
+  { id: "battery", name: "Élixir tonique", price: 85, desc: "+35 énergie", apply: s => { s.energy += 35; } },
+  { id: "badge", name: "Sceau royal", price: 110, desc: "+18 rigueur, +40 XP", apply: s => { s.discipline += 18; s.xp += 40; } }
 ];
 
 const MINI_GAMES = [
   {
     id: "swarm",
     name: "Fly Smash Turbo",
-    desc: "Explose les mouches (petites, grosses, dorées) pour faire grimper ton jackpot.",
+    desc: "Intercepte les mouches (petites, grandes, dorées) pour faire grimper le jackpot.",
     emoji: "🪰",
     image: "img/flies/fly_small.png",
     duration: 20,
@@ -42,7 +42,7 @@ const MINI_GAMES = [
   {
     id: "memory",
     name: "Danse des icônes",
-    desc: "Retiens la choré d'icônes et rejoue-la sans te rater.",
+    desc: "Mémorise la séquence d'icônes et rejoue-la sans faute.",
     emoji: "🎛️",
     image: "img/icons/danser.png",
     duration: 25,
@@ -51,31 +51,31 @@ const MINI_GAMES = [
 ];
 
 const MEMORY_PADS = [
-  { id: "laver", label: "Laver", img: "img/icons/laver.png" },
-  { id: "danser", label: "Danser", img: "img/icons/danser.png" },
-  { id: "jouer", label: "Jouer", img: "img/icons/jouer.png" },
-  { id: "bisou", label: "Bisou", img: "img/icons/bisou.png" }
+  { id: "laver", label: "Toiletter", img: "img/icons/laver.png" },
+  { id: "danser", label: "Rythmer", img: "img/icons/danser.png" },
+  { id: "jouer", label: "Divertir", img: "img/icons/jouer.png" },
+  { id: "bisou", label: "Apaiser", img: "img/icons/bisou.png" }
 ];
 
 const TRAITS = [
   {
     id: "gourmand",
     name: "Gourmand des égouts",
-    hint: "Les repas donnent +25% gloubi, mais la faim descend plus vite.",
+    hint: "Les repas donnent +25% d'appétit, mais la faim descend plus vite.",
     unlock: s => s.hunger >= 85 && s.discipline < 45,
     mods: { feedBonus: 1.25, hungerDecay: 1.2 }
   },
   {
     id: "showman",
-    name: "Showman de la chasse d'eau",
-    hint: "Les actions fun donnent +20% XP et plus de pièces en mini-jeu.",
+    name: "Maître de la chasse d'eau",
+    hint: "Les actions d'humeur donnent +20% XP et plus de pièces en mini-jeu.",
     unlock: s => s.fun >= 80 && s.affection >= 65,
     mods: { funXpBoost: 1.2, minigameCoins: 1.2 }
   },
   {
     id: "stoic",
     name: "Sage du siphon",
-    hint: "Décroissance d'énergie réduite, mais moins de gain de fun.",
+    hint: "Décroissance d'énergie réduite, mais moins de gain d'humeur.",
     unlock: s => s.discipline >= 80,
     mods: { energyDecay: 0.7, funGain: 0.85 }
   }
@@ -84,7 +84,7 @@ const TRAITS = [
 const EVENTS = [
   {
     id: "toxic_fog",
-    text: "Nuage toxique des égouts: propreté en chute libre.",
+    text: "Nuage toxique des égouts : la propreté chute.",
     weight: 1,
     apply: s => { s.hygiene -= 16; s.energy -= 8; }
   },
@@ -96,7 +96,7 @@ const EVENTS = [
   },
   {
     id: "fan_club",
-    text: "Fan-club collant: +papouille, +délire.",
+    text: "Fan-club fidèle : +affection, +humeur.",
     weight: 1,
     apply: s => { s.affection += 14; s.fun += 16; }
   }
@@ -104,18 +104,18 @@ const EVENTS = [
 
 const MISSIONS = [
   { id: "hygiene", text: "Remonte la propreté au-dessus de 70", check: s => s.hygiene >= 70, gain: { coins: 65, xp: 35 } },
-  { id: "fun", text: "Atteins 75 en délire", check: s => s.fun >= 75, gain: { coins: 55, xp: 30 } },
-  { id: "energy", text: "Monte le jus à 80+ pour éviter la panne", check: s => s.energy >= 80, gain: { coins: 70, xp: 34, stars: 1 } },
+  { id: "fun", text: "Atteins 75 d'humeur", check: s => s.fun >= 75, gain: { coins: 55, xp: 30 } },
+  { id: "energy", text: "Monte l'énergie à 80+ pour éviter la panne", check: s => s.energy >= 80, gain: { coins: 70, xp: 34, stars: 1 } },
   { id: "level", text: "Gagne 2 niveaux", check: s => s.level >= s.startLevel + 2, gain: { coins: 110, xp: 45, stars: 2 } }
 ];
 
 const statOrder = ["hunger", "fun", "hygiene", "energy", "affection", "discipline"];
 const statLabels = {
-  hunger: "Gloubi",
-  fun: "Délire",
+  hunger: "Appétit",
+  fun: "Humeur",
   hygiene: "Propreté",
-  energy: "Jus",
-  affection: "Papouille",
+  energy: "Énergie",
+  affection: "Affection",
   discipline: "Rigueur"
 };
 
@@ -123,7 +123,7 @@ const evolutionPaths = [
   {
     id: "chaos",
     name: "Voie Chaos",
-    desc: "Tout pour le délire, rien pour l'ordre.",
+    desc: "Tout pour l'humeur, rien pour l'ordre.",
     check: s => s.fun + s.hunger > s.discipline + s.hygiene + 35
   },
   {
@@ -135,7 +135,7 @@ const evolutionPaths = [
   {
     id: "balanced",
     name: "Voie Équilibrée",
-    desc: "Maître du juste plouf.",
+    desc: "Maître du juste équilibre.",
     check: () => true
   }
 ];
@@ -209,7 +209,7 @@ function createInitialState() {
     discipline: 25,
     tick: 0,
     day: 1,
-    moodText: "Prêt à éclabousser la cuvette 💦",
+    moodText: "En pleine forme et prêt à explorer le royaume.",
     tempMoodText: null,
     tempMoodTimeout: null,
     log: [],
@@ -272,13 +272,13 @@ function setTempMood(text, durationMs = 0) {
 function petInteract(type) {
   const interactions = {
     click: {
-      mood: "Il adore les papouilles !",
+      mood: "Il apprécie les attentions.",
       emoji: "💖",
-      log: "Papouille sur la mascotte."
+      log: "Attention douce à la mascotte."
     }
   };
   const selection = interactions[type] || {
-    mood: "Ça lui fait plaisir !",
+    mood: "Ça lui fait plaisir.",
     emoji: "✨",
     log: "Interaction avec la mascotte."
   };
@@ -308,12 +308,12 @@ function addXp(amount) {
     state.xp -= xpNeeded();
     state.level += 1;
     state.stars += 1;
-    addLog(`Niveau ${state.level} atteint ! Le trône applaudit.`);
+    addLog(`Niveau ${state.level} atteint ! Le royaume applaudit.`);
     spawnFx("🌟");
     if (!state.evolutionPath && state.level >= 6) {
       state.evolutionPath = evolutionPaths.find(path => path.check(state)).id;
       const chosen = evolutionPaths.find(path => path.id === state.evolutionPath);
-      addLog(`Évolution non linéaire débloquée: ${chosen.name}.`);
+      addLog(`Évolution non linéaire débloquée : ${chosen.name}.`);
     }
   }
 }
@@ -333,7 +333,7 @@ function unlockTraitsIfNeeded() {
   TRAITS.forEach(trait => {
     if (!state.traits.includes(trait.id) && trait.unlock(state)) {
       state.traits.push(trait.id);
-      addLog(`Trait débloqué: ${trait.name}. ${trait.hint}`);
+      addLog(`Trait débloqué : ${trait.name}. ${trait.hint}`);
       spawnFx("🧬");
     }
   });
@@ -350,7 +350,7 @@ function applyDecay(ticks = 1) {
   applyBoundaries();
 
   if (state.hunger < 25 || state.hygiene < 25 || state.energy < 18) {
-    state.moodText = "Alerte: ton pote déborde de fatigue !";
+    state.moodText = "Alerte : la mascotte manque d'énergie.";
   }
   if (state.hunger <= 0 || state.energy <= 0) {
     emergencyRecovery();
@@ -363,7 +363,7 @@ function emergencyRecovery() {
   state.hunger = 45;
   state.energy = 45;
   state.hygiene = clamp(state.hygiene + 14);
-  addLog(`Urgence plomberie: -${fine} pièces.`);
+  addLog(`Urgence plomberie : -${fine} pièces.`);
   spawnFx("🚑");
 }
 
@@ -374,7 +374,7 @@ function maybeTriggerEvent() {
   const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
   event.apply(state);
   applyBoundaries();
-  addLog(`Événement: ${event.text}`);
+  addLog(`Événement : ${event.text}`);
   spawnFx("🎲");
 }
 
@@ -409,7 +409,7 @@ function applyAction(action) {
   state.tick += 1;
   state.day = 1 + Math.floor(state.tick / DAY_TICKS);
   state.lastUpdate = "action";
-  state.moodText = `${action.icon} ${action.name} validé. Ça sent la victoire.`;
+  state.moodText = `${action.icon} ${action.name} validé. Mission accomplie.`;
   addLog(`${action.icon} ${action.name} effectué.`);
   spawnFx(action.icon);
   unlockTraitsIfNeeded();
@@ -432,7 +432,7 @@ function evaluateMissions() {
     if (!m.done && m.check(pseudoState)) {
       m.done = true;
       gainRewards(m.gain);
-      addLog(`Mission validée: ${m.text}`);
+      addLog(`Mission validée : ${m.text}`);
       spawnFx("✅");
     }
   });
@@ -541,7 +541,7 @@ function runMemoryRound() {
   active.locked = true;
   active.playerStep = 0;
   active.sequence.push(Math.floor(Math.random() * MEMORY_PADS.length));
-  ui.arenaGoal.textContent = `Round ${active.sequence.length} • Observe la séquence !`;
+  ui.arenaGoal.textContent = `Round ${active.sequence.length} • Observe la séquence.`;
 
   const pads = [...ui.arenaPlay.querySelectorAll(".memory-pad")];
   active.sequence.forEach((padIndex, idx) => {
@@ -572,7 +572,7 @@ function handleMemoryInput(index) {
     active.streak = 0;
     active.score = Math.max(0, active.score - 1);
     active.locked = true;
-    ui.arenaGoal.textContent = "Raté ! Respire... nouvelle séquence.";
+    ui.arenaGoal.textContent = "Raté. Respire... nouvelle séquence.";
     spawnFx("💥");
     state.gameRoundTimer = setTimeout(runMemoryRound, 650);
     return;
@@ -598,7 +598,7 @@ function endGame(early = false) {
     const gains = active.reward(active.score);
     gainRewards(gains);
     addLog(`${active.name}: score ${active.score} (récompenses obtenues)`);
-    state.moodText = `Session ${active.name} réussie, ça éclabousse !`;
+    state.moodText = `Session ${active.name} réussie.`;
     state.lastUpdate = "game";
   } else {
     addLog(`${active.name} interrompu.`);
@@ -637,7 +637,7 @@ function computeOfflineProgress() {
   state.coins += passiveCoins;
   addXp(passiveXp);
   state.offlineReport = { offlineTicks, passiveCoins, passiveXp };
-  addLog(`Retour du hors-ligne: +${passiveCoins} pièces, +${passiveXp} XP après ${offlineTicks}s.`);
+  addLog(`Retour hors-ligne : +${passiveCoins} pièces, +${passiveXp} XP après ${offlineTicks}s.`);
 }
 
 function saveState(withTimestamp = true) {
@@ -777,7 +777,7 @@ function renderShop() {
       state.coins -= item.price;
       item.apply(state);
       applyBoundaries();
-      addLog(`Achat gluant: ${item.name}`);
+      addLog(`Achat effectué : ${item.name}`);
       spawnFx("🛍️");
       state.lastUpdate = "shop";
       saveState();
@@ -797,8 +797,8 @@ function renderHeader() {
   ui.petName.textContent = creature.name;
 
   const path = state.evolutionPath ? ` • ${evolutionPaths.find(p => p.id === state.evolutionPath)?.name}` : "";
-  const traitLabel = state.traits.length ? ` • Traits: ${state.traits.map(id => TRAITS.find(t => t.id === id)?.name).filter(Boolean).join(", ")}` : "";
-  ui.petRank.textContent = `Trône: ${creature.title} • Niveau ${state.level}${path}`;
+  const traitLabel = state.traits.length ? ` • Traits : ${state.traits.map(id => TRAITS.find(t => t.id === id)?.name).filter(Boolean).join(", ")}` : "";
+  ui.petRank.textContent = `Titre : ${creature.title} • Niveau ${state.level}${path}`;
   const moodText = state.tempMoodText || state.moodText;
   ui.petMood.textContent = `${moodText}${traitLabel ? ` | ${traitLabel}` : ""}`;
 
@@ -820,7 +820,7 @@ function renderLog() {
 function renderOfflineReport() {
   if (!state.offlineReport) return;
   const { offlineTicks, passiveCoins, passiveXp } = state.offlineReport;
-  state.moodText = `Retour hors-ligne: ${offlineTicks}s simulées, +${passiveCoins} pièces, +${passiveXp} XP.`;
+  state.moodText = `Retour hors-ligne : ${offlineTicks}s simulées, +${passiveCoins} pièces, +${passiveXp} XP.`;
   state.offlineReport = null;
 }
 
@@ -837,13 +837,13 @@ function render() {
 
 ui.rerollMission.addEventListener("click", () => {
   if (state.stars < 1) {
-    state.moodText = "Il faut 1 étoile pour relancer la tournée.";
+    state.moodText = "Il faut 1 étoile pour relancer les missions.";
     render();
     return;
   }
   state.stars -= 1;
   generateMissions();
-  addLog("Missions des latrines renouvelées.");
+  addLog("Missions des égouts renouvelées.");
   saveState();
   state.lastUpdate = "mission";
   render();
@@ -864,7 +864,7 @@ if (ui.petScene) {
 
 ui.quitArena.addEventListener("click", () => endGame(true));
 ui.petScene.addEventListener("mouseenter", () => {
-  setTempMood("Il frétille dès que tu approches 🫶");
+  setTempMood("Il se redresse dès que tu approches 🫶");
   render();
 });
 ui.petScene.addEventListener("mouseleave", () => {
@@ -878,7 +878,7 @@ loadState();
 normalizeStateNumbers();
 if (!state.missions.length) generateMissions();
 computeOfflineProgress();
-addLog("Bienvenue dans Cacamochi v3. Mini-jeux remixés, fun maximum.");
+addLog("Bienvenue dans Cacamochi v3. Mini-jeux revisités, intensité maximale.");
 renderActions();
 render();
 setInterval(tick, TICK_MS);
