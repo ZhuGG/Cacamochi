@@ -176,6 +176,7 @@ const ui = {
 let petTapTimeout = null;
 const statCards = new Map();
 const lastStatValues = {};
+let renderPending = false;
 
 function clamp(v, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
@@ -309,7 +310,7 @@ function setTempMood(text, durationMs = 0) {
   if (durationMs > 0) {
     state.tempMoodTimeout = setTimeout(() => {
       clearTempMood();
-      render();
+      scheduleRender();
     }, durationMs);
   }
 }
@@ -332,7 +333,7 @@ function petInteract(type) {
   spawnFx(selection.emoji);
   addLog(selection.log);
   saveState();
-  render();
+  scheduleRender();
 }
 
 function addLog(msg) {
@@ -463,7 +464,7 @@ function applyAction(action) {
   unlockTraitsIfNeeded();
   evaluateMissions();
   saveState();
-  render();
+  scheduleRender();
 }
 
 function generateMissions() {
@@ -657,7 +658,7 @@ function endGame(early = false) {
     gainRewards(gains);
     addLog(`${active.name}: score ${active.score} (récompenses obtenues)`);
     state.moodText = `Session ${active.name} réussie.`;
-    state.lastUpdate = "game";
+  state.lastUpdate = "game";
   } else {
     addLog(`${active.name} interrompu.`);
   }
@@ -666,7 +667,7 @@ function endGame(early = false) {
   ui.arena.classList.add("hidden");
   evaluateMissions();
   saveState();
-  render();
+  scheduleRender();
 }
 
 function tick() {
@@ -681,7 +682,7 @@ function tick() {
   evaluateMissions();
   saveState(false);
   state.lastUpdate = "tick";
-  render();
+  scheduleRender();
 }
 
 function computeOfflineProgress() {
@@ -866,7 +867,7 @@ function renderShop() {
       spawnFx("🛍️");
       state.lastUpdate = "shop";
       saveState();
-      render();
+      scheduleRender();
     });
     ui.shopWrap.appendChild(btn);
   });
@@ -909,6 +910,15 @@ function renderOfflineReport() {
   state.offlineReport = null;
 }
 
+function scheduleRender() {
+  if (renderPending) return;
+  renderPending = true;
+  window.requestAnimationFrame(() => {
+    renderPending = false;
+    render();
+  });
+}
+
 function render() {
   renderOfflineReport();
   renderHeader();
@@ -925,7 +935,7 @@ ui.rerollMission.addEventListener("click", () => {
   const rerollCost = state.missionsRewarded ? 0 : 1;
   if (state.stars < rerollCost) {
     state.moodText = "Il faut 1 étoile pour relancer les missions.";
-    render();
+    scheduleRender();
     return;
   }
   if (rerollCost) {
@@ -935,7 +945,7 @@ ui.rerollMission.addEventListener("click", () => {
   addLog("Missions des égouts renouvelées.");
   saveState();
   state.lastUpdate = "mission";
-  render();
+  scheduleRender();
 });
 
 if (ui.petScene) {
@@ -954,11 +964,11 @@ if (ui.petScene) {
 ui.quitArena.addEventListener("click", () => endGame(true));
 ui.petScene.addEventListener("mouseenter", () => {
   setTempMood("Il se redresse dès que tu approches 🫶");
-  render();
+  scheduleRender();
 });
 ui.petScene.addEventListener("mouseleave", () => {
   clearTempMood();
-  render();
+  scheduleRender();
 });
 ui.petScene.addEventListener("click", () => petInteract("click"));
 window.addEventListener("beforeunload", () => saveState());
