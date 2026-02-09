@@ -146,7 +146,13 @@ const ui = {
   minigamesWrap: document.querySelector("#minigames"),
   shopWrap: document.querySelector("#shop"),
   missionList: document.querySelector("#missionList"),
+  missionStatus: document.querySelector("#missionStatus"),
   logList: document.querySelector("#log"),
+  dailyStreak: document.querySelector("#dailyStreak"),
+  dailyGoal: document.querySelector("#dailyGoal"),
+  dailyProgress: document.querySelector("#dailyProgress"),
+  dailyBar: document.querySelector("#dailyBar"),
+  dailyBonus: document.querySelector("#dailyBonus"),
   petMood: document.querySelector("#petMood"),
   petScene: document.querySelector("#petScene"),
   petImage: document.querySelector("#petImage"),
@@ -164,8 +170,7 @@ const ui = {
   arenaTitle: document.querySelector("#arenaTitle"),
   arenaTimer: document.querySelector("#arenaTimer"),
   rerollMission: document.querySelector("#rerollMission"),
-  quitArena: document.querySelector("#quitArena"),
-  petScene: document.querySelector("#petScene")
+  quitArena: document.querySelector("#quitArena")
 };
 
 let petTapTimeout = null;
@@ -188,6 +193,8 @@ function normalizeStateNumbers() {
   state.stars = normalizeNumber(state.stars);
   state.tick = normalizeNumber(state.tick);
   state.day = normalizeNumber(state.day, 1);
+  state.dayActions = normalizeNumber(state.dayActions);
+  state.streak = normalizeNumber(state.streak);
   state.missionBaseLevel = normalizeNumber(state.missionBaseLevel, state.level);
   statOrder.forEach(key => {
     state[key] = normalizeNumber(state[key]);
@@ -209,11 +216,14 @@ function createInitialState() {
     discipline: 25,
     tick: 0,
     day: 1,
+    dayActions: 0,
+    streak: 0,
     moodText: "En pleine forme et prêt à explorer le royaume.",
     tempMoodText: null,
     tempMoodTimeout: null,
     log: [],
     missions: [],
+    missionsRewarded: false,
     missionBaseLevel: 1,
     traits: [],
     evolutionPath: null,
@@ -237,6 +247,41 @@ function getCreature() {
 
 function xpNeeded(level = state.level) {
   return 85 + level * 28;
+}
+
+function getDailyGoal() {
+  return 4 + Math.floor(state.level / 3);
+}
+
+function getDailyBonus(streak = state.streak) {
+  return {
+    coins: 24 + streak * 8,
+    xp: 12 + streak * 5,
+    stars: streak % 3 === 0 ? 1 : 0
+  };
+}
+
+function handleDayAdvance(prevDay, nextDay) {
+  if (nextDay <= prevDay) return;
+  const daysPassed = nextDay - prevDay;
+
+  for (let i = 0; i < daysPassed; i += 1) {
+    const goal = getDailyGoal();
+    const success = state.dayActions >= goal;
+    if (success) {
+      state.streak += 1;
+      const bonus = getDailyBonus(state.streak);
+      gainRewards(bonus);
+      const starText = bonus.stars ? ", +1 étoile" : "";
+      addLog(`Bonus de routine (série ${state.streak}) : +${bonus.coins} pièces, +${bonus.xp} XP${starText}.`);
+      spawnFx("🎁");
+      state.moodText = "Bonus quotidien sécurisé. On remet ça demain !";
+    } else if (state.streak > 0) {
+      addLog("Série quotidienne interrompue.");
+      state.streak = 0;
+    }
+    state.dayActions = 0;
+  }
 }
 
 function spawnFx(char) {
@@ -406,8 +451,11 @@ function applyAction(action) {
     state[key] = clamp(current + adjusted);
   }
 
+  state.dayActions += 1;
+  const prevDay = state.day;
   state.tick += 1;
   state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  handleDayAdvance(prevDay, state.day);
   state.lastUpdate = "action";
   state.moodText = `${action.icon} ${action.name} validé. Mission accomplie.`;
   addLog(`${action.icon} ${action.name} effectué.`);
@@ -420,6 +468,7 @@ function applyAction(action) {
 
 function generateMissions() {
   state.missionBaseLevel = state.level;
+  state.missionsRewarded = false;
   state.missions = [...MISSIONS]
     .sort(() => Math.random() - 0.5)
     .slice(0, 3)
@@ -436,6 +485,15 @@ function evaluateMissions() {
       spawnFx("✅");
     }
   });
+
+  if (!state.missionsRewarded && state.missions.length && state.missions.every(m => m.done)) {
+    state.missionsRewarded = true;
+    const reward = { coins: 120, xp: 60, stars: 1 };
+    gainRewards(reward);
+    addLog("Bonus d'escouade : toutes les missions complétées !");
+    spawnFx("🏆");
+    setTempMood("Toutes les missions sont validées. Le marché acclame ta réussite.", 4200);
+  }
 }
 
 function startGame(game) {
@@ -613,8 +671,10 @@ function endGame(early = false) {
 
 function tick() {
   if (state.activeGame) return;
+  const prevDay = state.day;
   state.tick += 1;
   state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  handleDayAdvance(prevDay, state.day);
   applyDecay(1);
   maybeTriggerEvent();
   unlockTraitsIfNeeded();
@@ -629,9 +689,11 @@ function computeOfflineProgress() {
   const offlineTicks = Math.min(Math.floor(elapsedMs / TICK_MS), OFFLINE_TICK_CAP);
   if (offlineTicks <= 0) return;
 
+  const prevDay = state.day;
   applyDecay(offlineTicks);
   state.tick += offlineTicks;
   state.day = 1 + Math.floor(state.tick / DAY_TICKS);
+  handleDayAdvance(prevDay, state.day);
   const passiveCoins = Math.floor(offlineTicks / 12);
   const passiveXp = Math.floor(offlineTicks / 10);
   state.coins += passiveCoins;
@@ -720,6 +782,21 @@ function renderStats() {
   });
 }
 
+function renderDailyLoop() {
+  if (!ui.dailyGoal || !ui.dailyProgress || !ui.dailyBar || !ui.dailyBonus || !ui.dailyStreak) return;
+  const goal = getDailyGoal();
+  const progress = Math.min(state.dayActions, goal);
+  const pct = Math.max(0, Math.min(100, Math.floor((progress / goal) * 100)));
+  const nextBonus = getDailyBonus(state.streak + 1);
+  const starText = nextBonus.stars ? ", +1 étoile" : "";
+
+  ui.dailyGoal.textContent = goal;
+  ui.dailyProgress.textContent = `${progress} / ${goal} actions`;
+  ui.dailyBar.style.width = `${pct}%`;
+  ui.dailyStreak.textContent = `🔥 Série ${state.streak}`;
+  ui.dailyBonus.textContent = `Bonus si objectif atteint : +${nextBonus.coins} pièces, +${nextBonus.xp} XP${starText}.`;
+}
+
 function renderActions() {
   ui.actionsWrap.innerHTML = "";
   ACTIONS.forEach(action => {
@@ -740,6 +817,14 @@ function renderActions() {
 
 function renderMissions() {
   ui.missionList.innerHTML = "";
+  const doneCount = state.missions.filter(m => m.done).length;
+  if (ui.missionStatus) {
+    ui.missionStatus.textContent = `${doneCount}/${state.missions.length} validées`;
+  }
+  if (ui.rerollMission) {
+    const rerollCost = state.missionsRewarded ? 0 : 1;
+    ui.rerollMission.textContent = rerollCost ? "Nouvelle mission" : "Renouveler (gratuit)";
+  }
   state.missions.forEach(m => {
     const li = document.createElement("li");
     li.className = `mission ${m.done ? "done" : ""}`;
@@ -828,6 +913,7 @@ function render() {
   renderOfflineReport();
   renderHeader();
   renderStats();
+  renderDailyLoop();
   renderMissions();
   renderMinigames();
   renderShop();
@@ -836,12 +922,15 @@ function render() {
 }
 
 ui.rerollMission.addEventListener("click", () => {
-  if (state.stars < 1) {
+  const rerollCost = state.missionsRewarded ? 0 : 1;
+  if (state.stars < rerollCost) {
     state.moodText = "Il faut 1 étoile pour relancer les missions.";
     render();
     return;
   }
-  state.stars -= 1;
+  if (rerollCost) {
+    state.stars -= rerollCost;
+  }
   generateMissions();
   addLog("Missions des égouts renouvelées.");
   saveState();
