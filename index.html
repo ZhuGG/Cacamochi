@@ -43,6 +43,19 @@
       </section>
 
       <section class="control-panel">
+        <article class="card daily-card">
+          <div class="section-head">
+            <h3>Boucle du jour</h3>
+            <span class="badge" id="dailyStreak">🔥 Série 0</span>
+          </div>
+          <p class="daily-sub">Réalise <strong id="dailyGoal">4</strong> actions pour sécuriser le bonus.</p>
+          <div class="daily-progress">
+            <div class="meter"><i id="dailyBar"></i></div>
+            <span id="dailyProgress">0 / 4 actions</span>
+          </div>
+          <p class="daily-bonus" id="dailyBonus">Bonus à venir : +0 pièces, +0 XP.</p>
+        </article>
+
         <article class="card">
             <h3>Actions quotidiennes</h3>
           <div class="actions" id="actions"></div>
@@ -51,6 +64,7 @@
         <article class="card">
           <div class="section-head">
             <h3>Missions des égouts</h3>
+            <span class="mission-status" id="missionStatus">0/3 validées</span>
             <button id="rerollMission" class="small-btn" type="button">Nouvelle mission</button>
           </div>
           <ul class="mission-list" id="missionList"></ul>

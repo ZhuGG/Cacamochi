@@ -87,6 +87,10 @@ body {
   box-shadow: 0 15px 24px #1f0f03a8;
 }
 
+.card p {
+  line-height: 1.5;
+}
+
 .pet-scene {
   position: relative;
   border-radius: 16px;
@@ -268,6 +272,44 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   gap: .7rem;
 }
 
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  background: #2a160ac4;
+  border: 1px solid #ffd88355;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.daily-card {
+  background: linear-gradient(160deg, #5a2f11, #3d1f0b);
+  border-color: #ffdd8a66;
+}
+
+.daily-sub {
+  margin: .4rem 0 .6rem;
+  color: var(--muted);
+}
+
+.daily-progress {
+  display: grid;
+  gap: .45rem;
+  font-size: .86rem;
+}
+
+.daily-progress .meter {
+  height: 11px;
+}
+
+.daily-bonus {
+  margin: .6rem 0 0;
+  font-weight: 600;
+  color: #ffe6a6;
+}
+
 .small-btn { padding: .4rem .6rem; font-size: .8rem; }
 
 .mission-list,
@@ -277,6 +319,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   padding: 0;
   display: grid;
   gap: .45rem;
+}
+
+.mission-status {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-left: auto;
 }
 
 .mission,
